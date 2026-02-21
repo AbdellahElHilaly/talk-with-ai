@@ -94,37 +94,38 @@ const HomePage = () => {
   };
 
   return (
-    <div className="h-full w-full relative overflow-hidden flex flex-col bg-white transition-colors duration-300">
-      {/* Floating Settings Button */}
+    <div className="h-full w-full relative flex flex-col bg-white overflow-hidden">
+      {/* Settings Button */}
       <button
         onClick={() => setIsSidebarOpen(true)}
-        className="absolute top-4 right-4 p-3 glass rounded-full shadow-sm z-10 text-brand-indigo bg-slate-50 border-slate-200"
+        className="absolute top-4 right-4 p-3 rounded-full z-10 text-slate-400 bg-slate-50 border border-slate-100"
       >
         <Settings size={20} />
       </button>
 
-      <div className="flex-1 flex items-center justify-center p-6">
+      {/* Center Search - Spans full height with margin */}
+      <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10">
         <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
+          initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-full max-w-md glass rounded-2xl flex items-center shadow-md bg-white border-slate-200 overflow-hidden"
+          className="w-full max-w-md bg-white border-2 border-slate-100 rounded-3xl flex items-center shadow-2xl shadow-slate-200/50 overflow-hidden"
         >
-          <div className="pl-4 pr-1 text-slate-400 font-bold">
-            <Search size={18} />
+          <div className="pl-5 pr-2 text-slate-300">
+            <Search size={22} />
           </div>
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Talk with AI..."
-            className="flex-1 bg-transparent py-4 px-2 outline-none text-base text-slate-900 placeholder:text-slate-300"
+            placeholder="Type your message..."
+            className="flex-1 bg-transparent py-6 px-2 outline-none text-xl text-slate-900 placeholder:text-slate-300"
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           />
           <button
             onClick={handleSend}
-            className="bg-brand-indigo text-white p-4 active:bg-brand-indigo/80 transition-colors"
+            className="bg-brand-indigo text-white p-6 active:bg-brand-indigo/90 transition-colors"
           >
-            <Send size={20} />
+            <Send size={24} />
           </button>
         </motion.div>
       </div>
@@ -140,44 +141,44 @@ const ChatPage = () => {
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Minimal Action Bar */}
-      <div className="px-3 py-2 flex justify-between items-center border-b border-slate-100 bg-white z-10 sticky top-0">
-        <button onClick={() => navigate('/')} className="p-1 text-slate-600">
-          <X size={20} />
+      {/* 1. TOP LAYER: Action Bar */}
+      <div className="px-3 py-2 flex justify-between items-center border-b border-slate-100 bg-white shadow-sm z-10 shrink-0">
+        <button onClick={() => navigate('/')} className="p-2 text-slate-500">
+          <X size={22} />
         </button>
-        <span className="text-[10px] font-bold text-brand-indigo uppercase tracking-[0.2em]">TRANSCRIPT</span>
-        <button onClick={() => setIsSidebarOpen(true)} className="p-1 text-slate-600">
-          <Settings size={20} />
+        <span className="text-[10px] font-black text-brand-indigo uppercase tracking-[0.3em]">AI TRANSCRIPT</span>
+        <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-500">
+          <Settings size={22} />
         </button>
       </div>
 
-      {/* Full Screen Text Content */}
-      <main className="flex-1 overflow-y-auto px-5 py-6">
-        <div className="text-lg leading-relaxed text-slate-800 font-medium">
-          "Waiting for transcript..." (This will show the AI response in full screen space)
+      {/* 2. MIDDLE LAYER: Content (Takes all free space) */}
+      <main className="flex-1 overflow-y-auto px-6 py-8 flex flex-col items-center">
+        <div className="w-full max-w-2xl text-xl md:text-2xl leading-relaxed text-slate-800 font-medium text-center">
+          "Waiting for transcript..." (AI response will fill this entire middle section automatically)
         </div>
       </main>
 
-      {/* Minimal Bottom Nav (No Rounds, Compact) */}
-      <div className="border-t border-slate-100 bg-slate-50 px-2 py-3 mt-auto">
+      {/* 3. BOTTOM LAYER: Player Controls */}
+      <div className="bg-slate-50 border-t border-slate-100 px-4 py-6 shrink-0 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)]">
         <div className="flex justify-around items-center max-w-md mx-auto">
-          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-brand-indigo/70">
-            <RotateCcw size={22} />
+          <motion.button whileTap={{ scale: 0.9 }} className="p-3 text-slate-400">
+            <RotateCcw size={24} />
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.9 }}
-            className="px-8 py-2.5 bg-brand-indigo text-white rounded-xl shadow-brand-indigo shadow-lg"
+            className="px-10 py-3.5 bg-brand-indigo text-white rounded-xl shadow-xl shadow-brand-indigo/30"
           >
-            <Play size={24} fill="currentColor" />
+            <Play size={28} fill="currentColor" />
           </motion.button>
 
-          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-slate-500">
-            <Pause size={22} />
+          <motion.button whileTap={{ scale: 0.9 }} className="p-3 text-slate-400">
+            <Pause size={24} />
           </motion.button>
 
-          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-rose-500/80">
-            <Square size={22} fill="currentColor" />
+          <motion.button whileTap={{ scale: 0.9 }} className="p-3 text-rose-500/60">
+            <Square size={24} fill="currentColor" />
           </motion.button>
         </div>
       </div>
