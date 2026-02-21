@@ -165,9 +165,9 @@ const ChatPage = () => {
         </div>
       </main>
 
-      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - SMOOTH BULGE EFFECT */}
+      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - ENHANCED & SMOOTH */}
       <div className="relative bg-brand-indigo shrink-0">
-        <div className="relative h-12 flex items-center justify-around px-2 pb-safe">
+        <div className="relative h-16 flex items-center justify-around px-2 pb-safe">
 
           {navItems.map((item, idx) => {
             const isActive = activeTab === idx;
@@ -175,14 +175,14 @@ const ChatPage = () => {
 
             return (
               <div key={idx} className="relative flex-1 flex justify-center items-center h-full">
-                {/* Smooth Circular "Hump" Highlight */}
+                {/* Enhanced Smooth Circular Bulge */}
                 <AnimatePresence>
                   {isActive && (
                     <motion.div
-                      initial={{ y: 10, opacity: 0, scaleX: 0.5 }}
-                      animate={{ y: 0, opacity: 1, scaleX: 1 }}
-                      exit={{ y: 10, opacity: 0, scaleX: 0.5 }}
-                      className="absolute -top-5 w-16 h-12 bg-brand-indigo rounded-[50%] z-10"
+                      initial={{ y: 20, opacity: 0, scale: 0.8 }}
+                      animate={{ y: 0, opacity: 1, scale: 1 }}
+                      exit={{ y: 20, opacity: 0, scale: 0.8 }}
+                      className="absolute -top-7 w-20 h-14 bg-brand-indigo rounded-[100%_100%_0_0] z-10"
                       transition={{
                         type: "spring",
                         stiffness: 300,
@@ -195,7 +195,7 @@ const ChatPage = () => {
                 {/* Button with Filled Icons */}
                 <motion.button
                   animate={{
-                    y: isActive ? -14 : 0,
+                    y: isActive ? -18 : 0,
                   }}
                   transition={{
                     type: "spring",
@@ -207,10 +207,10 @@ const ChatPage = () => {
                     }`}
                 >
                   <Icon
-                    size={isActive ? 24 : 18}
+                    size={isActive ? 28 : 22}
                     fill="currentColor"
                   />
-                  {!isActive && <span className="text-[6px] font-bold mt-0.5 uppercase tracking-tighter">{item.label}</span>}
+                  {!isActive && <span className="text-[8px] font-bold mt-1 uppercase tracking-tighter">{item.label}</span>}
                 </motion.button>
               </div>
             );
