@@ -100,24 +100,44 @@ const HomePage = () => {
   );
 };
 
-const Word = ({ en, ar, onSelect, isActive }) => (
-  <motion.span
-    onClick={() => onSelect(en, ar)}
-    whileTap={{ scale: 0.98 }}
-    className={`inline-block cursor-pointer transition-colors duration-300 ${isActive
-        ? 'text-brand-indigo'
-        : 'text-slate-700 hover:text-brand-indigo'
-      }`}
-  >
-    {en}
-  </motion.span>
-);
+import transcriptData from './data/transcript.json';
+
+const Word = ({ en, ar, onSelect, isActive }) => {
+  const isTradable = !!ar;
+
+  return (
+    <motion.span
+      onClick={() => isTradable && onSelect(en, ar)}
+      whileTap={isTradable ? { scale: 0.98 } : {}}
+      className={`inline-block transition-colors duration-300 ${isTradable ? 'cursor-pointer' : 'cursor-default opacity-80'
+        } ${isActive
+          ? 'text-brand-indigo underline underline-offset-8 decoration-2'
+          : isTradable ? 'text-slate-700 hover:text-brand-indigo' : 'text-slate-400'
+        }`}
+    >
+      {en}
+    </motion.span>
+  );
+};
 
 const ChatPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(2); // Play
   const [selectedWord, setSelectedWord] = useState(null);
   const navigate = useNavigate();
+
+  // Process text from JSON: clean punctuation for map lookup
+  const words = transcriptData.text.split(' ');
+  const processedTranscript = words.map(word => {
+    // Clean word for lookup (lowercase and remove punctuation)
+    const cleanedKey = word.toLowerCase().replace(/[.,!?;:]/g, '');
+    const translation = transcriptData.translate[cleanedKey];
+
+    return {
+      en: word,
+      ar: translation || null
+    };
+  });
 
   const handleWordSelect = (en, ar) => {
     if (selectedWord?.en === en) {
@@ -126,18 +146,6 @@ const ChatPage = () => {
       setSelectedWord({ en, ar });
     }
   };
-
-  const mockTranscript = [
-    { en: "Experience", ar: "الخبرة" },
-    { en: "is", ar: "هي" },
-    { en: "the", ar: "الـ" },
-    { en: "name", ar: "اسم" },
-    { en: "everyone", ar: "الذي يطلقه الجميع" },
-    { en: "gives", ar: "" },
-    { en: "to", ar: "على" },
-    { en: "their", ar: "أخطائهم." },
-    { en: "mistakes.", ar: "" },
-  ].filter(w => w.en !== "");
 
   const navItems = [
     { icon: RotateCcw, label: 'Reset' },
@@ -207,7 +215,7 @@ const ChatPage = () => {
           </div>
 
           <div className="text-3xl md:text-5xl leading-[1.6] font-medium tracking-tight flex flex-wrap gap-x-2 gap-y-4">
-            {mockTranscript.map((word, i) => (
+            {processedTranscript.map((word, i) => (
               <Word
                 key={i}
                 en={word.en}
