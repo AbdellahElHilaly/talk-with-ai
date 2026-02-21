@@ -166,9 +166,9 @@ const ChatPage = () => {
         </div>
       </main>
 
-      {/* 3. DYNAMIC SEAMLESS BOTTOM NAV */}
-      <div className="relative bg-white pb-4 shrink-0 px-2">
-        <div className="relative bg-brand-indigo h-16 rounded-2xl flex items-center justify-around px-2">
+      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV */}
+      <div className="relative bg-brand-indigo shrink-0">
+        <div className="relative h-16 flex items-center justify-around px-2 pb-safe">
 
           {navItems.map((item, idx) => {
             const isActive = activeTab === idx;
@@ -176,11 +176,11 @@ const ChatPage = () => {
 
             return (
               <div key={idx} className="relative flex-1 flex justify-center items-center h-full">
-                {/* Active Highlight (Same color as nav, no shadow) */}
+                {/* Active Highlight (Same color as nav, no border) */}
                 {isActive && (
                   <motion.div
                     layoutId="navTab"
-                    className="absolute -top-6 w-14 h-14 bg-brand-indigo rounded-full border-4 border-white"
+                    className="absolute -top-6 w-14 h-14 bg-brand-indigo rounded-full"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -199,7 +199,7 @@ const ChatPage = () => {
                 >
                   <Icon
                     size={isActive ? 26 : 22}
-                    fill="currentColor" // This makes the icons "full" and solid
+                    fill="currentColor"
                     strokeWidth={isActive ? 2.5 : 2}
                   />
                   {!isActive && <span className="text-[7px] font-bold mt-1 uppercase">{item.label}</span>}
