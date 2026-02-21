@@ -165,7 +165,7 @@ const ChatPage = () => {
         </div>
       </main>
 
-      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - ORGANIC MOUND EFFECT */}
+      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - HIGH-FIDELITY WAVE EFFECT */}
       <div className="relative bg-brand-indigo shrink-0">
         <div className="relative h-16 flex items-center justify-around px-2 pb-safe">
 
@@ -175,31 +175,30 @@ const ChatPage = () => {
 
             return (
               <div key={idx} className="relative flex-1 flex justify-center items-center h-full">
-                {/* Wide, Organic Hill Highlight (Not a tight circle) */}
+                {/* SVG Smooth Curve Highlight (Pops up locally) */}
                 <AnimatePresence>
                   {isActive && (
                     <motion.div
-                      initial={{ y: 30, opacity: 0, scaleX: 0.8 }}
-                      animate={{ y: 0, opacity: 1, scaleX: 1 }}
-                      exit={{ y: 30, opacity: 0, scaleX: 0.8 }}
-                      className="absolute -top-6 w-32 h-14 bg-brand-indigo rounded-[50%_50%_0_0] z-10"
-                      transition={{
-                        type: "spring",
-                        stiffness: 250,
-                        damping: 30
-                      }}
-                    />
+                      initial={{ y: 20, opacity: 0, scale: 0.8 }}
+                      animate={{ y: 0, opacity: 1, scale: 1 }}
+                      exit={{ y: 20, opacity: 0, scale: 0.8 }}
+                      className="absolute -top-[31px] z-10 pointer-events-none"
+                    >
+                      <svg width="120" height="40" viewBox="0 0 120 40" className="text-brand-indigo fill-current">
+                        <path d="M0 40 C20 40 35 40 40 30 C45 20 50 0 60 0 C70 0 75 20 80 30 C85 40 100 40 120 40 L120 40 L0 40 Z" />
+                      </svg>
+                    </motion.div>
                   )}
                 </AnimatePresence>
 
-                {/* Button elevated above the hill peak */}
+                {/* Button elevated above the wave peak */}
                 <motion.button
                   animate={{
-                    y: isActive ? -14 : 0,
+                    y: isActive ? -18 : 0,
                   }}
                   transition={{
                     type: "spring",
-                    stiffness: 300,
+                    stiffness: 350,
                     damping: 25
                   }}
                   onClick={() => setActiveTab(idx)}
