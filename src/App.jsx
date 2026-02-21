@@ -58,25 +58,40 @@ const HomePage = () => {
         </motion.div>
 
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", damping: 20 }}
-          className="w-full max-w-md bg-white p-2.5 rounded-[2.8rem] flex items-center shadow-magical border border-white"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: "spring", damping: 25, stiffness: 200 }}
+          className="w-full max-w-md relative group"
         >
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Whisper your thoughts..."
-            className="flex-1 bg-transparent py-5 px-6 outline-none text-lg text-slate-900 placeholder:text-slate-200"
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          />
-          <button
-            onClick={handleSend}
-            className="bg-brand-indigo text-white h-14 w-14 rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 active:scale-90 transition-transform"
-          >
-            <Send size={22} />
-          </button>
+          {/* Magical Outer Glow (Visible on Focus) */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-brand-indigo/20 to-indigo-400/20 rounded-[2.5rem] blur-xl opacity-0 group-within:opacity-100 transition-opacity duration-500" />
+
+          <div className="relative bg-white p-2 rounded-[2.2rem] flex items-center shadow-magical border border-indigo-50/50">
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Whisper your thoughts..."
+              className="flex-1 bg-transparent py-4 px-6 outline-none text-lg text-slate-900 placeholder:text-slate-400 font-medium"
+              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            />
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleSend}
+              className="bg-brand-indigo text-white h-14 w-14 rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 shrink-0 transition-transform"
+            >
+              <Send size={22} strokeWidth={2.5} />
+            </motion.button>
+          </div>
+
+          {/* Prompt Suggestion Sparkle */}
+          <div className="mt-6 flex justify-center gap-2">
+            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
+              <div className="w-1 h-3 bg-brand-indigo/30 rounded-full" />
+              Tap to explore the nexus
+            </span>
+          </div>
         </motion.div>
       </div>
 
