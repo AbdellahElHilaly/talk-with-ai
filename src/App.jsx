@@ -159,26 +159,37 @@ const ChatPage = () => {
         </div>
       </main>
 
-      {/* 3. BOTTOM LAYER: Player Controls */}
-      <div className="bg-slate-50 border-t border-slate-100 px-4 py-6 shrink-0 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)]">
-        <div className="flex justify-around items-center max-w-md mx-auto">
-          <motion.button whileTap={{ scale: 0.9 }} className="p-3 text-slate-400">
-            <RotateCcw size={24} />
-          </motion.button>
+      {/* 3. BOTTOM LAYER: Player Controls (Floating Style) */}
+      <div className="relative pt-6 shrink-0">
+        {/* The indigo bar */}
+        <div className="bg-brand-indigo px-4 py-3 pb-8 flex justify-between items-center text-white relative z-0">
+          <div className="flex gap-10 items-center pl-4">
+            <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-white/80 hover:text-white transition-colors">
+              <RotateCcw size={24} />
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-white/80 hover:text-white transition-colors">
+              <Pause size={24} />
+            </motion.button>
+          </div>
 
+          <div className="flex gap-10 items-center pr-4">
+            <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-white/80 hover:text-white transition-colors">
+              <Square size={24} fill="currentColor" className="opacity-80" />
+            </motion.button>
+            <motion.button onClick={() => setIsSidebarOpen(true)} whileTap={{ scale: 0.9 }} className="p-2 text-white/80 hover:text-white transition-colors">
+              <Settings size={24} />
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Floating Center Button */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
           <motion.button
-            whileTap={{ scale: 0.9 }}
-            className="px-10 py-3.5 bg-brand-indigo text-white rounded-xl shadow-xl shadow-brand-indigo/30"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-16 h-16 rounded-full bg-white text-brand-indigo flex items-center justify-center shadow-2xl border-4 border-white"
           >
-            <Play size={28} fill="currentColor" />
-          </motion.button>
-
-          <motion.button whileTap={{ scale: 0.9 }} className="p-3 text-slate-400">
-            <Pause size={24} />
-          </motion.button>
-
-          <motion.button whileTap={{ scale: 0.9 }} className="p-3 text-rose-500/60">
-            <Square size={24} fill="currentColor" />
+            <Play size={32} fill="currentColor" className="ml-1" />
           </motion.button>
         </div>
       </div>
