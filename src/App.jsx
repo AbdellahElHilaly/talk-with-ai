@@ -165,7 +165,7 @@ const ChatPage = () => {
         </div>
       </main>
 
-      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - ENHANCED & SMOOTH */}
+      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - ORGANIC MOUND EFFECT */}
       <div className="relative bg-brand-indigo shrink-0">
         <div className="relative h-16 flex items-center justify-around px-2 pb-safe">
 
@@ -175,31 +175,31 @@ const ChatPage = () => {
 
             return (
               <div key={idx} className="relative flex-1 flex justify-center items-center h-full">
-                {/* Enhanced Smooth Circular Bulge */}
+                {/* Wide, Organic Hill Highlight (Not a tight circle) */}
                 <AnimatePresence>
                   {isActive && (
                     <motion.div
-                      initial={{ y: 20, opacity: 0, scale: 0.8 }}
-                      animate={{ y: 0, opacity: 1, scale: 1 }}
-                      exit={{ y: 20, opacity: 0, scale: 0.8 }}
-                      className="absolute -top-7 w-20 h-14 bg-brand-indigo rounded-[100%_100%_0_0] z-10"
+                      initial={{ y: 30, opacity: 0, scaleX: 0.8 }}
+                      animate={{ y: 0, opacity: 1, scaleX: 1 }}
+                      exit={{ y: 30, opacity: 0, scaleX: 0.8 }}
+                      className="absolute -top-6 w-32 h-14 bg-brand-indigo rounded-[50%_50%_0_0] z-10"
                       transition={{
                         type: "spring",
-                        stiffness: 300,
-                        damping: 25
+                        stiffness: 250,
+                        damping: 30
                       }}
                     />
                   )}
                 </AnimatePresence>
 
-                {/* Button with Filled Icons */}
+                {/* Button elevated above the hill peak */}
                 <motion.button
                   animate={{
-                    y: isActive ? -18 : 0,
+                    y: isActive ? -14 : 0,
                   }}
                   transition={{
                     type: "spring",
-                    stiffness: 350,
+                    stiffness: 300,
                     damping: 25
                   }}
                   onClick={() => setActiveTab(idx)}
