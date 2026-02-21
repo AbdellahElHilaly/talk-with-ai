@@ -103,10 +103,10 @@ const HomePage = () => {
 const Word = ({ en, ar, onSelect, isActive }) => (
   <motion.span
     onClick={() => onSelect(en, ar)}
-    whileTap={{ scale: 0.95 }}
-    className={`inline-block cursor-pointer px-1 rounded-md transition-all duration-300 ${isActive
-        ? 'text-brand-indigo bg-indigo-50 font-bold'
-        : 'text-slate-700 hover:text-brand-indigo hover:bg-slate-50'
+    whileTap={{ scale: 0.98 }}
+    className={`inline-block cursor-pointer transition-colors duration-300 ${isActive
+        ? 'text-brand-indigo'
+        : 'text-slate-700 hover:text-brand-indigo'
       }`}
   >
     {en}
