@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { Send, Play, Square, Pause, RotateCcw, Settings } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 
 // --- Screen Assets & Helpers ---
@@ -109,8 +109,8 @@ const Word = ({ en, ar }) => {
       whileTap={{ scale: 0.95 }}
       layout
       className={`inline-block cursor-pointer px-1 rounded-md transition-all duration-300 ${showArabic
-          ? 'text-brand-indigo bg-indigo-50/50 font-bold arabic-text'
-          : 'text-slate-700 hover:text-brand-indigo hover:bg-slate-50'
+        ? 'text-brand-indigo bg-indigo-50/50 font-bold arabic-text'
+        : 'text-slate-700 hover:text-brand-indigo hover:bg-slate-50'
         }`}
     >
       <AnimatePresence mode="wait">

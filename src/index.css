@@ -8,10 +8,21 @@
   --color-brand-surface: #FFFFFF;
   --color-brand-text: #1E293B;
 
+  .shadow-soft {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .arabic-text {
+    direction: rtl;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+
   --shadow-brand-indigo: 0 4px 14px 0 rgba(79, 70, 229, 0.39);
 }
 
 :root {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   font-family: var(--font-sans);
   line-height: 1.5;
