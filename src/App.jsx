@@ -137,60 +137,78 @@ const HomePage = () => {
 
 const ChatPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(2); // Default to Play (index 2)
   const navigate = useNavigate();
 
+  const navItems = [
+    { icon: RotateCcw, label: 'Reset', color: 'text-white' },
+    { icon: Pause, label: 'Pause', color: 'text-white' },
+    { icon: Play, label: 'Play', color: 'text-white', isMain: true },
+    { icon: Square, label: 'Stop', color: 'text-rose-200' },
+    { icon: Settings, label: 'Settings', color: 'text-white' }
+  ];
+
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white overflow-hidden">
       {/* 1. TOP LAYER: Action Bar */}
       <div className="px-3 py-2 flex justify-between items-center border-b border-slate-100 bg-white shadow-sm z-10 shrink-0">
         <button onClick={() => navigate('/')} className="p-2 text-slate-500">
           <X size={22} />
         </button>
         <span className="text-[10px] font-black text-brand-indigo uppercase tracking-[0.3em]">AI TRANSCRIPT</span>
-        <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-500">
-          <Settings size={22} />
-        </button>
+        <div className="w-10"></div> {/* Spacer to keep title centered */}
       </div>
 
-      {/* 2. MIDDLE LAYER: Content (Takes all free space) */}
+      {/* 2. MIDDLE LAYER: Content */}
       <main className="flex-1 overflow-y-auto px-6 py-8 flex flex-col items-center">
         <div className="w-full max-w-2xl text-xl md:text-2xl leading-relaxed text-slate-800 font-medium text-center">
           "Waiting for transcript..." (AI response will fill this entire middle section automatically)
         </div>
       </main>
 
-      {/* 3. BOTTOM LAYER: Player Controls (Floating Style) */}
-      <div className="relative pt-6 shrink-0">
-        {/* The indigo bar */}
-        <div className="bg-brand-indigo px-4 py-3 pb-8 flex justify-between items-center text-white relative z-0">
-          <div className="flex gap-10 items-center pl-4">
-            <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-white/80 hover:text-white transition-colors">
-              <RotateCcw size={24} />
-            </motion.button>
-            <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-white/80 hover:text-white transition-colors">
-              <Pause size={24} />
-            </motion.button>
-          </div>
+      {/* 3. DYNAMIC CURVED BOTTOM NAV */}
+      <div className="relative bg-white pb-6 shrink-0">
+        <div className="relative bg-brand-indigo h-20 flex items-center justify-around px-2 shadow-[0_-4px_20px_rgba(79,70,229,0.2)]">
 
-          <div className="flex gap-10 items-center pr-4">
-            <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-white/80 hover:text-white transition-colors">
-              <Square size={24} fill="currentColor" className="opacity-80" />
-            </motion.button>
-            <motion.button onClick={() => setIsSidebarOpen(true)} whileTap={{ scale: 0.9 }} className="p-2 text-white/80 hover:text-white transition-colors">
-              <Settings size={24} />
-            </motion.button>
-          </div>
-        </div>
+          {navItems.map((item, idx) => {
+            const isActive = activeTab === idx;
+            const Icon = item.icon;
 
-        {/* Floating Center Button */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-16 h-16 rounded-full bg-white text-brand-indigo flex items-center justify-center shadow-2xl border-4 border-white"
-          >
-            <Play size={32} fill="currentColor" className="ml-1" />
-          </motion.button>
+            return (
+              <div key={idx} className="relative flex-1 flex justify-center items-center h-full">
+                {/* Curve Background for Active Item */}
+                {isActive && (
+                  <motion.div
+                    layoutId="navCurve"
+                    className="absolute -top-10 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg border-8 border-transparent"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  >
+                    <div className="absolute inset-0 bg-white rounded-full scale-110" />
+                  </motion.div>
+                )}
+
+                {/* Animated Button */}
+                <motion.button
+                  animate={{
+                    y: isActive ? -40 : 0,
+                    scale: isActive ? 1.1 : 1,
+                  }}
+                  onClick={() => {
+                    if (item.label === 'Settings') setIsSidebarOpen(true);
+                    setActiveTab(idx);
+                  }}
+                  className={`relative z-20 p-3 flex flex-col items-center gap-1 transition-colors ${isActive ? 'text-brand-indigo' : 'text-white/70'
+                    }`}
+                >
+                  <Icon
+                    size={isActive ? 28 : 24}
+                    fill={isActive && (item.isMain || item.label === 'Stop') ? 'currentColor' : 'none'}
+                  />
+                  {!isActive && <span className="text-[8px] font-bold uppercase tracking-tight">{item.label}</span>}
+                </motion.button>
+              </div>
+            );
+          })}
         </div>
       </div>
 
