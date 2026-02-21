@@ -1,0 +1,31 @@
+[
+    {
+        "id": 1,
+        "role": "ai",
+        "text": "Experience is the name everyone gives to their mistakes.",
+        "translate": {
+            "experience": "الخبرة",
+            "everyone": "الجميع",
+            "mistakes": "أخطاء"
+        }
+    },
+    {
+        "id": 2,
+        "role": "user",
+        "text": "Can you give me another quote about success?"
+    },
+    {
+        "id": 3,
+        "role": "ai",
+        "text": "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+        "translate": {
+            "success": "النجاح",
+            "final": "نهائي",
+            "failure": "الفشل",
+            "fatal": "قاتل",
+            "courage": "الشجاعة",
+            "continue": "الاستمرار",
+            "counts": "يُحتسب"
+        }
+    }
+]

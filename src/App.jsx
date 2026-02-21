@@ -100,18 +100,17 @@ const HomePage = () => {
   );
 };
 
-import transcriptData from './data/transcript.json';
+import chatData from './data/data.json';
 
 const Word = ({ en, ar, onSelect, isActive }) => {
   const isTradable = !!ar;
-
   return (
     <motion.span
       onClick={() => isTradable && onSelect(en, ar)}
       whileTap={isTradable ? { scale: 0.98 } : {}}
       className={`inline-block transition-colors duration-300 ${isTradable ? 'cursor-pointer' : 'cursor-default opacity-80'
         } ${isActive
-          ? 'text-brand-indigo underline underline-offset-8 decoration-2'
+          ? 'text-brand-indigo underline underline-offset-8 decoration-2 font-bold'
           : isTradable ? 'text-slate-700 hover:text-brand-indigo' : 'text-slate-400'
         }`}
     >
@@ -127,14 +126,6 @@ const ChatPage = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  // Process text from JSON: clean punctuation for map lookup
-  const words = transcriptData.text.split(' ');
-  const processedTranscript = words.map(word => {
-    const cleanedKey = word.toLowerCase().replace(/[.,!?;:]/g, '');
-    const translation = transcriptData.translate[cleanedKey];
-    return { en: word, ar: translation || null };
-  });
-
   const handleWordSelect = (en, ar) => {
     if (selectedWord?.en === en) {
       setSelectedWord(null);
@@ -146,7 +137,6 @@ const ChatPage = () => {
   const handleSend = () => {
     if (message.trim()) {
       setMessage('');
-      // Future logic for adding messages to history
     }
   };
 
@@ -158,9 +148,9 @@ const ChatPage = () => {
   ];
 
   return (
-    <div className="h-full flex flex-col bg-white overflow-hidden pb-safe">
+    <div className="h-full flex flex-col bg-slate-50 overflow-hidden pb-safe">
       {/* MAGICAL TOP BAR */}
-      <div className="px-6 py-4 flex justify-between items-center z-20 sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-50">
+      <div className="px-6 py-4 flex justify-between items-center z-20 sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-100">
         <div className="flex items-center gap-4 flex-1">
           <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-brand-indigo transition-colors shrink-0">
             <Settings size={20} strokeWidth={2} />
@@ -179,7 +169,7 @@ const ChatPage = () => {
                   <span className="text-[10px] font-black text-brand-indigo uppercase tracking-[0.2em]">Neural Link</span>
                   <div className="flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Live Syncing</span>
+                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Global Memory</span>
                   </div>
                 </motion.div>
               ) : (
@@ -206,59 +196,86 @@ const ChatPage = () => {
         </button>
       </div>
 
-      <main className="flex-1 overflow-y-auto px-8 py-10">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-2xl mx-auto flex flex-col items-center"
-        >
-          {/* Transcript Area */}
-          <div className="text-3xl md:text-5xl leading-[1.6] font-medium tracking-tight flex flex-wrap gap-x-2 gap-y-4 text-center justify-center">
-            {processedTranscript.map((word, i) => (
-              <Word
-                key={i}
-                en={word.en}
-                ar={word.ar}
-                onSelect={handleWordSelect}
-                isActive={selectedWord?.en === word.en}
-              />
-            ))}
-            <span className="inline-block w-2 h-10 ml-1 bg-brand-indigo/10 animate-pulse rounded-full align-middle outline-none" />
-          </div>
+      <main className="flex-1 overflow-y-auto px-6 py-8 space-y-12">
+        <div className="max-w-2xl mx-auto flex flex-col gap-10">
+          {chatData.map((item) => {
+            const isAI = item.role === 'ai';
 
-          {/* Contextual Action Icons Under Text */}
-          <div className="mt-12 flex items-center justify-center gap-6 p-2 bg-slate-50 rounded-3xl border border-slate-100 shadow-sm">
-            {playbackActions.map((action, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveTab(idx)}
-                className={`p-4 rounded-2xl transition-all active:scale-90 ${activeTab === idx
-                    ? 'bg-brand-indigo text-white shadow-lg shadow-indigo-100'
-                    : 'text-slate-400 hover:bg-white hover:text-slate-600'
-                  }`}
+            if (!isAI) {
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="self-end max-w-[85%]"
+                >
+                  <div className="bg-white px-6 py-4 rounded-[1.8rem] rounded-tr-none shadow-sm border border-slate-100 text-slate-600 font-medium">
+                    {item.text}
+                  </div>
+                </motion.div>
+              );
+            }
+
+            // AI Logic
+            const words = item.text.split(' ');
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="self-start w-full"
               >
-                <action.icon size={action.primary ? 24 : 20} strokeWidth={2.5} fill={idx === 2 || idx === 3 ? "currentColor" : "none"} />
-              </button>
-            ))}
-          </div>
-        </motion.div>
+                <div className="flex flex-col gap-4">
+                  {/* Word List */}
+                  <div className="text-2xl md:text-3xl leading-[1.6] font-medium tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-800">
+                    {words.map((word, i) => {
+                      const cleanedKey = word.toLowerCase().replace(/[.,!?;:]/g, '');
+                      const translation = item.translate?.[cleanedKey];
+                      return (
+                        <Word
+                          key={i}
+                          en={word}
+                          ar={translation}
+                          onSelect={handleWordSelect}
+                          isActive={selectedWord?.en === word}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  {/* Separator Line */}
+                  <div className="h-[1px] w-full bg-slate-100" />
+
+                  {/* Minimal Icons - No BG, No Card */}
+                  <div className="flex items-center gap-6 px-1">
+                    {playbackActions.map((action, idx) => (
+                      <button
+                        key={idx}
+                        className="text-slate-300 hover:text-brand-indigo active:scale-90 transition-all"
+                      >
+                        <action.icon size={18} strokeWidth={2.5} fill={idx === 2 || idx === 3 ? "currentColor" : "none"} className="opacity-60 hover:opacity-100" />
+                      </button>
+                    ))}
+                    <span className="ml-auto text-[8px] font-black text-slate-200 tracking-[0.3em] uppercase">Engine Speak v2</span>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </main>
 
-      {/* NEW BOTTOM SEND BAR */}
-      <div className="px-6 pb-14 pt-4 bg-gradient-to-t from-white via-white to-transparent">
-        <motion.div
-          className="max-w-md mx-auto relative group"
-        >
-          {/* Subtle Focus Glow */}
+      {/* BOTTOM SEND BAR */}
+      <div className="px-6 pb-12 pt-4 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent">
+        <motion.div className="max-w-md mx-auto relative group">
           <div className="absolute -inset-1 bg-brand-indigo/5 rounded-[2.5rem] blur-lg opacity-0 group-within:opacity-100 transition-opacity" />
-
-          <div className="relative bg-slate-50 p-1.5 rounded-[2.5rem] flex items-center border border-slate-100 shadow-soft focus-within:bg-white focus-within:border-brand-indigo/20 transition-all">
+          <div className="relative bg-white p-2 rounded-[2.5rem] flex items-center border border-slate-200 shadow-soft focus-within:border-brand-indigo/30 transition-all">
             <input
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Continue the conversation..."
-              className="flex-1 bg-transparent py-4 px-6 outline-none text-slate-900 placeholder:text-slate-400 font-medium"
+              placeholder="Type your reply..."
+              className="flex-1 bg-transparent py-4 px-6 outline-none text-slate-900 placeholder:text-slate-300 font-medium"
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             />
             <button
