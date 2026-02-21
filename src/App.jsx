@@ -165,7 +165,7 @@ const ChatPage = () => {
         </div>
       </main>
 
-      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - 4 ITEMS ONLY */}
+      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - STABLE & SMOOTH */}
       <div className="relative bg-brand-indigo shrink-0">
         <div className="relative h-12 flex items-center justify-around px-2 pb-safe">
 
@@ -175,12 +175,17 @@ const ChatPage = () => {
 
             return (
               <div key={idx} className="relative flex-1 flex justify-center items-center h-full">
-                {/* Smooth Curve Highlight */}
+                {/* The "Carve" / Highlight - Stable shared layout */}
                 {isActive && (
                   <motion.div
-                    layoutId="navTab"
-                    className="absolute -top-4 w-12 h-12 bg-brand-indigo rounded-2xl rotate-45"
-                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                    layoutId="active-pill"
+                    className="absolute -top-4 w-12 h-12 bg-brand-indigo rounded-2xl rotate-45 z-10"
+                    transition={{
+                      type: "spring",
+                      stiffness: 250,
+                      damping: 30,
+                      mass: 1
+                    }}
                   />
                 )}
 
@@ -188,6 +193,11 @@ const ChatPage = () => {
                 <motion.button
                   animate={{
                     y: isActive ? -12 : 0,
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 250,
+                    damping: 30
                   }}
                   onClick={() => setActiveTab(idx)}
                   className={`relative z-20 p-1 flex flex-col items-center transition-colors text-white ${isActive ? 'opacity-100 scale-110' : 'opacity-40'
