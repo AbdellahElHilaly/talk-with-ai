@@ -144,19 +144,18 @@ const ChatPage = () => {
     { icon: RotateCcw, label: 'Reset' },
     { icon: Pause, label: 'Pause' },
     { icon: Play, label: 'Play', isMain: true },
-    { icon: Square, label: 'Stop' },
-    { icon: Settings, label: 'Settings' }
+    { icon: Square, label: 'Stop' }
   ];
 
   return (
     <div className="h-full flex flex-col bg-white overflow-hidden">
-      {/* 1. TOP LAYER: Action Bar */}
+      {/* 1. TOP LAYER: Action Bar with Settings */}
       <div className="px-3 py-2 flex justify-between items-center border-b border-slate-100 bg-white shadow-sm z-10 shrink-0">
-        <button onClick={() => navigate('/')} className="p-2 text-slate-500">
-          <X size={22} />
+        <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-500">
+          <Settings size={22} />
         </button>
-        <span className="text-[10px] font-black text-brand-indigo uppercase tracking-[0.3em]">AI TRANSCRIPT</span>
-        <div className="w-10"></div> {/* Spacer to keep title centered */}
+        <span className="text-[10px] font-black text-brand-indigo uppercase tracking-[0.3em] absolute left-1/2 -translate-x-1/2">AI TRANSCRIPT</span>
+        <div className="w-10"></div>
       </div>
 
       {/* 2. MIDDLE LAYER: Content */}
@@ -166,7 +165,7 @@ const ChatPage = () => {
         </div>
       </main>
 
-      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - COMPACT & SMOOTH */}
+      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - 4 ITEMS ONLY */}
       <div className="relative bg-brand-indigo shrink-0">
         <div className="relative h-12 flex items-center justify-around px-2 pb-safe">
 
@@ -190,10 +189,7 @@ const ChatPage = () => {
                   animate={{
                     y: isActive ? -12 : 0,
                   }}
-                  onClick={() => {
-                    if (item.label === 'Settings') setIsSidebarOpen(true);
-                    setActiveTab(idx);
-                  }}
+                  onClick={() => setActiveTab(idx)}
                   className={`relative z-20 p-1 flex flex-col items-center transition-colors text-white ${isActive ? 'opacity-100 scale-110' : 'opacity-40'
                     }`}
                 >
