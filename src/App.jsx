@@ -141,11 +141,11 @@ const ChatPage = () => {
   const navigate = useNavigate();
 
   const navItems = [
-    { icon: RotateCcw, label: 'Reset', color: 'text-white' },
-    { icon: Pause, label: 'Pause', color: 'text-white' },
-    { icon: Play, label: 'Play', color: 'text-white', isMain: true },
-    { icon: Square, label: 'Stop', color: 'text-rose-200' },
-    { icon: Settings, label: 'Settings', color: 'text-white' }
+    { icon: RotateCcw, label: 'Reset' },
+    { icon: Pause, label: 'Pause' },
+    { icon: Play, label: 'Play', isMain: true },
+    { icon: Square, label: 'Stop' },
+    { icon: Settings, label: 'Settings' }
   ];
 
   return (
@@ -166,9 +166,9 @@ const ChatPage = () => {
         </div>
       </main>
 
-      {/* 3. DYNAMIC CURVED BOTTOM NAV */}
-      <div className="relative bg-white pb-6 shrink-0">
-        <div className="relative bg-brand-indigo h-20 flex items-center justify-around px-2 shadow-[0_-4px_20px_rgba(79,70,229,0.2)]">
+      {/* 3. DYNAMIC SEAMLESS BOTTOM NAV */}
+      <div className="relative bg-white pb-4 shrink-0 px-2">
+        <div className="relative bg-brand-indigo h-16 rounded-2xl flex items-center justify-around px-2">
 
           {navItems.map((item, idx) => {
             const isActive = activeTab === idx;
@@ -176,35 +176,33 @@ const ChatPage = () => {
 
             return (
               <div key={idx} className="relative flex-1 flex justify-center items-center h-full">
-                {/* Curve Background for Active Item */}
+                {/* Active Highlight (Same color as nav, no shadow) */}
                 {isActive && (
                   <motion.div
-                    layoutId="navCurve"
-                    className="absolute -top-10 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg border-8 border-transparent"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  >
-                    <div className="absolute inset-0 bg-white rounded-full scale-110" />
-                  </motion.div>
+                    layoutId="navTab"
+                    className="absolute -top-6 w-14 h-14 bg-brand-indigo rounded-full border-4 border-white"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
                 )}
 
-                {/* Animated Button */}
+                {/* Button with Filled Icons */}
                 <motion.button
                   animate={{
-                    y: isActive ? -40 : 0,
-                    scale: isActive ? 1.1 : 1,
+                    y: isActive ? -28 : 0,
                   }}
                   onClick={() => {
                     if (item.label === 'Settings') setIsSidebarOpen(true);
                     setActiveTab(idx);
                   }}
-                  className={`relative z-20 p-3 flex flex-col items-center gap-1 transition-colors ${isActive ? 'text-brand-indigo' : 'text-white/70'
+                  className={`relative z-20 p-2 flex flex-col items-center transition-colors text-white ${isActive ? 'opacity-100 scale-110' : 'opacity-50'
                     }`}
                 >
                   <Icon
-                    size={isActive ? 28 : 24}
-                    fill={isActive && (item.isMain || item.label === 'Stop') ? 'currentColor' : 'none'}
+                    size={isActive ? 26 : 22}
+                    fill="currentColor" // This makes the icons "full" and solid
+                    strokeWidth={isActive ? 2.5 : 2}
                   />
-                  {!isActive && <span className="text-[8px] font-bold uppercase tracking-tight">{item.label}</span>}
+                  {!isActive && <span className="text-[7px] font-bold mt-1 uppercase">{item.label}</span>}
                 </motion.button>
               </div>
             );
