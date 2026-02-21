@@ -166,9 +166,9 @@ const ChatPage = () => {
         </div>
       </main>
 
-      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV */}
+      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - COMPACT & SMOOTH */}
       <div className="relative bg-brand-indigo shrink-0">
-        <div className="relative h-16 flex items-center justify-around px-2 pb-safe">
+        <div className="relative h-12 flex items-center justify-around px-2 pb-safe">
 
           {navItems.map((item, idx) => {
             const isActive = activeTab === idx;
@@ -176,33 +176,32 @@ const ChatPage = () => {
 
             return (
               <div key={idx} className="relative flex-1 flex justify-center items-center h-full">
-                {/* Active Highlight (Same color as nav, no border) */}
+                {/* Smooth Curve Highlight */}
                 {isActive && (
                   <motion.div
                     layoutId="navTab"
-                    className="absolute -top-6 w-14 h-14 bg-brand-indigo rounded-full"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    className="absolute -top-4 w-12 h-12 bg-brand-indigo rounded-2xl rotate-45"
+                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
                   />
                 )}
 
                 {/* Button with Filled Icons */}
                 <motion.button
                   animate={{
-                    y: isActive ? -28 : 0,
+                    y: isActive ? -12 : 0,
                   }}
                   onClick={() => {
                     if (item.label === 'Settings') setIsSidebarOpen(true);
                     setActiveTab(idx);
                   }}
-                  className={`relative z-20 p-2 flex flex-col items-center transition-colors text-white ${isActive ? 'opacity-100 scale-110' : 'opacity-50'
+                  className={`relative z-20 p-1 flex flex-col items-center transition-colors text-white ${isActive ? 'opacity-100 scale-110' : 'opacity-40'
                     }`}
                 >
                   <Icon
-                    size={isActive ? 26 : 22}
+                    size={isActive ? 24 : 18}
                     fill="currentColor"
-                    strokeWidth={isActive ? 2.5 : 2}
                   />
-                  {!isActive && <span className="text-[7px] font-bold mt-1 uppercase">{item.label}</span>}
+                  {!isActive && <span className="text-[6px] font-bold mt-0.5 uppercase tracking-tighter">{item.label}</span>}
                 </motion.button>
               </div>
             );
