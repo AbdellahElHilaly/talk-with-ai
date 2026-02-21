@@ -124,19 +124,15 @@ const ChatPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(2); // Play
   const [selectedWord, setSelectedWord] = useState(null);
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
   // Process text from JSON: clean punctuation for map lookup
   const words = transcriptData.text.split(' ');
   const processedTranscript = words.map(word => {
-    // Clean word for lookup (lowercase and remove punctuation)
     const cleanedKey = word.toLowerCase().replace(/[.,!?;:]/g, '');
     const translation = transcriptData.translate[cleanedKey];
-
-    return {
-      en: word,
-      ar: translation || null
-    };
+    return { en: word, ar: translation || null };
   });
 
   const handleWordSelect = (en, ar) => {
@@ -147,16 +143,23 @@ const ChatPage = () => {
     }
   };
 
-  const navItems = [
+  const handleSend = () => {
+    if (message.trim()) {
+      setMessage('');
+      // Future logic for adding messages to history
+    }
+  };
+
+  const playbackActions = [
     { icon: RotateCcw, label: 'Reset' },
     { icon: Pause, label: 'Pause' },
-    { icon: Play, label: 'Play' },
+    { icon: Play, label: 'Play', primary: true },
     { icon: Square, label: 'Stop' }
   ];
 
   return (
-    <div className="h-full flex flex-col bg-white">
-      {/* MAGICAL TOP BAR - DYNAMIC TRANSLATION HEADER */}
+    <div className="h-full flex flex-col bg-white overflow-hidden pb-safe">
+      {/* MAGICAL TOP BAR */}
       <div className="px-6 py-4 flex justify-between items-center z-20 sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-50">
         <div className="flex items-center gap-4 flex-1">
           <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-brand-indigo transition-colors shrink-0">
@@ -207,14 +210,10 @@ const ChatPage = () => {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-2xl mx-auto"
+          className="max-w-2xl mx-auto flex flex-col items-center"
         >
-          <div className="flex items-start gap-4 mb-8">
-            <span className="text-brand-indigo py-1.5 px-3 bg-indigo-50 rounded-xl font-black text-xs tracking-tighter">TRANSCRIPT</span>
-            <div className="h-px flex-1 bg-slate-50 mt-2.5" />
-          </div>
-
-          <div className="text-3xl md:text-5xl leading-[1.6] font-medium tracking-tight flex flex-wrap gap-x-2 gap-y-4">
+          {/* Transcript Area */}
+          <div className="text-3xl md:text-5xl leading-[1.6] font-medium tracking-tight flex flex-wrap gap-x-2 gap-y-4 text-center justify-center">
             {processedTranscript.map((word, i) => (
               <Word
                 key={i}
@@ -227,48 +226,49 @@ const ChatPage = () => {
             <span className="inline-block w-2 h-10 ml-1 bg-brand-indigo/10 animate-pulse rounded-full align-middle outline-none" />
           </div>
 
-          <div className="mt-16 flex flex-col items-center gap-4">
-            <div className="w-12 h-1 bg-slate-50 rounded-full" />
-            <p className="text-slate-300 text-[10px] font-bold uppercase tracking-[0.4em]">Tap words to see meaning</p>
+          {/* Contextual Action Icons Under Text */}
+          <div className="mt-12 flex items-center justify-center gap-6 p-2 bg-slate-50 rounded-3xl border border-slate-100 shadow-sm">
+            {playbackActions.map((action, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveTab(idx)}
+                className={`p-4 rounded-2xl transition-all active:scale-90 ${activeTab === idx
+                    ? 'bg-brand-indigo text-white shadow-lg shadow-indigo-100'
+                    : 'text-slate-400 hover:bg-white hover:text-slate-600'
+                  }`}
+              >
+                <action.icon size={action.primary ? 24 : 20} strokeWidth={2.5} fill={idx === 2 || idx === 3 ? "currentColor" : "none"} />
+              </button>
+            ))}
           </div>
         </motion.div>
       </main>
 
-      {/* Floating Dock Navigation */}
-      <div className="px-6 pb-10 pt-4">
-        <div className="max-w-md mx-auto h-20 bg-slate-900 rounded-[2.5rem] shadow-magical-dark flex items-center justify-around px-5 border border-white/5 relative overflow-hidden">
-          {/* Internal Glow Effect */}
-          <div className="absolute top-0 left-1/4 w-1/2 h-1 bg-gradient-to-r from-transparent via-brand-indigo/40 to-transparent blur-sm" />
+      {/* NEW BOTTOM SEND BAR */}
+      <div className="px-6 pb-14 pt-4 bg-gradient-to-t from-white via-white to-transparent">
+        <motion.div
+          className="max-w-md mx-auto relative group"
+        >
+          {/* Subtle Focus Glow */}
+          <div className="absolute -inset-1 bg-brand-indigo/5 rounded-[2.5rem] blur-lg opacity-0 group-within:opacity-100 transition-opacity" />
 
-          {navItems.map((item, idx) => {
-            const isActive = activeTab === idx;
-            const Icon = item.icon;
-
-            return (
-              <button
-                key={idx}
-                onClick={() => setActiveTab(idx)}
-                className="relative flex flex-col items-center justify-center w-14 h-14"
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeGlow"
-                    className="absolute inset-0 bg-brand-indigo/10 rounded-3xl blur-xl"
-                  />
-                )}
-                <div className={`relative z-10 transition-all duration-300 ${isActive ? 'text-white scale-125' : 'text-slate-500'}`}>
-                  <Icon size={22} fill={isActive && (idx === 2 || idx === 3) ? 'currentColor' : 'none'} strokeWidth={isActive ? 2.5 : 2} />
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeIndicator"
-                      className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-brand-indigo rounded-full shadow-[0_0_8px_#4F46E5]"
-                    />
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+          <div className="relative bg-slate-50 p-1.5 rounded-[2.5rem] flex items-center border border-slate-100 shadow-soft focus-within:bg-white focus-within:border-brand-indigo/20 transition-all">
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Continue the conversation..."
+              className="flex-1 bg-transparent py-4 px-6 outline-none text-slate-900 placeholder:text-slate-400 font-medium"
+              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            />
+            <button
+              onClick={handleSend}
+              className="bg-brand-indigo text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg shadow-indigo-100 active:scale-90 transition-transform shrink-0"
+            >
+              <Send size={18} strokeWidth={2.5} />
+            </button>
+          </div>
+        </motion.div>
       </div>
 
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
