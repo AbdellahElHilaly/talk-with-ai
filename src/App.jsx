@@ -100,38 +100,32 @@ const HomePage = () => {
   );
 };
 
-const Word = ({ en, ar }) => {
-  const [showArabic, setShowArabic] = useState(false);
-
-  return (
-    <motion.span
-      onClick={() => setShowArabic(!showArabic)}
-      whileTap={{ scale: 0.95 }}
-      layout
-      className={`inline-block cursor-pointer px-1 rounded-md transition-all duration-300 ${showArabic
-        ? 'text-brand-indigo bg-indigo-50/50 font-bold arabic-text'
+const Word = ({ en, ar, onSelect, isActive }) => (
+  <motion.span
+    onClick={() => onSelect(en, ar)}
+    whileTap={{ scale: 0.95 }}
+    className={`inline-block cursor-pointer px-1 rounded-md transition-all duration-300 ${isActive
+        ? 'text-brand-indigo bg-indigo-50 font-bold'
         : 'text-slate-700 hover:text-brand-indigo hover:bg-slate-50'
-        }`}
-    >
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={showArabic ? 'ar' : 'en'}
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -5 }}
-          transition={{ duration: 0.2 }}
-        >
-          {showArabic ? ar : en}
-        </motion.span>
-      </AnimatePresence>
-    </motion.span>
-  );
-};
+      }`}
+  >
+    {en}
+  </motion.span>
+);
 
 const ChatPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(2); // Play
+  const [selectedWord, setSelectedWord] = useState(null);
   const navigate = useNavigate();
+
+  const handleWordSelect = (en, ar) => {
+    if (selectedWord?.en === en) {
+      setSelectedWord(null);
+    } else {
+      setSelectedWord({ en, ar });
+    }
+  };
 
   const mockTranscript = [
     { en: "Experience", ar: "الخبرة" },
@@ -139,7 +133,7 @@ const ChatPage = () => {
     { en: "the", ar: "الـ" },
     { en: "name", ar: "اسم" },
     { en: "everyone", ar: "الذي يطلقه الجميع" },
-    { en: "gives", ar: "" }, // Merged in everyone for context
+    { en: "gives", ar: "" },
     { en: "to", ar: "على" },
     { en: "their", ar: "أخطائهم." },
     { en: "mistakes.", ar: "" },
@@ -154,24 +148,48 @@ const ChatPage = () => {
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* MAGICAL TOP BAR */}
-      <div className="px-6 py-4 flex justify-between items-center z-10 sticky top-0 bg-white/80 backdrop-blur-md">
-        <div className="flex items-center gap-4">
-          <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-brand-indigo transition-colors">
+      {/* MAGICAL TOP BAR - DYNAMIC TRANSLATION HEADER */}
+      <div className="px-6 py-4 flex justify-between items-center z-20 sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-50">
+        <div className="flex items-center gap-4 flex-1">
+          <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-brand-indigo transition-colors shrink-0">
             <Settings size={20} strokeWidth={2} />
           </button>
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-brand-indigo uppercase tracking-[0.2em]">Neural Link</span>
-            <div className="flex items-center gap-1.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Connected</span>
-            </div>
+
+          <div className="relative h-10 flex-1 flex items-center overflow-hidden">
+            <AnimatePresence mode="wait">
+              {!selectedWord ? (
+                <motion.div
+                  key="status"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -20, opacity: 0 }}
+                  className="flex flex-col"
+                >
+                  <span className="text-[10px] font-black text-brand-indigo uppercase tracking-[0.2em]">Neural Link</span>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Live Syncing</span>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="translation"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -20, opacity: 0 }}
+                  className="flex flex-col"
+                >
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">{selectedWord.en}</span>
+                  <span className="text-lg font-black text-brand-indigo arabic-text leading-none">{selectedWord.ar}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
         <button
           onClick={() => navigate('/')}
-          className="text-[10px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
+          className="text-[10px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200 ml-4"
         >
           EXIT
         </button>
@@ -184,20 +202,27 @@ const ChatPage = () => {
           className="max-w-2xl mx-auto"
         >
           <div className="flex items-start gap-4 mb-8">
-            <span className="text-brand-indigo py-1.5 px-3 bg-indigo-50 rounded-xl font-black text-xs">AI TRANSCRIPT</span>
+            <span className="text-brand-indigo py-1.5 px-3 bg-indigo-50 rounded-xl font-black text-xs tracking-tighter">TRANSCRIPT</span>
             <div className="h-px flex-1 bg-slate-50 mt-2.5" />
           </div>
 
-          <div className="text-3xl md:text-4xl leading-[1.8] font-medium tracking-tight flex flex-wrap gap-x-2 gap-y-3">
+          <div className="text-3xl md:text-5xl leading-[1.6] font-medium tracking-tight flex flex-wrap gap-x-2 gap-y-4">
             {mockTranscript.map((word, i) => (
-              <Word key={i} en={word.en} ar={word.ar} />
+              <Word
+                key={i}
+                en={word.en}
+                ar={word.ar}
+                onSelect={handleWordSelect}
+                isActive={selectedWord?.en === word.en}
+              />
             ))}
-            <span className="inline-block w-2 h-8 ml-1 bg-brand-indigo/10 animate-pulse rounded-full align-middle outline-none" />
+            <span className="inline-block w-2 h-10 ml-1 bg-brand-indigo/10 animate-pulse rounded-full align-middle outline-none" />
           </div>
 
-          <p className="mt-12 text-slate-300 text-sm font-bold uppercase tracking-[0.3em] text-center border-t border-slate-50 pt-8">
-            Tap any word to translate
-          </p>
+          <div className="mt-16 flex flex-col items-center gap-4">
+            <div className="w-12 h-1 bg-slate-50 rounded-full" />
+            <p className="text-slate-300 text-[10px] font-bold uppercase tracking-[0.4em]">Tap words to see meaning</p>
+          </div>
         </motion.div>
       </main>
 
