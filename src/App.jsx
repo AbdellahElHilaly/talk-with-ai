@@ -106,40 +106,41 @@ const HomePage = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center p-6 overflow-hidden">
-      {/* Search Bar in Middle */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="w-full max-w-md glass rounded-3xl p-2 flex items-center shadow-xl group focus-within:ring-2 focus-within:ring-brand-indigo/30 transition-all"
-      >
-        <div className="pl-4 pr-2 text-brand-indigo/50">
-          <Search size={22} />
-        </div>
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Ask me anything..."
-          className="flex-1 bg-transparent py-4 outline-none text-lg placeholder:text-brand-text/30"
-          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-        />
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={handleSend}
-          className="bg-brand-indigo text-white p-4 rounded-2xl shadow-brand-indigo"
-        >
-          <Send size={22} />
-        </motion.button>
-      </motion.div>
-
+    <div className="h-full w-full relative overflow-hidden flex flex-col bg-brand-ghost dark:bg-brand-dark transition-colors duration-300">
       {/* Floating Settings Button */}
       <button
         onClick={() => setIsSidebarOpen(true)}
-        className="fixed top-6 right-6 p-4 glass rounded-full shadow-lg hover:bg-brand-indigo hover:text-white transition-colors"
+        className="absolute top-4 right-4 p-3 glass rounded-full shadow-sm z-10 text-brand-indigo bg-white/80 dark:bg-black/20"
       >
-        <Settings size={22} />
+        <Settings size={20} />
       </button>
+
+      {/* Centered Input Container - Using flex-1 to stay stable even with keyboard */}
+      <div className="flex-1 flex items-center justify-center p-6">
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="w-full max-w-md glass rounded-2xl flex items-center shadow-lg bg-white dark:bg-black/40 border-brand-indigo/10 overflow-hidden"
+        >
+          <div className="pl-4 pr-1 text-brand-indigo/40 font-bold">
+            <Search size={18} />
+          </div>
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Talk with AI..."
+            className="flex-1 bg-transparent py-4 px-2 outline-none text-base text-brand-text dark:text-brand-ghost placeholder:text-brand-text/30"
+            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+          />
+          <button
+            onClick={handleSend}
+            className="bg-brand-indigo text-white p-4 active:bg-brand-indigo/80 transition-colors"
+          >
+            <Send size={20} />
+          </button>
+        </motion.div>
+      </div>
 
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
     </div>
@@ -151,44 +152,44 @@ const ChatPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col bg-brand-ghost dark:bg-brand-dark transition-colors duration-300">
+    <div className="h-full flex flex-col bg-white dark:bg-brand-dark transition-colors duration-300">
       {/* Minimal Action Bar */}
-      <div className="px-2 py-1 flex justify-between items-center border-b border-black/5 dark:border-white/5 bg-white dark:bg-black/80 sticky top-0 z-10">
-        <button onClick={() => navigate('/')} className="p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors">
+      <div className="px-3 py-2 flex justify-between items-center border-b border-black/5 dark:border-white/5 bg-white dark:bg-black/80 z-10 sticky top-0">
+        <button onClick={() => navigate('/')} className="p-1 text-slate-600 dark:text-slate-300">
           <X size={20} />
         </button>
-        <span className="text-[10px] font-bold text-brand-indigo uppercase tracking-[0.2em]">TALK WITH AI</span>
-        <button onClick={() => setIsSidebarOpen(true)} className="p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors">
+        <span className="text-[10px] font-bold text-brand-indigo uppercase tracking-[0.2em]">TRANSCRIPT</span>
+        <button onClick={() => setIsSidebarOpen(true)} className="p-1 text-slate-600 dark:text-slate-300">
           <Settings size={20} />
         </button>
       </div>
 
       {/* Full Screen Text Content */}
-      <main className="flex-1 overflow-y-auto px-4 py-4">
-        <div className="text-xl leading-relaxed text-brand-text dark:text-brand-ghost">
+      <main className="flex-1 overflow-y-auto px-5 py-6">
+        <div className="text-lg leading-relaxed text-slate-800 dark:text-slate-200 font-medium">
           "Waiting for transcript..." (This will show the AI response in full screen space)
         </div>
       </main>
 
       {/* Minimal Bottom Nav (No Rounds, Compact) */}
-      <div className="border-t border-black/5 dark:border-white/5 bg-white dark:bg-black shadow-inner">
-        <div className="flex justify-around items-center py-3 max-w-md mx-auto">
-          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-brand-indigo/60 hover:text-brand-indigo transition-colors font-medium">
+      <div className="border-t border-black/5 dark:border-white/5 bg-slate-50 dark:bg-black/90 px-2 py-3 mt-auto">
+        <div className="flex justify-around items-center max-w-md mx-auto">
+          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-brand-indigo/70">
             <RotateCcw size={22} />
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.9 }}
-            className="px-6 py-2 bg-brand-indigo text-white rounded-md shadow-brand-indigo"
+            className="px-8 py-2.5 bg-brand-indigo text-white rounded-xl shadow-brand-indigo shadow-lg"
           >
             <Play size={24} fill="currentColor" />
           </motion.button>
 
-          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-brand-text/60 dark:text-brand-ghost/60">
+          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-slate-500 dark:text-slate-400">
             <Pause size={22} />
           </motion.button>
 
-          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-rose-500/60">
+          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-rose-500/80">
             <Square size={22} fill="currentColor" />
           </motion.button>
         </div>

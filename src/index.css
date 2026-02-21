@@ -18,33 +18,45 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  --bg-primary: #F8FAFC;
-  --card-bg: rgba(255, 255, 255, 0.8);
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8FAFC;
   --text-primary: #0F172A;
-  --border-color: rgba(226, 232, 240, 0.8);
+  --text-secondary: #475569;
+  --border-color: #E2E3E5;
+  --brand-color: #4F46E5;
 }
 
 .dark {
   --bg-primary: #0F172A;
-  --card-bg: rgba(30, 41, 59, 0.8);
+  --bg-secondary: #1E293B;
   --text-primary: #F8FAFC;
-  --border-color: rgba(51, 65, 85, 0.8);
+  --text-secondary: #94A3B8;
+  --border-color: #334155;
+  --brand-color: #6366F1;
 }
 
+html,
 body {
+  height: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  /* Fix unwanted scrolling */
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  overflow-x: hidden;
-  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+#root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .glass {
-  background: var(--card-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--bg-primary);
   border: 1px solid var(--border-color);
 }
 
