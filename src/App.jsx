@@ -40,18 +40,6 @@ const Sidebar = ({ isOpen, onClose }) => {
             </div>
 
             <div className="flex flex-col gap-6">
-              {/* Dark Mode Toggle */}
-              <div className="flex justify-between items-center">
-                <span className="font-medium text-lg">Appearance</span>
-                <button
-                  onClick={toggleDarkMode}
-                  className="p-3 rounded-xl bg-brand-indigo/10 text-brand-indigo flex items-center gap-2"
-                >
-                  {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-                  {isDarkMode ? 'Light' : 'Dark'}
-                </button>
-              </div>
-
               {/* API Key Input */}
               <div className="flex flex-col gap-2">
                 <label className="font-medium text-lg">Groq API Key</label>
@@ -60,7 +48,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="Paste your key here..."
-                  className="w-full p-4 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 outline-none focus:border-brand-indigo transition-all"
+                  className="w-full p-4 rounded-xl bg-slate-100 border border-slate-200 outline-none focus:border-brand-indigo transition-all"
                 />
               </div>
 
@@ -106,23 +94,22 @@ const HomePage = () => {
   };
 
   return (
-    <div className="h-full w-full relative overflow-hidden flex flex-col bg-brand-ghost dark:bg-brand-dark transition-colors duration-300">
+    <div className="h-full w-full relative overflow-hidden flex flex-col bg-white transition-colors duration-300">
       {/* Floating Settings Button */}
       <button
         onClick={() => setIsSidebarOpen(true)}
-        className="absolute top-4 right-4 p-3 glass rounded-full shadow-sm z-10 text-brand-indigo bg-white/80 dark:bg-black/20"
+        className="absolute top-4 right-4 p-3 glass rounded-full shadow-sm z-10 text-brand-indigo bg-slate-50 border-slate-200"
       >
         <Settings size={20} />
       </button>
 
-      {/* Centered Input Container - Using flex-1 to stay stable even with keyboard */}
       <div className="flex-1 flex items-center justify-center p-6">
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-full max-w-md glass rounded-2xl flex items-center shadow-lg bg-white dark:bg-black/40 border-brand-indigo/10 overflow-hidden"
+          className="w-full max-w-md glass rounded-2xl flex items-center shadow-md bg-white border-slate-200 overflow-hidden"
         >
-          <div className="pl-4 pr-1 text-brand-indigo/40 font-bold">
+          <div className="pl-4 pr-1 text-slate-400 font-bold">
             <Search size={18} />
           </div>
           <input
@@ -130,7 +117,7 @@ const HomePage = () => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Talk with AI..."
-            className="flex-1 bg-transparent py-4 px-2 outline-none text-base text-brand-text dark:text-brand-ghost placeholder:text-brand-text/30"
+            className="flex-1 bg-transparent py-4 px-2 outline-none text-base text-slate-900 placeholder:text-slate-300"
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           />
           <button
@@ -152,27 +139,27 @@ const ChatPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-brand-dark transition-colors duration-300">
+    <div className="h-full flex flex-col bg-white">
       {/* Minimal Action Bar */}
-      <div className="px-3 py-2 flex justify-between items-center border-b border-black/5 dark:border-white/5 bg-white dark:bg-black/80 z-10 sticky top-0">
-        <button onClick={() => navigate('/')} className="p-1 text-slate-600 dark:text-slate-300">
+      <div className="px-3 py-2 flex justify-between items-center border-b border-slate-100 bg-white z-10 sticky top-0">
+        <button onClick={() => navigate('/')} className="p-1 text-slate-600">
           <X size={20} />
         </button>
         <span className="text-[10px] font-bold text-brand-indigo uppercase tracking-[0.2em]">TRANSCRIPT</span>
-        <button onClick={() => setIsSidebarOpen(true)} className="p-1 text-slate-600 dark:text-slate-300">
+        <button onClick={() => setIsSidebarOpen(true)} className="p-1 text-slate-600">
           <Settings size={20} />
         </button>
       </div>
 
       {/* Full Screen Text Content */}
       <main className="flex-1 overflow-y-auto px-5 py-6">
-        <div className="text-lg leading-relaxed text-slate-800 dark:text-slate-200 font-medium">
+        <div className="text-lg leading-relaxed text-slate-800 font-medium">
           "Waiting for transcript..." (This will show the AI response in full screen space)
         </div>
       </main>
 
       {/* Minimal Bottom Nav (No Rounds, Compact) */}
-      <div className="border-t border-black/5 dark:border-white/5 bg-slate-50 dark:bg-black/90 px-2 py-3 mt-auto">
+      <div className="border-t border-slate-100 bg-slate-50 px-2 py-3 mt-auto">
         <div className="flex justify-around items-center max-w-md mx-auto">
           <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-brand-indigo/70">
             <RotateCcw size={22} />
@@ -185,7 +172,7 @@ const ChatPage = () => {
             <Play size={24} fill="currentColor" />
           </motion.button>
 
-          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-slate-500 dark:text-slate-400">
+          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-slate-500">
             <Pause size={22} />
           </motion.button>
 

@@ -17,22 +17,24 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  color-scheme: light;
   --bg-primary: #FFFFFF;
-  --bg-secondary: #F8FAFC;
+  --bg-secondary: #F1F5F9;
   --text-primary: #0F172A;
   --text-secondary: #475569;
-  --border-color: #E2E3E5;
+  --border-color: #E2E8F0;
   --brand-color: #4F46E5;
 }
 
-.dark {
-  --bg-primary: #0F172A;
-  --bg-secondary: #1E293B;
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --border-color: #334155;
-  --brand-color: #6366F1;
+/* Force light mode even if system/class is dark */
+.dark,
+:root {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F1F5F9;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --border-color: #E2E8F0;
+  --brand-color: #4F46E5;
 }
 
 html,
