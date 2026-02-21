@@ -152,48 +152,44 @@ const ChatPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-ghost dark:bg-brand-dark transition-colors duration-300">
-      {/* Status Bar / Header */}
-      <div className="p-4 flex justify-between items-center glass border-b border-black/5">
-        <button onClick={() => navigate('/')} className="p-2">
-          <X size={24} />
+      {/* Minimal Action Bar */}
+      <div className="px-2 py-1 flex justify-between items-center border-b border-black/5 dark:border-white/5 bg-white dark:bg-black/80 sticky top-0 z-10">
+        <button onClick={() => navigate('/')} className="p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors">
+          <X size={20} />
         </button>
-        <h1 className="font-bold text-lg text-brand-indigo">Processing...</h1>
-        <button onClick={() => setIsSidebarOpen(true)} className="p-2">
-          <Settings size={24} />
+        <span className="text-[10px] font-bold text-brand-indigo uppercase tracking-[0.2em]">TALK WITH AI</span>
+        <button onClick={() => setIsSidebarOpen(true)} className="p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors">
+          <Settings size={20} />
         </button>
       </div>
 
-      {/* Main Content Area */}
-      <main className="flex-1 p-6 overflow-y-auto">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="glass rounded-3xl p-8 min-h-[60vh] text-xl leading-relaxed shadow-inner"
-        >
-          "Waiting for transcript..." (This will show the AI response)
-        </motion.div>
+      {/* Full Screen Text Content */}
+      <main className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="text-xl leading-relaxed text-brand-text dark:text-brand-ghost">
+          "Waiting for transcript..." (This will show the AI response in full screen space)
+        </div>
       </main>
 
-      {/* Bottom Nav Bar Controls */}
-      <div className="p-6 pb-10 glass rounded-t-[40px] shadow-[0_-10px_40px_-15px_rgba(79,70,229,0.2)]">
-        <div className="flex justify-around items-center max-w-md mx-auto">
-          <motion.button whileTap={{ scale: 0.85 }} className="p-5 rounded-full bg-black/5 dark:bg-white/5 text-brand-indigo">
-            <RotateCcw size={28} />
+      {/* Minimal Bottom Nav (No Rounds, Compact) */}
+      <div className="border-t border-black/5 dark:border-white/5 bg-white dark:bg-black shadow-inner">
+        <div className="flex justify-around items-center py-3 max-w-md mx-auto">
+          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-brand-indigo/60 hover:text-brand-indigo transition-colors font-medium">
+            <RotateCcw size={22} />
           </motion.button>
 
           <motion.button
-            whileTap={{ scale: 0.85 }}
-            className="p-6 rounded-full bg-brand-indigo text-white shadow-brand-indigo"
+            whileTap={{ scale: 0.9 }}
+            className="px-6 py-2 bg-brand-indigo text-white rounded-md shadow-brand-indigo"
           >
-            <Play size={32} fill="currentColor" />
+            <Play size={24} fill="currentColor" />
           </motion.button>
 
-          <motion.button whileTap={{ scale: 0.85 }} className="p-5 rounded-full bg-black/5 dark:bg-white/5 text-brand-dark dark:text-brand-ghost">
-            <Pause size={28} />
+          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-brand-text/60 dark:text-brand-ghost/60">
+            <Pause size={22} />
           </motion.button>
 
-          <motion.button whileTap={{ scale: 0.85 }} className="p-5 rounded-full bg-rose-500/10 text-rose-500">
-            <Square size={28} fill="currentColor" />
+          <motion.button whileTap={{ scale: 0.9 }} className="p-2 text-rose-500/60">
+            <Square size={22} fill="currentColor" />
           </motion.button>
         </div>
       </div>
