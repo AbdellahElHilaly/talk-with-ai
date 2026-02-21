@@ -156,11 +156,11 @@ const ChatPage = () => {
             <Settings size={20} strokeWidth={2} />
           </button>
 
-          <div className="relative h-10 flex-1 flex items-center overflow-hidden">
+          <div className="relative h-10 flex-1 flex items-center overflow-hidden ml-2">
             <AnimatePresence mode="wait">
               {!selectedWord ? (
                 <motion.div
-                  key="status"
+                  key="status-logo"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -20, opacity: 0 }}
@@ -168,20 +168,21 @@ const ChatPage = () => {
                 >
                   <span className="text-[10px] font-black text-brand-indigo uppercase tracking-[0.2em]">Neural Link</span>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Global Memory</span>
+                    <div className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[8px] font-bold text-slate-300 uppercase tracking-widest">Active Sync</span>
                   </div>
                 </motion.div>
               ) : (
                 <motion.div
-                  key="translation"
+                  key={`translation-${selectedWord.en}`}
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -20, opacity: 0 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
                   className="flex flex-col"
                 >
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">{selectedWord.en}</span>
-                  <span className="text-lg font-black text-brand-indigo arabic-text leading-none">{selectedWord.ar}</span>
+                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">{selectedWord.en}</span>
+                  <span className="text-base font-black text-brand-indigo arabic-text leading-none">{selectedWord.ar}</span>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -190,14 +191,14 @@ const ChatPage = () => {
 
         <button
           onClick={() => navigate('/')}
-          className="text-[10px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200 ml-4"
+          className="text-[9px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
         >
           EXIT
         </button>
       </div>
 
-      <main className="flex-1 overflow-y-auto px-6 py-8 space-y-12">
-        <div className="max-w-2xl mx-auto flex flex-col gap-10">
+      <main className="flex-1 overflow-y-auto px-6 py-8">
+        <div className="max-w-2xl mx-auto flex flex-col gap-12">
           {chatData.map((item) => {
             const isAI = item.role === 'ai';
 
@@ -205,28 +206,26 @@ const ChatPage = () => {
               return (
                 <motion.div
                   key={item.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
                   className="self-end max-w-[85%]"
                 >
-                  <div className="bg-white px-6 py-4 rounded-[1.8rem] rounded-tr-none shadow-sm border border-slate-100 text-slate-600 font-medium">
+                  <div className="bg-white px-5 py-3.5 rounded-[1.5rem] rounded-tr-none shadow-sm border border-slate-100 text-slate-600 text-sm font-medium">
                     {item.text}
                   </div>
                 </motion.div>
               );
             }
 
-            // AI Logic
             const words = item.text.split(' ');
             return (
               <motion.div
                 key={item.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
                 className="self-start w-full"
               >
-                <div className="flex flex-col gap-4">
-                  {/* Word List */}
+                <div className="flex flex-col gap-5">
                   <div className="text-2xl md:text-3xl leading-[1.6] font-medium tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-800">
                     {words.map((word, i) => {
                       const cleanedKey = word.toLowerCase().replace(/[.,!?;:]/g, '');
@@ -243,20 +242,29 @@ const ChatPage = () => {
                     })}
                   </div>
 
-                  {/* Separator Line */}
-                  <div className="h-[1px] w-full bg-slate-100" />
+                  <div className="flex flex-col gap-3 group">
+                    <div className="h-[1px] w-full bg-slate-100 group-hover:bg-indigo-50 transition-colors" />
 
-                  {/* Minimal Icons - No BG, No Card */}
-                  <div className="flex items-center gap-6 px-1">
-                    {playbackActions.map((action, idx) => (
-                      <button
-                        key={idx}
-                        className="text-slate-300 hover:text-brand-indigo active:scale-90 transition-all"
-                      >
-                        <action.icon size={18} strokeWidth={2.5} fill={idx === 2 || idx === 3 ? "currentColor" : "none"} className="opacity-60 hover:opacity-100" />
-                      </button>
-                    ))}
-                    <span className="ml-auto text-[8px] font-black text-slate-200 tracking-[0.3em] uppercase">Engine Speak v2</span>
+                    <div className="flex items-center gap-5 px-1">
+                      <div className="flex items-center gap-1.5 opacity-40">
+                        <span className="text-[8px] font-black text-slate-400 tracking-widest uppercase">Sync</span>
+                        <div className="w-1 h-1 rounded-full bg-brand-indigo/30" />
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest mr-1">Act:</span>
+                        {playbackActions.map((action, idx) => (
+                          <button
+                            key={idx}
+                            className="text-slate-300 hover:text-brand-indigo active:scale-90 transition-all p-1"
+                          >
+                            <action.icon size={14} strokeWidth={2.5} fill={idx === 2 || idx === 3 ? "currentColor" : "none"} className="opacity-70 hover:opacity-100" />
+                          </button>
+                        ))}
+                      </div>
+
+                      <span className="ml-auto text-[7px] font-bold text-slate-200 tracking-[0.4em] uppercase">ID: {item.id}AI</span>
+                    </div>
                   </div>
                 </div>
               </motion.div>
