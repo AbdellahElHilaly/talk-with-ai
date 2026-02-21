@@ -137,81 +137,70 @@ const HomePage = () => {
 
 const ChatPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(2); // Default to Play (index 2)
+  const [activeTab, setActiveTab] = useState(2); // Play
   const navigate = useNavigate();
 
   const navItems = [
     { icon: RotateCcw, label: 'Reset' },
     { icon: Pause, label: 'Pause' },
-    { icon: Play, label: 'Play', isMain: true },
+    { icon: Play, label: 'Play' },
     { icon: Square, label: 'Stop' }
   ];
 
   return (
-    <div className="h-full flex flex-col bg-white overflow-hidden">
-      {/* 1. TOP LAYER: Action Bar with Settings */}
-      <div className="px-3 py-2 flex justify-between items-center border-b border-slate-100 bg-white shadow-sm z-10 shrink-0">
-        <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-500">
-          <Settings size={22} />
+    <div className="h-full flex flex-col bg-white">
+      {/* Premium Minimal Header */}
+      <div className="px-6 py-4 flex justify-between items-center border-b border-slate-50 bg-white/80 backdrop-blur-md z-10 sticky top-0">
+        <button onClick={() => setIsSidebarOpen(true)} className="p-1 text-slate-400">
+          <Settings size={22} strokeWidth={1.5} />
         </button>
-        <span className="text-[10px] font-black text-brand-indigo uppercase tracking-[0.3em] absolute left-1/2 -translate-x-1/2">AI TRANSCRIPT</span>
-        <div className="w-10"></div>
+        <span className="text-xs font-bold text-slate-300 uppercase tracking-[0.4em]">Transcript View</span>
+        <div className="w-6"></div>
       </div>
 
-      {/* 2. MIDDLE LAYER: Content */}
-      <main className="flex-1 overflow-y-auto px-6 py-8 flex flex-col items-center">
-        <div className="w-full max-w-2xl text-xl md:text-2xl leading-relaxed text-slate-800 font-medium text-center">
-          "Waiting for transcript..." (AI response will fill this entire middle section automatically)
-        </div>
+      {/* Adaptive Reading Area */}
+      <main className="flex-1 overflow-y-auto px-8 py-12">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="max-w-prose mx-auto"
+        >
+          <div className="text-2xl md:text-3xl leading-[1.6] text-slate-800 font-medium first-letter:text-5xl first-letter:font-bold first-letter:mr-1 first-letter:float-left first-letter:text-brand-indigo">
+            Searching for your voice in the digital void...
+            <span className="inline-block w-1.5 h-6 ml-1 bg-brand-indigo/30 animate-pulse align-middle" />
+          </div>
+        </motion.div>
       </main>
 
-      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - HIGH-FIDELITY WAVE EFFECT */}
-      <div className="relative bg-brand-indigo shrink-0">
-        <div className="relative h-16 flex items-center justify-around px-2 pb-safe">
-
+      {/* Modern Floating Dock Navigation */}
+      <div className="px-6 pb-8 pt-4">
+        <div className="max-w-md mx-auto h-20 bg-slate-900 rounded-[2rem] shadow-2xl shadow-slate-200 flex items-center justify-around px-4 border border-white/10">
           {navItems.map((item, idx) => {
             const isActive = activeTab === idx;
             const Icon = item.icon;
 
             return (
-              <div key={idx} className="relative flex-1 flex justify-center items-center h-full">
-                {/* SVG Smooth Curve Highlight (Pops up locally) */}
-                <AnimatePresence>
+              <button
+                key={idx}
+                onClick={() => setActiveTab(idx)}
+                className="relative flex flex-col items-center justify-center w-14 h-14 transition-all"
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeGlow"
+                    className="absolute inset-0 bg-brand-indigo/20 rounded-2xl blur-md"
+                  />
+                )}
+                <div className={`relative z-10 transition-all ${isActive ? 'text-white scale-110' : 'text-slate-500'}`}>
+                  <Icon size={24} fill={isActive && (idx === 2 || idx === 3) ? 'currentColor' : 'none'} strokeWidth={isActive ? 2.5 : 2} />
                   {isActive && (
                     <motion.div
-                      initial={{ y: 20, opacity: 0, scale: 0.8 }}
-                      animate={{ y: 0, opacity: 1, scale: 1 }}
-                      exit={{ y: 20, opacity: 0, scale: 0.8 }}
-                      className="absolute -top-[31px] z-10 pointer-events-none"
-                    >
-                      <svg width="120" height="40" viewBox="0 0 120 40" className="text-brand-indigo fill-current">
-                        <path d="M0 40 C20 40 35 40 40 30 C45 20 50 0 60 0 C70 0 75 20 80 30 C85 40 100 40 120 40 L120 40 L0 40 Z" />
-                      </svg>
-                    </motion.div>
+                      layoutId="activeIndicator"
+                      className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-brand-indigo rounded-full"
+                    />
                   )}
-                </AnimatePresence>
-
-                {/* Button elevated above the wave peak */}
-                <motion.button
-                  animate={{
-                    y: isActive ? -18 : 0,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 350,
-                    damping: 25
-                  }}
-                  onClick={() => setActiveTab(idx)}
-                  className={`relative z-20 p-1 flex flex-col items-center transition-colors text-white ${isActive ? 'opacity-100 scale-110' : 'opacity-40'
-                    }`}
-                >
-                  <Icon
-                    size={isActive ? 28 : 22}
-                    fill="currentColor"
-                  />
-                  {!isActive && <span className="text-[8px] font-bold mt-1 uppercase tracking-tighter">{item.label}</span>}
-                </motion.button>
-              </div>
+                </div>
+              </button>
             );
           })}
         </div>
