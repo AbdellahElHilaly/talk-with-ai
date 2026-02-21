@@ -100,10 +100,50 @@ const HomePage = () => {
   );
 };
 
+const Word = ({ en, ar }) => {
+  const [showArabic, setShowArabic] = useState(false);
+
+  return (
+    <motion.span
+      onClick={() => setShowArabic(!showArabic)}
+      whileTap={{ scale: 0.95 }}
+      layout
+      className={`inline-block cursor-pointer px-1 rounded-md transition-all duration-300 ${showArabic
+          ? 'text-brand-indigo bg-indigo-50/50 font-bold arabic-text'
+          : 'text-slate-700 hover:text-brand-indigo hover:bg-slate-50'
+        }`}
+    >
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={showArabic ? 'ar' : 'en'}
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -5 }}
+          transition={{ duration: 0.2 }}
+        >
+          {showArabic ? ar : en}
+        </motion.span>
+      </AnimatePresence>
+    </motion.span>
+  );
+};
+
 const ChatPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(2); // Play
   const navigate = useNavigate();
+
+  const mockTranscript = [
+    { en: "Experience", ar: "الخبرة" },
+    { en: "is", ar: "هي" },
+    { en: "the", ar: "الـ" },
+    { en: "name", ar: "اسم" },
+    { en: "everyone", ar: "الذي يطلقه الجميع" },
+    { en: "gives", ar: "" }, // Merged in everyone for context
+    { en: "to", ar: "على" },
+    { en: "their", ar: "أخطائهم." },
+    { en: "mistakes.", ar: "" },
+  ].filter(w => w.en !== "");
 
   const navItems = [
     { icon: RotateCcw, label: 'Reset' },
@@ -114,8 +154,8 @@ const ChatPage = () => {
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* MAGICAL TOP BAR - Ultra Glassy & Minimal */}
-      <div className="px-6 py-4 flex justify-between items-center z-10 sticky top-0">
+      {/* MAGICAL TOP BAR */}
+      <div className="px-6 py-4 flex justify-between items-center z-10 sticky top-0 bg-white/80 backdrop-blur-md">
         <div className="flex items-center gap-4">
           <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-brand-indigo transition-colors">
             <Settings size={20} strokeWidth={2} />
@@ -131,7 +171,7 @@ const ChatPage = () => {
 
         <button
           onClick={() => navigate('/')}
-          className="text-[10px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all"
+          className="text-[10px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
         >
           EXIT
         </button>
@@ -143,14 +183,21 @@ const ChatPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-2xl mx-auto"
         >
-          <div className="text-2xl md:text-4xl leading-[1.7] text-slate-800 font-medium tracking-tight">
-            <span className="text-brand-indigo py-1 px-3 bg-indigo-50 rounded-lg mr-2 font-bold">AI:</span>
-            Thinking... <span className="inline-block w-2 h-8 ml-1 bg-brand-indigo/20 animate-pulse rounded-full align-middle" />
-            <br />
-            <p className="mt-6 text-slate-400 text-lg leading-relaxed italic">
-              Experience is the name everyone gives to their mistakes. Let's see what we can learn together from this prompt...
-            </p>
+          <div className="flex items-start gap-4 mb-8">
+            <span className="text-brand-indigo py-1.5 px-3 bg-indigo-50 rounded-xl font-black text-xs">AI TRANSCRIPT</span>
+            <div className="h-px flex-1 bg-slate-50 mt-2.5" />
           </div>
+
+          <div className="text-3xl md:text-4xl leading-[1.8] font-medium tracking-tight flex flex-wrap gap-x-2 gap-y-3">
+            {mockTranscript.map((word, i) => (
+              <Word key={i} en={word.en} ar={word.ar} />
+            ))}
+            <span className="inline-block w-2 h-8 ml-1 bg-brand-indigo/10 animate-pulse rounded-full align-middle outline-none" />
+          </div>
+
+          <p className="mt-12 text-slate-300 text-sm font-bold uppercase tracking-[0.3em] text-center border-t border-slate-50 pt-8">
+            Tap any word to translate
+          </p>
         </motion.div>
       </main>
 
