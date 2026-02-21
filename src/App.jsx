@@ -165,7 +165,7 @@ const ChatPage = () => {
         </div>
       </main>
 
-      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - LOCAL POP-UP EFFECT */}
+      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - SMOOTH BULGE EFFECT */}
       <div className="relative bg-brand-indigo shrink-0">
         <div className="relative h-12 flex items-center justify-around px-2 pb-safe">
 
@@ -175,17 +175,17 @@ const ChatPage = () => {
 
             return (
               <div key={idx} className="relative flex-1 flex justify-center items-center h-full">
-                {/* Individual Highlight (No sliding, just pops up) */}
+                {/* Smooth Circular "Hump" Highlight */}
                 <AnimatePresence>
                   {isActive && (
                     <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      className="absolute -top-4 w-12 h-12 bg-brand-indigo rounded-2xl rotate-45 z-10"
+                      initial={{ y: 10, opacity: 0, scaleX: 0.5 }}
+                      animate={{ y: 0, opacity: 1, scaleX: 1 }}
+                      exit={{ y: 10, opacity: 0, scaleX: 0.5 }}
+                      className="absolute -top-5 w-16 h-12 bg-brand-indigo rounded-[50%] z-10"
                       transition={{
                         type: "spring",
-                        stiffness: 400,
+                        stiffness: 300,
                         damping: 25
                       }}
                     />
@@ -195,11 +195,11 @@ const ChatPage = () => {
                 {/* Button with Filled Icons */}
                 <motion.button
                   animate={{
-                    y: isActive ? -12 : 0,
+                    y: isActive ? -14 : 0,
                   }}
                   transition={{
                     type: "spring",
-                    stiffness: 400,
+                    stiffness: 350,
                     damping: 25
                   }}
                   onClick={() => setActiveTab(idx)}
