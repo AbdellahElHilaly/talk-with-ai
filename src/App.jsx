@@ -1,84 +1,20 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { Search, Send, Play, Square, Pause, RotateCcw, Settings, X, Moon, Sun, FastForward } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Play, Square, Pause, RotateCcw, Settings } from 'lucide-react';
+import { motion } from 'framer-motion';
+import Sidebar from './components/Sidebar';
 
-// --- Components ---
-
-const Sidebar = ({ isOpen, onClose }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-  const [speed, setSpeed] = useState(1);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
-  };
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
-          />
-          <motion.div
-            initial={{ x: '-100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
-            className="fixed left-0 top-0 h-full w-4/5 max-w-sm glass z-50 p-6 flex flex-col gap-8 shadow-2xl"
-          >
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-brand-indigo">Settings</h2>
-              <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-6">
-              {/* API Key Input */}
-              <div className="flex flex-col gap-2">
-                <label className="font-medium text-lg">Groq API Key</label>
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="Paste your key here..."
-                  className="w-full p-4 rounded-xl bg-slate-100 border border-slate-200 outline-none focus:border-brand-indigo transition-all"
-                />
-              </div>
-
-              {/* Play Speed Slider */}
-              <div className="flex flex-col gap-4">
-                <div className="flex justify-between items-center">
-                  <label className="font-medium text-lg text-brand-text">Play Speed</label>
-                  <span className="text-brand-indigo font-bold">{speed}x</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.5"
-                  max="2.0"
-                  step="0.1"
-                  value={speed}
-                  onChange={(e) => setSpeed(e.target.value)}
-                  className="w-full h-2 bg-brand-indigo/20 rounded-lg appearance-none cursor-pointer accent-brand-indigo"
-                />
-              </div>
-            </div>
-
-            <div className="mt-auto text-center text-sm opacity-50">
-              v1.0.0-mobile
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-};
+// --- Screen Assets & Helpers ---
+const GlassButton = ({ children, onClick, active = false }) => (
+  <motion.button
+    whileTap={{ scale: 0.9 }}
+    onClick={onClick}
+    className={`p-4 rounded-[1.5rem] transition-all ${active ? 'bg-brand-indigo text-white shadow-lg shadow-indigo-200' : 'bg-white text-slate-400 border border-slate-100'
+      }`}
+  >
+    {children}
+  </motion.button>
+);
 
 // --- Pages ---
 
@@ -94,36 +30,50 @@ const HomePage = () => {
   };
 
   return (
-    <div className="h-full w-full relative flex flex-col bg-white overflow-hidden">
-      {/* Settings Button */}
+    <div className="h-full w-full relative flex flex-col bg-slate-50 overflow-hidden font-sans">
+      {/* Magical Minimal Header - Floating Spark */}
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
+        <div className="w-1.5 h-1.5 rounded-full bg-brand-indigo animate-ping" />
+        <span className="text-[10px] font-black tracking-[0.5em] text-slate-300 uppercase">Mind Nexus</span>
+      </div>
+
       <button
         onClick={() => setIsSidebarOpen(true)}
-        className="absolute top-[2%] right-[5%] p-3 rounded-full z-10 text-slate-400 bg-slate-50 border border-slate-100"
+        className="absolute top-6 right-6 p-4 rounded-2xl z-10 text-slate-400 bg-white/80 backdrop-blur-xl border border-white shadow-soft transition-all active:scale-95"
       >
         <Settings size={20} />
       </button>
 
-      {/* Center Search - 90% Width for all phones */}
-      <div className="flex-1 flex flex-col items-center justify-center">
+      <div className="flex-1 flex flex-col items-center justify-center p-10">
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="text-center mb-16"
+        >
+          <h1 className="text-5xl font-black text-slate-900 tracking-tighter mb-4 leading-none">
+            Hello, <br />
+            <span className="text-brand-indigo">Seeker.</span>
+          </h1>
+          <p className="text-slate-400 font-medium">What's on your mind today?</p>
+        </motion.div>
+
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-[90%] bg-white border-2 border-slate-100 rounded-2xl flex items-center shadow-2xl shadow-slate-200/40 overflow-hidden"
+          transition={{ type: "spring", damping: 20 }}
+          className="w-full max-w-md bg-white p-2.5 rounded-[2.8rem] flex items-center shadow-magical border border-white"
         >
-          <div className="pl-[4%] pr-[2%] text-slate-300">
-            <Search size={22} />
-          </div>
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1 bg-transparent py-5 px-2 outline-none text-lg text-slate-900 placeholder:text-slate-300 w-full"
+            placeholder="Whisper your thoughts..."
+            className="flex-1 bg-transparent py-5 px-6 outline-none text-lg text-slate-900 placeholder:text-slate-200"
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           />
           <button
             onClick={handleSend}
-            className="bg-brand-indigo text-white p-5 active:bg-brand-indigo/90 transition-colors"
+            className="bg-brand-indigo text-white h-14 w-14 rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 active:scale-90 transition-transform"
           >
             <Send size={22} />
           </button>
@@ -149,32 +99,52 @@ const ChatPage = () => {
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Premium Minimal Header */}
-      <div className="px-6 py-4 flex justify-between items-center border-b border-slate-50 bg-white/80 backdrop-blur-md z-10 sticky top-0">
-        <button onClick={() => setIsSidebarOpen(true)} className="p-1 text-slate-400">
-          <Settings size={22} strokeWidth={1.5} />
+      {/* MAGICAL TOP BAR - Ultra Glassy & Minimal */}
+      <div className="px-6 py-4 flex justify-between items-center z-10 sticky top-0">
+        <div className="flex items-center gap-4">
+          <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-brand-indigo transition-colors">
+            <Settings size={20} strokeWidth={2} />
+          </button>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-brand-indigo uppercase tracking-[0.2em]">Neural Link</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Connected</span>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => navigate('/')}
+          className="text-[10px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all"
+        >
+          EXIT
         </button>
-        <span className="text-xs font-bold text-slate-300 uppercase tracking-[0.4em]">Transcript View</span>
-        <div className="w-6"></div>
       </div>
 
-      {/* Adaptive Reading Area */}
-      <main className="flex-1 overflow-y-auto px-8 py-12">
+      <main className="flex-1 overflow-y-auto px-8 py-10">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="max-w-prose mx-auto"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-2xl mx-auto"
         >
-          <div className="text-2xl md:text-3xl leading-[1.6] text-slate-800 font-medium first-letter:text-5xl first-letter:font-bold first-letter:mr-1 first-letter:float-left first-letter:text-brand-indigo">
-            Searching for your voice in the digital void...
-            <span className="inline-block w-1.5 h-6 ml-1 bg-brand-indigo/30 animate-pulse align-middle" />
+          <div className="text-2xl md:text-4xl leading-[1.7] text-slate-800 font-medium tracking-tight">
+            <span className="text-brand-indigo py-1 px-3 bg-indigo-50 rounded-lg mr-2 font-bold">AI:</span>
+            Thinking... <span className="inline-block w-2 h-8 ml-1 bg-brand-indigo/20 animate-pulse rounded-full align-middle" />
+            <br />
+            <p className="mt-6 text-slate-400 text-lg leading-relaxed italic">
+              Experience is the name everyone gives to their mistakes. Let's see what we can learn together from this prompt...
+            </p>
           </div>
         </motion.div>
       </main>
 
-      {/* Modern Floating Dock Navigation */}
-      <div className="px-6 pb-8 pt-4">
-        <div className="max-w-md mx-auto h-20 bg-slate-900 rounded-[2rem] shadow-2xl shadow-slate-200 flex items-center justify-around px-4 border border-white/10">
+      {/* Floating Dock Navigation */}
+      <div className="px-6 pb-10 pt-4">
+        <div className="max-w-md mx-auto h-20 bg-slate-900 rounded-[2.5rem] shadow-magical-dark flex items-center justify-around px-5 border border-white/5 relative overflow-hidden">
+          {/* Internal Glow Effect */}
+          <div className="absolute top-0 left-1/4 w-1/2 h-1 bg-gradient-to-r from-transparent via-brand-indigo/40 to-transparent blur-sm" />
+
           {navItems.map((item, idx) => {
             const isActive = activeTab === idx;
             const Icon = item.icon;
@@ -183,20 +153,20 @@ const ChatPage = () => {
               <button
                 key={idx}
                 onClick={() => setActiveTab(idx)}
-                className="relative flex flex-col items-center justify-center w-14 h-14 transition-all"
+                className="relative flex flex-col items-center justify-center w-14 h-14"
               >
                 {isActive && (
                   <motion.div
                     layoutId="activeGlow"
-                    className="absolute inset-0 bg-brand-indigo/20 rounded-2xl blur-md"
+                    className="absolute inset-0 bg-brand-indigo/10 rounded-3xl blur-xl"
                   />
                 )}
-                <div className={`relative z-10 transition-all ${isActive ? 'text-white scale-110' : 'text-slate-500'}`}>
-                  <Icon size={24} fill={isActive && (idx === 2 || idx === 3) ? 'currentColor' : 'none'} strokeWidth={isActive ? 2.5 : 2} />
+                <div className={`relative z-10 transition-all duration-300 ${isActive ? 'text-white scale-125' : 'text-slate-500'}`}>
+                  <Icon size={22} fill={isActive && (idx === 2 || idx === 3) ? 'currentColor' : 'none'} strokeWidth={isActive ? 2.5 : 2} />
                   {isActive && (
                     <motion.div
                       layoutId="activeIndicator"
-                      className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-brand-indigo rounded-full"
+                      className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-brand-indigo rounded-full shadow-[0_0_8px_#4F46E5]"
                     />
                   )}
                 </div>
@@ -211,7 +181,7 @@ const ChatPage = () => {
   );
 };
 
-function App() {
+const App = () => {
   return (
     <Router basename="/talk-with-ai">
       <Routes>
