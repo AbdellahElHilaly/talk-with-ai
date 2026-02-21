@@ -98,19 +98,19 @@ const HomePage = () => {
       {/* Settings Button */}
       <button
         onClick={() => setIsSidebarOpen(true)}
-        className="absolute top-4 right-4 p-3 rounded-full z-10 text-slate-400 bg-slate-50 border border-slate-100"
+        className="absolute top-[2%] right-[5%] p-3 rounded-full z-10 text-slate-400 bg-slate-50 border border-slate-100"
       >
         <Settings size={20} />
       </button>
 
-      {/* Center Search - Spans full height with margin */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10">
+      {/* Center Search - 90% Width for all phones */}
+      <div className="flex-1 flex flex-col items-center justify-center">
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-full max-w-md bg-white border-2 border-slate-100 rounded-3xl flex items-center shadow-2xl shadow-slate-200/50 overflow-hidden"
+          className="w-[90%] bg-white border-2 border-slate-100 rounded-2xl flex items-center shadow-2xl shadow-slate-200/40 overflow-hidden"
         >
-          <div className="pl-5 pr-2 text-slate-300">
+          <div className="pl-[4%] pr-[2%] text-slate-300">
             <Search size={22} />
           </div>
           <input
@@ -118,14 +118,14 @@ const HomePage = () => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 bg-transparent py-6 px-2 outline-none text-xl text-slate-900 placeholder:text-slate-300"
+            className="flex-1 bg-transparent py-5 px-2 outline-none text-lg text-slate-900 placeholder:text-slate-300 w-full"
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           />
           <button
             onClick={handleSend}
-            className="bg-brand-indigo text-white p-6 active:bg-brand-indigo/90 transition-colors"
+            className="bg-brand-indigo text-white p-5 active:bg-brand-indigo/90 transition-colors"
           >
-            <Send size={24} />
+            <Send size={22} />
           </button>
         </motion.div>
       </div>
