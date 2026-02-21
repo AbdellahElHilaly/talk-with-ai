@@ -252,15 +252,28 @@ const ChatPage = () => {
                       </div>
 
                       <div className="flex items-center gap-4">
-                        <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest mr-1">Act:</span>
-                        {playbackActions.map((action, idx) => (
-                          <button
-                            key={idx}
-                            className="text-slate-300 hover:text-brand-indigo active:scale-90 transition-all p-1"
-                          >
-                            <action.icon size={14} strokeWidth={2.5} fill={idx === 2 || idx === 3 ? "currentColor" : "none"} className="opacity-70 hover:opacity-100" />
-                          </button>
-                        ))}
+                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mr-1">Act:</span>
+                        {playbackActions.map((action, idx) => {
+                          const colors = [
+                            'text-slate-500 hover:text-slate-700', // Reset
+                            'text-amber-500 hover:text-amber-600', // Pause
+                            'text-brand-indigo hover:text-indigo-700', // Play
+                            'text-rose-500 hover:text-rose-600'  // Stop
+                          ];
+                          return (
+                            <button
+                              key={idx}
+                              className={`${colors[idx]} active:scale-90 transition-all p-1 drop-shadow-sm`}
+                            >
+                              <action.icon
+                                size={15}
+                                strokeWidth={2.5}
+                                fill={idx === 2 || idx === 3 ? "currentColor" : "none"}
+                                className="opacity-90 hover:opacity-100"
+                              />
+                            </button>
+                          );
+                        })}
                       </div>
 
                       <span className="ml-auto text-[7px] font-bold text-slate-200 tracking-[0.4em] uppercase">ID: {item.id}AI</span>
