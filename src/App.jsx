@@ -165,7 +165,7 @@ const ChatPage = () => {
         </div>
       </main>
 
-      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - STABLE & SMOOTH */}
+      {/* 3. FULL-WIDTH DYNAMIC BOTTOM NAV - LOCAL POP-UP EFFECT */}
       <div className="relative bg-brand-indigo shrink-0">
         <div className="relative h-12 flex items-center justify-around px-2 pb-safe">
 
@@ -175,19 +175,22 @@ const ChatPage = () => {
 
             return (
               <div key={idx} className="relative flex-1 flex justify-center items-center h-full">
-                {/* The "Carve" / Highlight - Stable shared layout */}
-                {isActive && (
-                  <motion.div
-                    layoutId="active-pill"
-                    className="absolute -top-4 w-12 h-12 bg-brand-indigo rounded-2xl rotate-45 z-10"
-                    transition={{
-                      type: "spring",
-                      stiffness: 250,
-                      damping: 30,
-                      mass: 1
-                    }}
-                  />
-                )}
+                {/* Individual Highlight (No sliding, just pops up) */}
+                <AnimatePresence>
+                  {isActive && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      className="absolute -top-4 w-12 h-12 bg-brand-indigo rounded-2xl rotate-45 z-10"
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 25
+                      }}
+                    />
+                  )}
+                </AnimatePresence>
 
                 {/* Button with Filled Icons */}
                 <motion.button
@@ -196,8 +199,8 @@ const ChatPage = () => {
                   }}
                   transition={{
                     type: "spring",
-                    stiffness: 250,
-                    damping: 30
+                    stiffness: 400,
+                    damping: 25
                   }}
                   onClick={() => setActiveTab(idx)}
                   className={`relative z-20 p-1 flex flex-col items-center transition-colors text-white ${isActive ? 'opacity-100 scale-110' : 'opacity-40'
