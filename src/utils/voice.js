@@ -65,15 +65,13 @@ class VoiceEngine {
 
             // Handle playback errors
             this.audioElement.onerror = (e) => {
-                console.error('Audio Element Error:', e);
-                this.speakBrowser(text, langCode, customVoiceId);
+                console.error('Audio Element Error - Premium voice failed to play:', e);
             };
 
             await this.audioElement.play();
         } catch (error) {
-            console.error('ElevenLabs TTS Error:', error);
-            // Fallback to browser synth
-            this.speakBrowser(text, langCode, customVoiceId);
+            console.error('ElevenLabs TTS Error - Premium voice failed:', error);
+            // Fallback disabled per user request: stop browser voices if API key exists
         }
     }
 
