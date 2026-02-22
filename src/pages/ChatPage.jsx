@@ -181,7 +181,7 @@ const ChatPage = () => {
                                 className={`${rtl ? 'self-end' : 'self-start'} w-full`}
                             >
                                 <div className="flex flex-col gap-5">
-                                    <div className={`text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-950 ${rtl ? 'flex-row-reverse text-right' : ''}`}>
+                                    <div className="text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-950">
                                         {words.map((word, i) => {
                                             const cleanedKey = word.toLowerCase().replace(/[.,!?;:]/g, '');
                                             const translation = item.translate?.[cleanedKey];

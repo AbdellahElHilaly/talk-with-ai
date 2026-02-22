@@ -30,7 +30,7 @@ export const isStaticMode = () => {
  */
 export const chatWithGroq = async (messages, apiKey) => {
     const systemPrompt = `You are a helpful English teacher powered by Llama. 
-    Rule 1: Keep your replies very short and simple (maximum 1 sentence).
+    Rule 1: Keep your replies conversational and educational (2-3 sentences).
     Rule 2: You MUST return a JSON object with this exact structure:
     { "text": "English response", "translate": { "key_word": "Arabic translation", ... } }
     Every difficult word should have a translation in the "translate" object.`;
