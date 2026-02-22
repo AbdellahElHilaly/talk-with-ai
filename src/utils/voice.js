@@ -20,21 +20,21 @@ class VoiceEngine {
 
         const voiceMap = {
             en: {
-                'Female 1': '21m00Tcm4TlvDq8ikWAM', // Rachel
-                'Male 1': 'pNInz6obpgDQGcFmaJgB',   // Adam
-                'Female 2': 'wrxvN1LZJIfL3HHvffqe', // Bella
-                'Male 2': 'VR6AewLTigWG4xSOukaG',   // Arnold
-                'Female 3': 'AZnzlk1Xhk61S3Y90Yx8', // Nicole (English)
-                'Male 3': 'ODq5zmihS636P6IasYy8'    // Josh (English)
+                'Female 1': '21m00Tcm4TlvDq8ikWAM', // Rachel (Safe)
+                'Male 1': 'pNInz6obpgDQGcFmaJgB',   // Adam (Safe)
+                'Female 2': 'EXAVITQu4vr4xnSDxMaL', // Bella (Safe)
+                'Male 2': 'VR6AewrXVreHct0p9W69',   // Arnold (Safe)
+                'Female 3': 'AZnzlk1Xhk61S3Y90Yx8', // Nicole (Safe)
+                'Male 3': 'txP8QU9LUOocPaU3bhoc'    // Josh (Safe)
             },
             ar: {
-                // Using Arabic-optimized voices for the Arabic version
-                'Female 1': 'u0TsaWvt0v8migutHM3M', // Ghizlane (Arabic)
-                'Male 1': 'UR972wNGq3zluze0LoIp',   // Haytham (Arabic)
-                'Female 2': 'qi4PkV9c01kb869Vh7Su', // Asmaa (Arabic)
-                'Male 2': 'ldeGOUQJqLGjlVgYn7YL',   // Wahab (Arabic)
-                'Female 3': 'm8zCq6K9Sru2yLpX3Cj1', // Sana (Arabic)
-                'Male 3': 'wUR92NGq3zluze0LoIp'     // Khaled (Arabic)
+                // Using the same Safe Pre-made voices as they support Multilingual v2
+                'Female 1': '21m00Tcm4TlvDq8ikWAM',
+                'Male 1': 'pNInz6obpgDQGcFmaJgB',
+                'Female 2': 'EXAVITQu4vr4xnSDxMaL',
+                'Male 2': 'VR6AewrXVreHct0p9W69',
+                'Female 3': 'AZnzlk1Xhk61S3Y90Yx8',
+                'Male 3': 'txP8QU9LUOocPaU3bhoc'
             }
         };
 
@@ -158,8 +158,8 @@ class VoiceEngine {
                 'Male 1': "المعرفة الحقيقية هي أن تعرف عمق جهلك. هل نبدأ الاستكشاف؟",
                 'Female 2': "النجوم لا تخشى اللمعان في الظلام. أطلق العنان لأفكارك.",
                 'Male 2': "رحلة الألف ميل تبدأ بكلمة واحدة. أنا آرنولد، رفيقك.",
-                'Female 3': "اللطف لغة يسمعها الأصم ويراها الكفيف. أنا سناء.",
-                'Male 3': "كل ما تريده يقع على الجانب الآخر من الخوف. أنا خالد."
+                'Female 3': "اللطف لغة يسمعها الأصم ويراها الكفيف. أنا نيكول.",
+                'Male 3': "كل ما تريده يقع على الجانب الآخر من الخوف. أنا جوش."
             }
         };
 
