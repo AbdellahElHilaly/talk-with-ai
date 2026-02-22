@@ -9,10 +9,16 @@ import { voiceEngine } from '../utils/voice';
 const Sidebar = ({ isOpen, onClose }) => {
     const [lang, setLang] = useState(getCurrentLang());
     const [apiKey, setApiKey] = useState(localStorage.getItem('groq_api_key') || '');
+    const [googleKey, setGoogleKey] = useState(localStorage.getItem('google_tts_key') || '');
     const [speed, setSpeed] = useState(parseFloat(localStorage.getItem('voice_speed')) || 1);
     const [selectedVoice, setSelectedVoice] = useState(localStorage.getItem('selected_voice') || 'Female 1');
     const [isValidating, setIsValidating] = useState(false);
     const [isVerified, setIsVerified] = useState(!!localStorage.getItem('groq_api_key') && localStorage.getItem('groq_api_key') !== 'static');
+
+    const saveGoogleKey = () => {
+        localStorage.setItem('google_tts_key', googleKey);
+        alert(lang === 'ar' ? "تم حفظ مفتاح Google TTS! 🚀" : "Google TTS Key Saved! 🚀");
+    };
 
     const t = translations[lang];
     const rtl = isRTL();
@@ -142,6 +148,33 @@ const Sidebar = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
 
+                            {/* API Section (GOOGLE CLOUD) */}
+                            <div className="flex flex-col gap-4 text-left">
+                                <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{t.cloudVoice}</label>
+                                    {googleKey && googleKey.length > 10 && <CheckCircle2 size={14} className="text-brand-indigo" />}
+                                </div>
+                                <div className="space-y-3">
+                                    <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
+                                        {t.googleHelp}
+                                    </p>
+                                    <input
+                                        type="password"
+                                        value={googleKey}
+                                        onChange={(e) => setGoogleKey(e.target.value)}
+                                        placeholder="AIza..."
+                                        className={`w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-brand-indigo/30 outline-none transition-all text-slate-950 font-mono text-xs ${rtl ? 'text-right' : 'text-left'}`}
+                                    />
+                                    <motion.button
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={saveGoogleKey}
+                                        className="w-full py-3 bg-brand-indigo/10 text-brand-indigo rounded-xl font-black text-[9px] uppercase tracking-[0.1em] hover:bg-brand-indigo/20 transition-all"
+                                    >
+                                        {t.saveKey}
+                                    </motion.button>
+                                </div>
+                            </div>
+
                             {/* Voice Selection */}
                             <div className="flex flex-col gap-4 text-left">
                                 <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{t.voiceEngine}</label>
@@ -151,8 +184,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                                             key={v.id}
                                             onClick={() => handleVoiceSelect(v.id)}
                                             className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${selectedVoice === v.id
-                                                    ? 'border-brand-indigo bg-indigo-50/30'
-                                                    : 'border-slate-50 hover:border-indigo-100'
+                                                ? 'border-brand-indigo bg-indigo-50/30'
+                                                : 'border-slate-50 hover:border-indigo-100'
                                                 }`}
                                         >
                                             <v.icon className={`w-5 h-5 ${v.color}`} />

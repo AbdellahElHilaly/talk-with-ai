@@ -36,7 +36,12 @@ export const translations = {
         devModeAlert: "Dev Mode: Static exploration active. Add API key in settings when ready!",
         language: "Language",
         arabic: "العربية",
-        english: "English"
+        english: "English",
+        cloudVoice: "Cloud Voice (Pro)",
+        googleApiKey: "Google TTS API Key",
+        googleHelp: "Optional: Add Google Cloud API key for premium Arabic & English voices.",
+        saveKey: "Save Key",
+        notSet: "Not set (using browser)"
     },
     ar: {
         readyToBloom: "هل أنت مستعد لـ",
@@ -75,6 +80,11 @@ export const translations = {
         devModeAlert: "وضع التطوير: الاستكشاف الثابت نشط. أضف مفتاح API في الإعدادات عندما تكون مستعداً!",
         language: "اللغة",
         arabic: "العربية",
-        english: "English"
+        english: "English",
+        cloudVoice: "صوت سحابي (احترافي)",
+        googleApiKey: "مفتاح Google TTS API",
+        googleHelp: "اختياري: أضف مفتاح Google Cloud لأصوات عربية وإنجليزية عالية الجودة.",
+        saveKey: "حفظ المفتاح",
+        notSet: "غير مفعل (يتم استخدام المتصفح)"
     }
 };
