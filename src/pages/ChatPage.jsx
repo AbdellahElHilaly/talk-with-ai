@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import Word from '../components/Word';
 import chatData from '../data/data.json';
-import { isStaticMode, chatWithGrok } from '../utils/auth';
+import { isStaticMode, chatWithGroq } from '../utils/auth';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 
@@ -79,7 +79,7 @@ const ChatPage = () => {
             }));
             context.push({ role: 'user', content: userMsg.text });
 
-            const aiResponse = await chatWithGrok(context, apiKey);
+            const aiResponse = await chatWithGroq(context, apiKey);
 
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
@@ -87,7 +87,7 @@ const ChatPage = () => {
                 ...aiResponse
             }]);
         } catch (error) {
-            alert("Grok Error: " + error.message);
+            alert("Groq Error: " + error.message);
         } finally {
             setIsAITyping(false);
         }
