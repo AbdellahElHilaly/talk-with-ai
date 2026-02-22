@@ -123,7 +123,14 @@ const Sidebar = ({ isOpen, onClose }) => {
                             {/* API Section */}
                             <div className="flex flex-col gap-4 text-left">
                                 <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{t.groqIntelligence}</label>
+                                    <a
+                                        href="https://console.groq.com/keys"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="group/link flex items-center gap-2"
+                                    >
+                                        <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover/link:text-brand-indigo transition-colors">{t.groqIntelligence}</label>
+                                    </a>
                                     {isVerified && <CheckCircle2 size={14} className="text-emerald-500" />}
                                 </div>
                                 <div className="space-y-3">
@@ -151,7 +158,14 @@ const Sidebar = ({ isOpen, onClose }) => {
                             {/* API Section (GOOGLE CLOUD) */}
                             <div className="flex flex-col gap-4 text-left">
                                 <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{t.cloudVoice}</label>
+                                    <a
+                                        href="https://console.cloud.google.com/apis/credentials"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="group/link flex items-center gap-2"
+                                    >
+                                        <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover/link:text-brand-indigo transition-colors">{t.cloudVoice}</label>
+                                    </a>
                                     {googleKey && googleKey.length > 10 && <CheckCircle2 size={14} className="text-brand-indigo" />}
                                 </div>
                                 <div className="space-y-3">
