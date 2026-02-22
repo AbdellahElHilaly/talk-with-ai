@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { validateGroqKey } from '../utils/auth';
+import { validateGrokKey } from '../utils/auth';
 import { translations } from '../utils/translations';
 import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
 import { voiceEngine } from '../utils/voice';
@@ -52,13 +52,13 @@ const Sidebar = ({ isOpen, onClose }) => {
     };
 
     const validateKey = async () => {
-        if (!apiKey.startsWith('gsk_')) {
-            alert(lang === 'ar' ? "يرجى إدخال مفتاح Groq صحيح يبدأ بـ 'gsk_'." : "Please enter a valid Groq key starting with 'gsk_'.");
+        if (!apiKey) {
+            alert(lang === 'ar' ? "يرجى إدخال مفتاح Grok." : "Please enter a Grok key.");
             return;
         }
 
         setIsValidating(true);
-        const isValid = await validateGroqKey(apiKey);
+        const isValid = await validateGrokKey(apiKey);
 
         if (isValid) {
             localStorage.setItem('groq_api_key', apiKey);
@@ -137,7 +137,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                 <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
                                     <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
                                         <a
-                                            href="https://console.groq.com/keys"
+                                            href="https://console.x.ai"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="group/link"

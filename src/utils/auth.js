@@ -1,13 +1,11 @@
 /**
- * Validates a Groq API Key by making a minimal test call.
- * @param {string} apiKey 
- * @returns {Promise<boolean>}
+ * Validates an xAI Grok API Key by making a minimal test call.
  */
-export const validateGroqKey = async (apiKey) => {
-    if (!apiKey || !apiKey.startsWith('gsk_')) return false;
+export const validateGrokKey = async (apiKey) => {
+    if (!apiKey) return false;
 
     try {
-        const response = await fetch('https://api.groq.com/openai/v1/models', {
+        const response = await fetch('https://api.x.ai/v1/models', {
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
@@ -15,12 +13,12 @@ export const validateGroqKey = async (apiKey) => {
         });
         return response.ok;
     } catch (err) {
-        console.error("API Validation Error:", err);
+        console.error("xAI Validation Error:", err);
         return false;
     }
 };
 
-export const getSavedApiKey = () => localStorage.getItem('groq_api_key');
+export const getSavedApiKey = () => localStorage.getItem('groq_api_key'); // Keeping key for data persistence
 export const saveApiKey = (key) => localStorage.setItem('groq_api_key', key);
 export const isStaticMode = () => {
     const key = localStorage.getItem('groq_api_key');
@@ -28,24 +26,24 @@ export const isStaticMode = () => {
 };
 
 /**
- * Sends a message to Groq and expects a JSON response with translation.
+ * Sends a message to xAI Grok and expects a JSON response with translation.
  */
-export const chatWithGroq = async (messages, apiKey) => {
-    const systemPrompt = `You are a helpful English teacher. 
+export const chatWithGrok = async (messages, apiKey) => {
+    const systemPrompt = `You are a helpful English teacher (Grok by xAI). 
     Rule 1: Keep your replies very short and simple (maximum 1 sentence).
     Rule 2: You MUST return a JSON object with this exact structure:
     { "text": "English response", "translate": { "key_word": "Arabic translation", ... } }
     Every difficult word should have a translation in the "translate" object.`;
 
     try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const response = await fetch('https://api.x.ai/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
+                model: 'grok-beta',
                 messages: [
                     { role: 'system', content: systemPrompt },
                     ...messages
@@ -55,11 +53,16 @@ export const chatWithGroq = async (messages, apiKey) => {
             })
         });
 
-        if (!response.ok) throw new Error('Groq API failed');
+        if (!response.ok) {
+            const errBody = await response.json();
+            throw new Error(errBody.error?.message || 'xAI Grok API failed');
+        }
+
         const data = await response.json();
-        return JSON.parse(data.choices[0].message.content);
+        const content = data.choices[0].message.content;
+        return JSON.parse(content);
     } catch (err) {
-        console.error("Groq Chat Error:", err);
+        console.error("Grok Chat Error:", err);
         throw err;
     }
 };
