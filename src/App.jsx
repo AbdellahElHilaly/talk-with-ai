@@ -267,7 +267,7 @@ const Word = ({ en, ar, onSelect, isActive }) => {
       className={`inline-block transition-colors duration-300 ${isTradable ? 'cursor-pointer' : 'cursor-default opacity-80'
         } ${isActive
           ? 'text-brand-indigo underline underline-offset-8 decoration-2 font-bold'
-          : isTradable ? 'text-slate-700 hover:text-brand-indigo' : 'text-slate-400'
+          : isTradable ? 'text-slate-900 hover:text-brand-indigo' : 'text-slate-400'
         }`}
     >
       {en}
@@ -292,8 +292,9 @@ const ChatPage = () => {
   };
 
   const handleSend = () => {
+    // Dev Mode notice
     if (isStaticMode) {
-      alert("You are in Explore Mode! ✨ Add your Groq API key in settings to unlock real AI replies.");
+      alert("Dev Mode: Static exploration active. Add API key in settings when ready!");
       return;
     }
     if (message.trim()) {
@@ -359,7 +360,7 @@ const ChatPage = () => {
 
         <button
           onClick={() => navigate('/')}
-          className="text-[9px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
+          className="text-[9px] font-black text-white bg-brand-indigo px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-indigo-100"
         >
           EXIT
         </button>
@@ -394,7 +395,7 @@ const ChatPage = () => {
                 className="self-start w-full"
               >
                 <div className="flex flex-col gap-5">
-                  <div className="text-2xl md:text-3xl leading-[1.6] font-medium tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-800">
+                  <div className="text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-950">
                     {words.map((word, i) => {
                       const cleanedKey = word.toLowerCase().replace(/[.,!?;:]/g, '');
                       const translation = item.translate?.[cleanedKey];
