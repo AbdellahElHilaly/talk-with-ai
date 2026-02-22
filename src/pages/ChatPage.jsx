@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, Play, Square, Pause, RotateCcw, Settings } from 'lucide-react';
+import { Send, Play, Square, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import Word from '../components/Word';
@@ -50,49 +50,7 @@ const ChatPage = () => {
         }
     };
 
-    const playbackActions = (item) => [
-        {
-            icon: RotateCcw,
-            label: 'Reset',
-            color: 'text-slate-500 hover:text-slate-700',
-            onClick: () => {
-                voiceEngine.stop();
-                voiceEngine.speak(item.text);
-                setNowPlaying(item.id);
-            }
-        },
-        {
-            icon: Pause,
-            label: 'Pause',
-            color: 'text-amber-500 hover:text-amber-600',
-            onClick: () => voiceEngine.pause()
-        },
-        {
-            icon: Play,
-            label: 'Play',
-            color: 'text-brand-indigo hover:text-indigo-700',
-            primary: true,
-            filled: true,
-            onClick: () => {
-                if (voiceEngine.isPaused) {
-                    voiceEngine.resume();
-                } else {
-                    voiceEngine.speak(item.text);
-                }
-                setNowPlaying(item.id);
-            }
-        },
-        {
-            icon: Square,
-            label: 'Stop',
-            color: 'text-rose-500 hover:text-rose-600',
-            filled: true,
-            onClick: () => {
-                voiceEngine.stop();
-                setNowPlaying(null);
-            }
-        }
-    ];
+
 
     return (
         <div className="h-full flex flex-col bg-slate-50 overflow-hidden pb-safe" dir={rtl ? 'rtl' : 'ltr'}>
@@ -199,45 +157,55 @@ const ChatPage = () => {
                                     <div className="flex flex-col gap-3 group">
                                         <div className="h-[1px] w-full bg-slate-100 group-hover:bg-indigo-50 transition-colors" />
                                         <div className={`flex items-center gap-5 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                            <div className={`flex items-center gap-4 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                                {playbackActions(item).map((action, idx) => (
+                                            <div className={`flex items-center gap-3 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                                {nowPlaying === item.id ? (
                                                     <button
-                                                        key={idx}
-                                                        title={action.label}
-                                                        onClick={action.onClick}
-                                                        className={`${action.color} active:scale-90 transition-all p-1 drop-shadow-sm`}
+                                                        title="Stop"
+                                                        onClick={() => {
+                                                            voiceEngine.stop();
+                                                            setNowPlaying(null);
+                                                        }}
+                                                        className="text-rose-500 active:scale-90 transition-all p-1.5 bg-rose-50 rounded-full"
                                                     >
-                                                        <action.icon
-                                                            size={15}
-                                                            strokeWidth={2.5}
-                                                            fill={action.filled ? "currentColor" : "none"}
-                                                            className="opacity-90 hover:opacity-100"
-                                                        />
+                                                        <Square size={14} fill="currentColor" strokeWidth={2.5} />
                                                     </button>
-                                                ))}
+                                                ) : (
+                                                    <button
+                                                        title="Play"
+                                                        onClick={() => {
+                                                            voiceEngine.stop();
+                                                            voiceEngine.speak(item.text);
+                                                            setNowPlaying(item.id);
+                                                        }}
+                                                        className="text-brand-indigo active:scale-90 transition-all p-1.5 bg-indigo-50 rounded-full"
+                                                    >
+                                                        <Play size={14} fill="currentColor" strokeWidth={2.5} />
+                                                    </button>
+                                                )}
+
+                                                {nowPlaying === item.id && (
+                                                    <div className="flex gap-1 items-center px-2">
+                                                        {voiceStatus === 'loading' ? (
+                                                            <motion.div
+                                                                animate={{ rotate: 360 }}
+                                                                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                                                className="w-2.5 h-2.5 border-2 border-brand-indigo/30 border-t-brand-indigo rounded-full"
+                                                            />
+                                                        ) : voiceStatus === 'playing' ? (
+                                                            <div className="flex gap-0.5 items-center">
+                                                                {[1, 2, 3].map(i => (
+                                                                    <motion.div
+                                                                        key={i}
+                                                                        animate={{ height: [3, 8, 3] }}
+                                                                        transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
+                                                                        className="w-0.5 bg-brand-indigo rounded-full"
+                                                                    />
+                                                                ))}
+                                                            </div>
+                                                        ) : null}
+                                                    </div>
+                                                )}
                                             </div>
-                                            {nowPlaying === item.id && (
-                                                <div className="flex gap-1 items-center">
-                                                    {voiceStatus === 'loading' ? (
-                                                        <motion.div
-                                                            animate={{ rotate: 360 }}
-                                                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                                            className="w-3 h-3 border-2 border-brand-indigo/30 border-t-brand-indigo rounded-full"
-                                                        />
-                                                    ) : voiceStatus === 'playing' ? (
-                                                        <div className="flex gap-0.5 items-center">
-                                                            {[1, 2, 3].map(i => (
-                                                                <motion.div
-                                                                    key={i}
-                                                                    animate={{ height: [4, 10, 4] }}
-                                                                    transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
-                                                                    className="w-0.5 bg-brand-indigo rounded-full"
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                    ) : null}
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
                                 </div>
