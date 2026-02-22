@@ -74,7 +74,7 @@ const ChatPage = () => {
         try {
             // Prepare context for AI (last 5 messages)
             const context = messages.slice(-5).map(m => ({
-                role: m.role,
+                role: m.role === 'ai' ? 'assistant' : m.role,
                 content: m.text
             }));
             context.push({ role: 'user', content: userMsg.text });
