@@ -37,9 +37,9 @@ export const translations = {
         language: "Language",
         arabic: "العربية",
         english: "English",
-        cloudVoice: "Cloud Voice (Pro)",
-        googleApiKey: "Google TTS API Key",
-        googleHelp: "Optional: Add Google Cloud API key for premium Arabic & English voices.",
+        cloudVoice: "ElevenLabs Voice (Pro)",
+        elevenApiKey: "ElevenLabs API Key",
+        elevenHelp: "Recommended: Use ElevenLabs for the most realistic voices. No credit card needed!",
         saveKey: "Save Key",
         notSet: "Not set (using browser)",
         clickHere: "Click here",
@@ -49,10 +49,10 @@ export const translations = {
         groqStep1: "Visit the Groq Cloud Console.",
         groqStep2: "Click 'Create API Key' (give it a name like 'SmartLern').",
         groqStep3: "Copy the key (starts with 'gsk_') and paste it in Settings.",
-        googleTitle: "2. Get Google Cloud Key (Voice)",
-        googleStep1: "Go to Google Cloud Console.",
-        googleStep2: "Enable 'Cloud Text-to-Speech API'.",
-        googleStep3: "Create an API Key under 'Credentials' and paste it in Settings.",
+        elevenTitle: "2. Get ElevenLabs Key (Premium Voice)",
+        elevenStep1: "Go to ElevenLabs.io and sign up (No credit card needed).",
+        elevenStep2: "Click on your 'Profile Icon' at the bottom left.",
+        elevenStep3: "Copy your 'API Key' and paste it in Settings.",
         back: "Back",
         groqGuide: {
             title: "Setup Intelligence (Groq)",
@@ -64,15 +64,15 @@ export const translations = {
             step4: "4. Click the 'Create API Key' button. Give it a name like 'My Smart Lern'.",
             step5: "5. Copy the long code that appears. It usually starts with 'gsk_'. Keep it secret!"
         },
-        googleGuide: {
-            title: "Setup Voice (Google Cloud)",
-            subtitle: "Give your AI a human-like voice",
-            whatIs: "This key allows the app to use Google's premium voices. It's like giving the app a real throat to speak clearly.",
-            step1: "1. Visit the Google Cloud Console.",
-            step2: "2. Create a 'New Project' if you don't have one.",
-            step3: "3. Search for 'Cloud Text-to-Speech API' and click 'Enable'.",
-            step4: "4. Go to 'Credentials' -> 'Create Credentials' -> 'API Key'.",
-            step5: "5. Copy that key and paste it in the app settings."
+        elevenGuide: {
+            title: "Setup Voice (ElevenLabs)",
+            subtitle: "The most realistic AI voices ever",
+            whatIs: "ElevenLabs is the world leader in AI voices. Their voices sound exactly like real people, and you can get started for FREE without any credit card!",
+            step1: "1. Visit ElevenLabs.io (Click the button below).",
+            step2: "2. Sign up using your Google account or just an email.",
+            step3: "3. Click your 'Profile' icon at the bottom left of the screen.",
+            step4: "4. You will see your API Key there. Click the 'Eye' icon to see it, then copy it.",
+            step5: "5. Paste the key in the Smart-Lern settings and enjoy the magic!"
         }
     },
     ar: {
@@ -113,9 +113,9 @@ export const translations = {
         language: "اللغة",
         arabic: "العربية",
         english: "English",
-        cloudVoice: "صوت سحابي (احترافي)",
-        googleApiKey: "مفتاح Google TTS API",
-        googleHelp: "اختياري: أضف مفتاح Google Cloud لأصوات عربية وإنجليزية عالية الجودة.",
+        cloudVoice: "صوت ElevenLabs (احترافي)",
+        elevenApiKey: "مفتاح ElevenLabs API",
+        elevenHelp: "موصى به: استخدم ElevenLabs لأكثر الأصوات واقعية في العالم. لا حاجة لبطاقة بنكية!",
         saveKey: "حفظ المفتاح",
         notSet: "غير مفعل (يتم استخدام المتصفح)",
         clickHere: "اضغط هنا",
@@ -125,10 +125,10 @@ export const translations = {
         groqStep1: "قم بزيارة لوحة تحكم Groq Cloud.",
         groqStep2: "اضغط على 'Create API Key' (سمِّه SmartLern).",
         groqStep3: "انسخ المفتاح (يبدأ بـ 'gsk_') وضعه في الإعدادات.",
-        googleTitle: "2. مفتاح Google Cloud (للصوت)",
-        googleStep1: "اذهب إلى وحدة تحكم Google Cloud.",
-        googleStep2: "قم بتفعيل 'Cloud Text-to-Speech API'.",
-        googleStep3: "أنشئ مفتاح API من قسم 'Credentials' وضعه في الإعدادات.",
+        elevenTitle: "2. مفتاح ElevenLabs (للصوت الفخم)",
+        elevenStep1: "اذهب إلى ElevenLabs.io وسجل حساباً (مجاناً وبدون بطاقة بنكية).",
+        elevenStep2: "اضغط على أيقونة ملفك الشخصي في أسفل يسار الشاشة.",
+        elevenStep3: "انسخ مفتاح الـ API وضعه في الإعدادات.",
         back: "رجوع",
         groqGuide: {
             title: "إعداد الذكاء (Groq)",
@@ -140,15 +140,15 @@ export const translations = {
             step4: "4. اضغط على زر 'Create API Key'. أعطه اسماً مثل 'My Smart Lern'.",
             step5: "5. انسخ الكود الطويل الذي سيظهر. عادة ما يبدأ بـ 'gsk_'. حافظ عليه سراً!"
         },
-        googleGuide: {
-            title: "إعداد الصوت (Google Cloud)",
-            subtitle: "امنح تطبيقك صوتاً بشرياً",
-            whatIs: "هذا المفتاح يسمح للتطبيق باستخدام أصوات جوجل الاحترافية. إنه بمثابة إعطاء التطبيق 'حنجرة حقيقية' ليتحدث بوضوح تام.",
-            step1: "1. قم بزيارة لوحة تحكم Google Cloud.",
-            step2: "2. أنشئ 'مشروعاً جديداً' (New Project) إذا لم يكن لديك واحد.",
-            step3: "3. ابحث عن 'Cloud Text-to-Speech API' واضغط على 'Enable'.",
-            step4: "4. اذهب إلى 'Credentials' -> 'Create Credentials' -> 'API Key'.",
-            step5: "5. انسخ هذا المفتاح وضعه في إعدادات التطبيق."
+        elevenGuide: {
+            title: "إعداد الصوت (ElevenLabs)",
+            subtitle: "أكثر الأصوات واقعية في العالم",
+            whatIs: "ElevenLabs هي الشركة الرائدة عالمياً في أصوات الذكاء الاصطناعي. أصواتهم تبدو تماماً مثل البشر الحقيقيين، ويمكنك البدء مجاناً وبدون أي بطاقة بنكية!",
+            step1: "1. قم بزيارة موقع ElevenLabs.io (بالضغط على الزر أدناه).",
+            step2: "2. سجل حساباً باستخدام جوجل أو إيميلك الشخصي.",
+            step3: "3. اضغط على أيقونة 'الملف الشخصي' (Profile) في أسفل يسار الشاشة.",
+            step4: "4. ستجد مفتاح الـ API هناك. اضغط على علامة 'العين' لرؤيته، ثم انسخه.",
+            step5: "5. ضع المفتاح في إعدادات Smart-Lern واستمتع بالسحر!"
         }
     }
 };

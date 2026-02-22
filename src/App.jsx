@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
 import GroqGuide from './pages/GroqGuide';
-import GoogleGuide from './pages/GoogleGuide';
+import ElevenLabsGuide from './pages/ElevenLabsGuide';
 
 /**
  * Smart-Lern Core Application Entry Point
@@ -21,7 +21,7 @@ const App = () => {
 
         {/* Individual Support Guides */}
         <Route path="/guide/groq" element={<GroqGuide />} />
-        <Route path="/guide/google" element={<GoogleGuide />} />
+        <Route path="/guide/eleven" element={<ElevenLabsGuide />} />
       </Routes>
     </Router>
   );

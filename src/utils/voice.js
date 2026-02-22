@@ -1,6 +1,6 @@
 /**
  * Smart-Lern Voice Engine
- * Handles Text-to-Speech using the Web Speech API and Google Cloud TTS API.
+ * Handles Text-to-Speech using the Web Speech API and ElevenLabs API.
  */
 
 class VoiceEngine {
@@ -12,72 +12,61 @@ class VoiceEngine {
     }
 
     /**
-     * Calls Google Cloud TTS API to get high-quality audio.
+     * Calls ElevenLabs API to get high-quality audio.
      */
-    async speakGoogleCloud(text, langCode, googleKey) {
+    async speakElevenLabs(text, langCode, elevenKey) {
         const customVoiceId = localStorage.getItem('selected_voice') || 'Female 1';
-        const speed = parseFloat(localStorage.getItem('voice_speed')) || 1.0;
 
-        // Map our custom voice IDs to Google Cloud Voice Names
+        // Map our custom voice IDs to ElevenLabs Voice IDs
+        // These are some high-quality pre-made voices from ElevenLabs
         const voiceMap = {
             en: {
-                'Female 1': 'en-US-Neural2-F',
-                'Male 1': 'en-US-Neural2-D',
-                'Female 2': 'en-GB-Neural2-C',
-                'Male 2': 'en-GB-Neural2-B'
+                'Female 1': '21m00Tcm4TlvDq8ikWAM', // Rachel
+                'Male 1': 'pNInz6obpgDQGcFmaJgB',   // Adam
+                'Female 2': 'EXAVITQu4vr4xnSDxMaL', // Bella
+                'Male 2': 'VR6AewrXVreHct0p9W69'    // Arnold
             },
             ar: {
-                'Female 1': 'ar-XA-Wavenet-A',
-                'Male 1': 'ar-XA-Wavenet-B',
-                'Female 2': 'ar-XA-Wavenet-D',
-                'Male 2': 'ar-XA-Wavenet-C'
+                'Female 1': '21m00Tcm4TlvDq8ikWAM', // Rachel (Multilingual)
+                'Male 1': 'pNInz6obpgDQGcFmaJgB',   // Adam (Multilingual)
+                'Female 2': 'EXAVITQu4vr4xnSDxMaL', // Bella (Multilingual)
+                'Male 2': 'VR6AewrXVreHct0p9W69'    // Arnold (Multilingual)
             }
         };
 
-        const voiceName = voiceMap[langCode][customVoiceId] || (langCode === 'ar' ? 'ar-XA-Wavenet-A' : 'en-US-Neural2-F');
+        const voiceId = voiceMap[langCode][customVoiceId] || '21m00Tcm4TlvDq8ikWAM';
 
         const requestBody = {
-            input: { text: text },
-            voice: {
-                languageCode: langCode === 'ar' ? 'ar-XA' : 'en-US',
-                name: voiceName
-            },
-            audioConfig: {
-                audioEncoding: 'MP3',
-                speakingRate: speed
+            text: text,
+            model_id: 'eleven_multilingual_v2',
+            voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.75
             }
         };
 
         try {
-            const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${googleKey}`, {
+            const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'xi-api-key': elevenKey
+                },
                 body: JSON.stringify(requestBody)
             });
 
-            if (!response.ok) throw new Error('Google Cloud TTS API failed');
+            if (!response.ok) throw new Error('ElevenLabs API failed');
 
-            const data = await response.json();
-            const audioBlob = this.base64ToBlob(data.audioContent, 'audio/mp3');
+            const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
 
             this.audioElement.src = audioUrl;
             this.audioElement.play();
         } catch (error) {
-            console.error('Google Cloud TTS Error:', error);
+            console.error('ElevenLabs TTS Error:', error);
             // Fallback to browser synth
             this.speakBrowser(text, langCode);
         }
-    }
-
-    base64ToBlob(base64, type) {
-        const binStr = atob(base64);
-        const len = binStr.length;
-        const arr = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-            arr[i] = binStr.charCodeAt(i);
-        }
-        return new Blob([arr], { type: type });
     }
 
     /**
@@ -125,14 +114,14 @@ class VoiceEngine {
     }
 
     async speak(text, forceLang = null, forceVoice = null) {
-        const googleKey = localStorage.getItem('google_tts_key');
+        const elevenKey = localStorage.getItem('eleven_labs_key');
         const currentAppLang = localStorage.getItem('app_lang') || 'en';
         const speechLang = forceLang || currentAppLang;
 
         this.stop();
 
-        if (googleKey && googleKey.length > 10) {
-            await this.speakGoogleCloud(text, speechLang, googleKey);
+        if (elevenKey && elevenKey.length > 10) {
+            await this.speakElevenLabs(text, speechLang, elevenKey);
         } else {
             await this.speakBrowser(text, speechLang);
         }
@@ -144,22 +133,21 @@ class VoiceEngine {
                 'Female 1': "Wisdom begins in wonder. Let's bloom together.",
                 'Male 1': "The only true knowledge is knowing you know nothing. Shall we explore?",
                 'Female 2': "The stars are not afraid to shine in the dark. Voice your thoughts.",
-                'Male 2': "A journey of a thousand miles begins with a single word. I am Boreas."
+                'Male 2': "A journey of a thousand miles begins with a single word. I am Arnold."
             },
             ar: {
                 'Female 1': "الحكمة تبدأ بالدهشة. لنزهر معاً في رحلة العلم.",
                 'Male 1': "المعرفة الحقيقية هي أن تعرف عمق جهلك. هل نبدأ الاستكشاف؟",
                 'Female 2': "النجوم لا تخشى اللمعان في الظلام. أطلق العنان لأفكارك.",
-                'Male 2': "رحلة الألف ميل تبدأ بكلمة واحدة. أنا بورياس، رفيقك."
+                'Male 2': "رحلة الألف ميل تبدأ بكلمة واحدة. أنا آرنولد، رفيقك."
             }
         };
 
         const text = previews[langCode][voiceId] || previews[langCode]['Female 1'];
 
-        // Temporarily override for preview playback
-        const googleKey = localStorage.getItem('google_tts_key');
-        if (googleKey && googleKey.length > 10) {
-            await this.speakGoogleCloud(text, langCode, googleKey);
+        const elevenKey = localStorage.getItem('eleven_labs_key');
+        if (elevenKey && elevenKey.length > 10) {
+            await this.speakElevenLabs(text, langCode, elevenKey);
         } else {
             await this.speakBrowser(text, langCode);
         }

@@ -10,15 +10,15 @@ import { voiceEngine } from '../utils/voice';
 const Sidebar = ({ isOpen, onClose }) => {
     const [lang, setLang] = useState(getCurrentLang());
     const [apiKey, setApiKey] = useState(localStorage.getItem('groq_api_key') || '');
-    const [googleKey, setGoogleKey] = useState(localStorage.getItem('google_tts_key') || '');
+    const [elevenKey, setElevenKey] = useState(localStorage.getItem('eleven_labs_key') || '');
     const [speed, setSpeed] = useState(parseFloat(localStorage.getItem('voice_speed')) || 1);
     const [selectedVoice, setSelectedVoice] = useState(localStorage.getItem('selected_voice') || 'Female 1');
     const [isValidating, setIsValidating] = useState(false);
     const [isVerified, setIsVerified] = useState(!!localStorage.getItem('groq_api_key') && localStorage.getItem('groq_api_key') !== 'static');
 
-    const saveGoogleKey = () => {
-        localStorage.setItem('google_tts_key', googleKey);
-        alert(lang === 'ar' ? "تم حفظ مفتاح Google TTS! 🚀" : "Google TTS Key Saved! 🚀");
+    const saveElevenKey = () => {
+        localStorage.setItem('eleven_labs_key', elevenKey);
+        alert(lang === 'ar' ? "تم حفظ مفتاح ElevenLabs! 🚀" : "ElevenLabs Key Saved! 🚀");
     };
 
     const t = translations[lang];
@@ -166,33 +166,33 @@ const Sidebar = ({ isOpen, onClose }) => {
                                 <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
                                     <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
                                         <a
-                                            href="https://console.cloud.google.com/apis/credentials"
+                                            href="https://elevenlabs.io"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="group/link"
                                         >
                                             <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover/link:text-brand-indigo transition-colors">{t.cloudVoice}</label>
                                         </a>
-                                        <Link to="/guide/google" className="text-[8px] font-black text-brand-indigo/40 hover:text-brand-indigo transition-colors uppercase tracking-tighter shrink-0">
+                                        <Link to="/guide/eleven" className="text-[8px] font-black text-brand-indigo/40 hover:text-brand-indigo transition-colors uppercase tracking-tighter shrink-0">
                                             ({t.clickHere})
                                         </Link>
                                     </div>
-                                    {googleKey && googleKey.length > 10 && <CheckCircle2 size={12} className="text-brand-indigo" />}
+                                    {elevenKey && elevenKey.length > 10 && <CheckCircle2 size={12} className="text-brand-indigo" />}
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
-                                        {t.googleHelp}
+                                        {t.elevenHelp}
                                     </p>
                                     <input
                                         type="password"
-                                        value={googleKey}
-                                        onChange={(e) => setGoogleKey(e.target.value)}
-                                        placeholder="AIza..."
+                                        value={elevenKey}
+                                        onChange={(e) => setElevenKey(e.target.value)}
+                                        placeholder="API Key..."
                                         className={`w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-brand-indigo/30 outline-none transition-all text-slate-950 font-mono text-xs ${rtl ? 'text-right' : 'text-left'}`}
                                     />
                                     <motion.button
                                         whileTap={{ scale: 0.98 }}
-                                        onClick={saveGoogleKey}
+                                        onClick={saveElevenKey}
                                         className="w-full py-3 bg-brand-indigo/10 text-brand-indigo rounded-xl font-black text-[9px] uppercase tracking-[0.1em] hover:bg-brand-indigo/20 transition-all"
                                     >
                                         {t.saveKey}
