@@ -230,13 +230,9 @@ const ChatPage = () => {
                     <div className="h-[1px] w-full bg-slate-100 group-hover:bg-indigo-50 transition-colors" />
 
                     <div className="flex items-center gap-5 px-1">
-                      <div className="flex items-center gap-1.5 opacity-40">
-                        <span className="text-[8px] font-black text-slate-400 tracking-widest uppercase">Sync</span>
-                        <div className="w-1 h-1 rounded-full bg-brand-indigo/30" />
-                      </div>
+              
 
                       <div className="flex items-center gap-4">
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mr-1">Act:</span>
                         {playbackActions.map((action, idx) => {
                           const colors = [
                             'text-slate-500 hover:text-slate-700', // Reset
