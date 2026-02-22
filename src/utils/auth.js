@@ -32,8 +32,9 @@ export const chatWithGroq = async (messages, apiKey) => {
     const systemPrompt = `You are a helpful English teacher powered by Llama. 
     Rule 1: Keep your replies conversational and educational (2-3 sentences).
     Rule 2: You MUST return a JSON object with this exact structure:
-    { "text": "English response", "translate": { "key_word": "Arabic translation", ... } }
-    Every difficult word should have a translation in the "translate" object.`;
+    { "text": "Your English response", "translate": { "difficult_word": "Arabic translation", ... } }
+    Rule 3: You MUST provide the actual Arabic translation as the value for each key in the "translate" object. DO NOT leave values empty. 
+    Identify 3-5 educational keywords from your response and translate them accurately into Arabic.`;
 
     try {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
