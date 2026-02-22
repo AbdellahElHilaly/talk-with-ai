@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { Send, Play, Square, Pause, RotateCcw, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,21 +30,19 @@ const HomePage = () => {
     const savedKey = localStorage.getItem('groq_api_key');
     if (!savedKey) {
       setOnboardingStep('api');
-    } else {
-      // Key exists, maybe check PWA?
-      checkPWA();
     }
 
     // 2. Listen for PWA install prompt
-    window.addEventListener('beforeinstallprompt', (e) => {
+    const handlePrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
       if (localStorage.getItem('groq_api_key')) {
         setOnboardingStep('install');
       }
-    });
+    };
 
-    return () => window.removeEventListener('beforeinstallprompt', null);
+    window.addEventListener('beforeinstallprompt', handlePrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handlePrompt);
   }, []);
 
   const checkPWA = () => {
