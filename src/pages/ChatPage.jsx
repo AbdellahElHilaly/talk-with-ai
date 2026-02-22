@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, Play, Square, Settings } from 'lucide-react';
+import { Send, Play, Square, Settings, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import Word from '../components/Word';
 import chatData from '../data/data.json';
-import { isStaticMode } from '../utils/auth';
+import { isStaticMode, chatWithGroq } from '../utils/auth';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 
@@ -15,9 +15,20 @@ const ChatPage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [selectedWord, setSelectedWord] = useState(null);
     const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState(chatData);
+    const [isAITyping, setIsAITyping] = useState(false);
     const [nowPlaying, setNowPlaying] = useState(null);
     const [voiceStatus, setVoiceStatus] = useState('idle'); // idle, loading, playing
     const navigate = useNavigate();
+    const scrollRef = React.useRef(null);
+
+    React.useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [messages, isAITyping]);
+
+    const apiKey = localStorage.getItem('groq_api_key');
 
     React.useEffect(() => {
         voiceEngine.onStateChange = (state) => {
@@ -42,13 +53,43 @@ const ChatPage = () => {
         }
     };
 
-    const handleSend = () => {
-        if (staticMode) {
+    const handleSend = async () => {
+        if (!message.trim() || isAITyping) return;
+
+        if (isStaticMode()) {
             alert(t.devModeAlert);
             return;
         }
-        if (message.trim()) {
-            setMessage('');
+
+        const userMsg = {
+            id: Date.now(),
+            role: 'user',
+            text: message.trim()
+        };
+
+        setMessages(prev => [...prev, userMsg]);
+        setMessage('');
+        setIsAITyping(true);
+
+        try {
+            // Prepare context for AI (last 5 messages)
+            const context = messages.slice(-5).map(m => ({
+                role: m.role,
+                content: m.text
+            }));
+            context.push({ role: 'user', content: userMsg.text });
+
+            const aiResponse = await chatWithGroq(context, apiKey);
+
+            setMessages(prev => [...prev, {
+                id: Date.now() + 1,
+                role: 'ai',
+                ...aiResponse
+            }]);
+        } catch (error) {
+            alert("Groq Error: " + error.message);
+        } finally {
+            setIsAITyping(false);
         }
     };
 
@@ -111,9 +152,9 @@ const ChatPage = () => {
                 </button>
             </div>
 
-            <main className="flex-1 overflow-y-auto px-6 py-8">
+            <main className="flex-1 overflow-y-auto px-6 py-8 scroll-smooth" ref={scrollRef}>
                 <div className="max-w-2xl mx-auto flex flex-col gap-12">
-                    {chatData.map((item) => {
+                    {messages.map((item) => {
                         const isAI = item.role === 'ai';
 
                         if (!isAI) {
@@ -214,6 +255,19 @@ const ChatPage = () => {
                             </motion.div>
                         );
                     })}
+
+                    {isAITyping && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`${rtl ? 'self-end' : 'self-start'} flex items-center gap-3`}
+                        >
+                            <div className="bg-white/50 px-4 py-2 rounded-2xl border border-slate-100 flex items-center gap-2">
+                                <Loader2 size={12} className="animate-spin text-brand-indigo" />
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">AI Thinking...</span>
+                            </div>
+                        </motion.div>
+                    )}
                 </div>
             </main>
 
