@@ -73,22 +73,13 @@ export const chatWithGroq = async (messages, learnedWords = [], ignoredWords = [
     let apiKey = getActiveGroqKey();
     if (!apiKey) throw new Error('No API key available');
 
-    let vocabularyInstructions = '';
-    if (learnedWords.length > 0) {
-        vocabularyInstructions += `\n- The user is interested in these terms/phrases: [${learnedWords.join(', ')}]. If you use any of these in your text, you MUST include them in the "translate" object with their Arabic translation.`;
-    }
-    if (ignoredWords.length > 0) {
-        vocabularyInstructions += `\n- AVOID using these words if possible: [${ignoredWords.join(', ')}]. If you choose to use them anyway, DO NOT include them in the "translate" object.`;
-    }
-
-    const systemPrompt = `You are a helpful English teacher powered by Llama. 
+    const systemPrompt = `You are a helpful English teacher. 
     Rule 1: Keep your replies conversational and educational (2-3 sentences).
     Rule 2: You MUST return a JSON object with this exact structure:
     { "text": "Your English response", "translate": { "word": "Arabic translation", ... } }
-    Rule 3: You MUST provide accurately translated Arabic meanings for every word in the "translate" object. DO NOT leave the translation string empty.
-    ${vocabularyInstructions}
-    Rule 4: Besides any learned terms you used, identify 2-3 high-value educational keywords from your response and translate them into Arabic.
-    CRITICAL: Every key in the "translate" object MUST have a non-empty Arabic word as its value.`;
+    Rule 3: Use these learned terms if relevant: [${learnedWords.join(', ')}].
+    Rule 4: Identify 2-3 keywords from your response and translate them into Arabic in the "translate" object.
+    CRITICAL: Every value in "translate" MUST be a non-empty Arabic word.`;
 
     const attemptChat = async (currentKey) => {
         try {
@@ -134,4 +125,43 @@ export const chatWithGroq = async (messages, learnedWords = [], ignoredWords = [
     };
 
     return attemptChat(apiKey);
+};
+
+/**
+ * Bulk translate words for the vocabulary sync.
+ */
+export const syncTranslations = async (words) => {
+    if (!words || words.length === 0) return {};
+    let apiKey = getActiveGroqKey();
+    if (!apiKey) return {};
+
+    const systemPrompt = `You are a translation assistant. 
+    Return a JSON object where keys are the English words provided and values are their concise Arabic translations.
+    Format: { "word": "translation", ... }`;
+
+    try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: `Translate these words to Arabic: ${words.join(', ')}` }
+                ],
+                temperature: 0.2,
+                response_format: { type: "json_object" }
+            })
+        });
+
+        if (!response.ok) return {};
+        const data = await response.json();
+        return JSON.parse(data.choices[0].message.content);
+    } catch (err) {
+        console.error("Sync Translation Error:", err);
+        return {};
+    }
 };

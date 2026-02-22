@@ -12,9 +12,32 @@ export const saveElevenKeys = (keys) => {
     localStorage.setItem('eleven_labs_keys', JSON.stringify(keys));
 };
 
+export const validateElevenKey = async (apiKey) => {
+    if (!apiKey || apiKey.trim().length < 10) return null;
+    try {
+        const response = await fetch('https://api.elevenlabs.io/v1/user/subscription', {
+            headers: {
+                'xi-api-key': apiKey.trim(),
+                'Accept': 'application/json'
+            }
+        });
+        if (!response.ok) return null;
+        const data = await response.json();
+        return {
+            status: 'good',
+            usage: data.character_count,
+            limit: data.character_limit,
+            remaining: (data.character_limit - data.character_count),
+            tier: data.tier
+        };
+    } catch (err) {
+        return null;
+    }
+};
+
 export const addElevenKey = async (key) => {
-    // Basic validation (at least length or format check)
-    if (key && key.length > 10) {
+    const info = await validateElevenKey(key);
+    if (info) {
         const keys = getElevenKeys();
         if (!keys.includes(key)) {
             keys.push(key);

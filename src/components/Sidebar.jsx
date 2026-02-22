@@ -6,11 +6,19 @@ import { validateGroqKey, getGroqKeys } from '../utils/auth';
 import { translations } from '../utils/translations';
 import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
 import { voiceEngine, getElevenKeys } from '../utils/voice';
-import { getLearnedWords } from '../utils/vocabulary';
+import * as vocab from '../utils/vocabulary';
 
 const Sidebar = ({ isOpen, onClose }) => {
     const [lang, setLang] = useState(getCurrentLang());
     const [speed, setSpeed] = useState(parseFloat(localStorage.getItem('voice_speed')) || 1);
+    const [learnedCount, setLearnedCount] = useState(vocab.getLearnedWords().length);
+
+    React.useEffect(() => {
+        const handleUpdate = () => setLearnedCount(vocab.getLearnedWords().length);
+        window.addEventListener('vocabularyUpdated', handleUpdate);
+        return () => window.removeEventListener('vocabularyUpdated', handleUpdate);
+    }, []);
+
     const [selectedVoice, setSelectedVoice] = useState(() => {
         const saved = localStorage.getItem('selected_voice');
         // If it's a technical ID, map it back to labels
@@ -154,7 +162,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                             {lang === 'ar' ? 'كلماتي المميزة' : 'MY WORDS'}
                                         </label>
                                         <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
-                                            <span className="text-[8px] font-black text-slate-500">{getLearnedWords().length}</span>
+                                            <span className="text-[8px] font-black text-slate-500">{learnedCount}</span>
                                         </div>
                                     </Link>
                                     <div className={`flex items-center gap-4 ${rtl ? 'flex-row-reverse' : ''}`}>

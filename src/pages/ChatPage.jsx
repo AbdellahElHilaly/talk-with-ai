@@ -10,6 +10,7 @@ import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 
 import { voiceEngine } from '../utils/voice';
+import * as vocab from '../utils/vocabulary';
 
 const ChatPage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -30,10 +31,24 @@ const ChatPage = () => {
 
     React.useEffect(() => {
         const handleVocabUpdate = () => {
-            const saved = localStorage.getItem('learned_words');
-            setLearnedWords(saved ? JSON.parse(saved) : []);
+            setLearnedWords(vocab.getLearnedWords());
+            setIgnoredWords(vocab.getIgnoredWords());
         };
         window.addEventListener('vocabularyUpdated', handleVocabUpdate);
+
+        // --- BACKGROUND SYNC ON LOAD ---
+        const syncOnLoad = async () => {
+            const untranslated = vocab.getUntranslatedWords();
+            if (untranslated.length > 0 && !isStaticMode()) {
+                const { syncTranslations } = await import('../utils/auth');
+                const results = await syncTranslations(untranslated);
+                if (results && Object.keys(results).length > 0) {
+                    vocab.saveTranslations(results);
+                }
+            }
+        };
+        syncOnLoad();
+
         return () => window.removeEventListener('vocabularyUpdated', handleVocabUpdate);
     }, []);
 
@@ -120,6 +135,11 @@ const ChatPage = () => {
             context.push({ role: 'user', content: userMsg.text });
 
             const aiResponse = await chatWithGroq(context, learnedWords, ignoredWords);
+
+            // Save translations to global vocabulary map
+            if (aiResponse.translate) {
+                vocab.saveTranslations(aiResponse.translate);
+            }
 
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
