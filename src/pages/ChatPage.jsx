@@ -88,13 +88,13 @@ const ChatPage = () => {
     return (
         <div className="h-full flex flex-col bg-slate-50 overflow-hidden pb-safe" dir={rtl ? 'rtl' : 'ltr'}>
             {/* MAGICAL TOP BAR */}
-            <div className={`px-6 py-4 flex justify-between items-center z-20 sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-100 ${rtl ? 'flex-row-reverse' : ''}`}>
-                <div className={`flex items-center gap-4 flex-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+            <div className="px-6 py-4 flex justify-between items-center z-20 sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-100">
+                <div className="flex items-center gap-4 flex-1">
                     <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-brand-indigo transition-colors shrink-0">
                         <Settings size={20} strokeWidth={2} />
                     </button>
 
-                    <div className={`relative h-10 flex-1 flex items-center overflow-hidden ml-2 ${rtl ? 'border-r pr-4' : 'border-l pl-4'} border-slate-50`}>
+                    <div className={`relative h-10 flex-1 flex items-center overflow-hidden border-slate-50 ${rtl ? 'border-r pr-4 mr-2' : 'border-l pl-4 ml-2'}`}>
                         <AnimatePresence mode="wait">
                             {!selectedWord ? (
                                 <motion.div
@@ -105,7 +105,7 @@ const ChatPage = () => {
                                     className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}
                                 >
                                     <div className="flex items-center gap-2">
-                                        <span className="logo-font text-2xl text-brand-indigo leading-none -ml-0.5">S-L</span>
+                                        <span className={`logo-font text-2xl text-brand-indigo leading-none ${rtl ? '-mr-0.5' : '-ml-0.5'}`}>S-L</span>
                                         {staticMode && (
                                             <span className="text-[6px] px-1.5 py-0.5 bg-indigo-50 text-brand-indigo border border-indigo-100 rounded-full font-black uppercase tracking-tighter">{t.exploreMode}</span>
                                         )}
