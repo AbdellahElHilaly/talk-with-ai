@@ -69,6 +69,14 @@ class VoiceEngine {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('ElevenLabs API Error Status:', response.status, errorData);
+
+                // If credits are exhausted (401/403/429), trigger auto-fallback to browser voices
+                if (response.status === 401 || response.status === 403 || response.status === 429) {
+                    console.warn('ElevenLabs balance exhausted or key invalid. Switching to browser voices...');
+                    this.speakBrowser(text, langCode, customVoiceId);
+                    return;
+                }
+
                 throw new Error(`ElevenLabs API failed: ${response.status}`);
             }
 
@@ -80,13 +88,16 @@ class VoiceEngine {
             // Handle playback errors
             this.audioElement.onerror = (e) => {
                 console.error('Audio Element Error - Premium voice failed to play:', e);
+                // Last resort fallback
+                this.speakBrowser(text, langCode, customVoiceId);
             };
 
             await this.audioElement.play();
         } catch (error) {
             console.error('ElevenLabs TTS Error - Premium voice failed:', error);
             this.updateState('idle');
-            // Fallback disabled per user request: stop browser voices if API key exists
+            // Fallback to browser if API fails critically
+            this.speakBrowser(text, langCode, customVoiceId);
         }
     }
 
