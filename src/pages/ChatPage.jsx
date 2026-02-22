@@ -37,6 +37,8 @@ const ChatPage = () => {
             setSelectedWord(null);
         } else {
             setSelectedWord({ en, ar });
+            // The "Magic" touch: Hear the word while seeing the translation
+            voiceEngine.speak(en, 'en');
         }
     };
 
