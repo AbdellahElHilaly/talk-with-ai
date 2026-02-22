@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, User, Mic2, Speaker } from 'lucide-react';
+import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { validateGroqKey } from '../utils/auth';
 import { translations } from '../utils/translations';
 import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
@@ -134,6 +135,10 @@ const Sidebar = ({ isOpen, onClose }) => {
                                     {isVerified && <CheckCircle2 size={14} className="text-emerald-500" />}
                                 </div>
                                 <div className="space-y-3">
+                                    <Link to="/guide" className={`flex items-center gap-1.5 text-[9px] font-bold text-brand-indigo hover:text-indigo-600 transition-colors ${rtl ? 'justify-end' : 'justify-start'}`}>
+                                        <HelpCircle size={10} />
+                                        {t.clickHere}
+                                    </Link>
                                     <input
                                         type="password"
                                         value={apiKey}
@@ -169,9 +174,15 @@ const Sidebar = ({ isOpen, onClose }) => {
                                     {googleKey && googleKey.length > 10 && <CheckCircle2 size={14} className="text-brand-indigo" />}
                                 </div>
                                 <div className="space-y-3">
-                                    <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
-                                        {t.googleHelp}
-                                    </p>
+                                    <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
+                                            {t.googleHelp}
+                                        </p>
+                                        <Link to="/guide" className="shrink-0 flex items-center gap-1 text-[9px] font-bold text-brand-indigo hover:text-indigo-600 transition-colors">
+                                            <HelpCircle size={10} />
+                                            {t.clickHere}
+                                        </Link>
+                                    </div>
                                     <input
                                         type="password"
                                         value={googleKey}

@@ -41,7 +41,19 @@ export const translations = {
         googleApiKey: "Google TTS API Key",
         googleHelp: "Optional: Add Google Cloud API key for premium Arabic & English voices.",
         saveKey: "Save Key",
-        notSet: "Not set (using browser)"
+        notSet: "Not set (using browser)",
+        clickHere: "Click here",
+        setupGuide: "Setup Guide",
+        howToGetKeys: "How to get API Keys?",
+        groqTitle: "1. Get Groq API Key (Intelligence)",
+        groqStep1: "Visit the Groq Cloud Console.",
+        groqStep2: "Click 'Create API Key' (give it a name like 'SmartLern').",
+        groqStep3: "Copy the key (starts with 'gsk_') and paste it in Settings.",
+        googleTitle: "2. Get Google Cloud Key (Voice)",
+        googleStep1: "Go to Google Cloud Console.",
+        googleStep2: "Enable 'Cloud Text-to-Speech API'.",
+        googleStep3: "Create an API Key under 'Credentials' and paste it in Settings.",
+        back: "Back"
     },
     ar: {
         readyToBloom: "هل أنت مستعد لـ",
@@ -85,6 +97,18 @@ export const translations = {
         googleApiKey: "مفتاح Google TTS API",
         googleHelp: "اختياري: أضف مفتاح Google Cloud لأصوات عربية وإنجليزية عالية الجودة.",
         saveKey: "حفظ المفتاح",
-        notSet: "غير مفعل (يتم استخدام المتصفح)"
+        notSet: "غير مفعل (يتم استخدام المتصفح)",
+        clickHere: "اضغط هنا",
+        setupGuide: "دليل الإعداد",
+        howToGetKeys: "كيف أحصل على المفاتيح؟",
+        groqTitle: "1. الحصول على مفتاح Groq (للذكاء)",
+        groqStep1: "قم بزيارة لوحة تحكم Groq Cloud.",
+        groqStep2: "اضغط على 'Create API Key' (سمِّه SmartLern).",
+        groqStep3: "انسخ المفتاح (يبدأ بـ 'gsk_') وضعه في الإعدادات.",
+        googleTitle: "2. مفتاح Google Cloud (للصوت)",
+        googleStep1: "اذهب إلى وحدة تحكم Google Cloud.",
+        googleStep2: "قم بتفعيل 'Cloud Text-to-Speech API'.",
+        googleStep3: "أنشئ مفتاح API من قسم 'Credentials' وضعه في الإعدادات.",
+        back: "رجوع"
     }
 };
