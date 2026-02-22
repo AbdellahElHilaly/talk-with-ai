@@ -166,7 +166,7 @@ const ChatPage = () => {
                                     animate={{ opacity: 1, y: 0 }}
                                     className={`${rtl ? 'self-start' : 'self-end'} max-w-[85%]`}
                                 >
-                                    <div className={`bg-white px-5 py-3.5 rounded-[1.5rem] ${rtl ? 'rounded-tl-none' : 'rounded-tr-none'} shadow-sm border border-slate-100 text-slate-600 text-sm font-medium`}>
+                                    <div className={`bg-white px-5 py-3.5 rounded-[1.5rem] ${rtl ? 'rounded-tl-none' : 'rounded-tr-none'} shadow-sm border border-slate-100 text-slate-600 text-sm font-medium text-left`} dir="ltr">
                                         {item.text}
                                     </div>
                                 </motion.div>
@@ -182,7 +182,7 @@ const ChatPage = () => {
                                 className={`${rtl ? 'self-end' : 'self-start'} w-full`}
                             >
                                 <div className="flex flex-col gap-5">
-                                    <div className="text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-950">
+                                    <div className="text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-950 text-left" dir="ltr">
                                         {words.map((word, i) => {
                                             const cleanedKey = word.toLowerCase().replace(/[.,!?;:]/g, '');
                                             const translation = item.translate?.[cleanedKey];
@@ -282,7 +282,8 @@ const ChatPage = () => {
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder={t.typeReply}
-                            className={`flex-1 bg-transparent py-4 px-6 outline-none text-slate-900 placeholder:text-slate-300 font-medium ${rtl ? 'text-right' : 'text-left'}`}
+                            className="flex-1 bg-transparent py-4 px-6 outline-none text-slate-900 placeholder:text-slate-300 font-medium text-left"
+                            dir="ltr"
                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                         />
                         <button
