@@ -360,7 +360,7 @@ const ChatPage = () => {
 
         <button
           onClick={() => navigate('/')}
-          className="text-[9px] font-black text-white bg-brand-indigo px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-indigo-100"
+          className="text-[9px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
         >
           EXIT
         </button>
