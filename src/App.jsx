@@ -33,16 +33,16 @@ const HomePage = () => {
           animate={{ y: 0, opacity: 1 }}
           className="mb-12 flex flex-col items-center"
         >
-          <div className="w-16 h-16 bg-white rounded-3xl shadow-magical flex items-center justify-center mb-8 rotate-12">
-            <div className="w-8 h-8 rounded-full border-4 border-brand-indigo animate-spin-slow" />
+          <div className="mb-4">
+            <span className="logo-font text-5xl text-brand-indigo block -rotate-6">Smart-Lern</span>
           </div>
 
           <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter mb-4 leading-none">
-            Hello, <br />
+            Welcome, <br />
             <span className="text-brand-indigo">Seeker.</span>
           </h1>
           <p className="text-slate-400 text-lg md:text-xl font-medium max-w-xs mx-auto">
-            Your neural gateway to English mastery is ready.
+            Your intelligence gateway is ready.
           </p>
         </motion.div>
 
@@ -57,7 +57,7 @@ const HomePage = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-r from-brand-indigo to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
           <span className="relative z-10 text-white font-black tracking-[0.2em] uppercase text-sm">
-            Start Journey
+            Launch S-L
           </span>
           {/* Subtle Glow Ring */}
           <div className="absolute inset-0 border border-white/10 rounded-[2rem]" />
@@ -69,15 +69,15 @@ const HomePage = () => {
           transition={{ delay: 0.5 }}
           className="mt-10 text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]"
         >
-          Ready to dive into the nexus?
+          Powering your growth via Smart-Lern
         </motion.p>
       </div>
 
       <div className="absolute bottom-10 left-0 right-0 flex justify-center">
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">v2.0 Beta</span>
+          <span className="logo-font text-lg text-brand-indigo opacity-60">Smart-Lern</span>
           <div className="w-1 h-3 bg-indigo-100 rounded-full" />
-          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Sync Active</span>
+          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Active v2</span>
         </div>
       </div>
     </div>
@@ -140,7 +140,7 @@ const ChatPage = () => {
             <Settings size={20} strokeWidth={2} />
           </button>
 
-          <div className="relative h-10 flex-1 flex items-center overflow-hidden ml-2">
+          <div className="relative h-10 flex-1 flex items-center overflow-hidden ml-2 border-l border-slate-50 pl-4">
             <AnimatePresence mode="wait">
               {!selectedWord ? (
                 <motion.div
@@ -150,10 +150,10 @@ const ChatPage = () => {
                   exit={{ y: -20, opacity: 0 }}
                   className="flex flex-col"
                 >
-                  <span className="text-[10px] font-black text-brand-indigo uppercase tracking-[0.2em]">Neural Link</span>
-                  <div className="flex items-center gap-1.5">
+                  <span className="logo-font text-2xl text-brand-indigo leading-none -ml-0.5">S-L</span>
+                  <div className="flex items-center gap-1">
                     <div className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[8px] font-bold text-slate-300 uppercase tracking-widest">Active Sync</span>
+                    <span className="text-[7px] font-black text-slate-300 uppercase tracking-widest">Connected</span>
                   </div>
                 </motion.div>
               ) : (

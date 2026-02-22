@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Engagement&display=swap');
 
 @theme {
   --color-brand-ghost: #F8FAFC;
@@ -11,6 +12,12 @@
 }
 
 @layer utilities {
+  .logo-font {
+    font-family: 'Engagement', cursive;
+    letter-spacing: -0.02em;
+    -webkit-font-smoothing: initial;
+  }
+
   .shadow-soft {
     box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
   }
