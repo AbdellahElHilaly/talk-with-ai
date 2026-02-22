@@ -13,22 +13,26 @@ class VoiceEngine {
     /**
      * Gets available voices and attempts to find a match based on the selected custom ID.
      * @param {string} customId - The ID from our settings (e.g., 'Female 1')
+     * @param {string} langCode - 'en' or 'ar'
      */
-    async getBestVoice(customId) {
+    async getBestVoice(customId, langCode = 'en') {
         return new Promise((resolve) => {
             let voices = this.synth.getVoices();
 
             const findMatch = () => {
                 voices = this.synth.getVoices();
-                // Simple mapping logic: 
-                // We look for English voices that match female/male patterns
-                const enVoices = voices.filter(v => v.lang.startsWith('en'));
+                const targetedLang = langCode === 'ar' ? 'ar' : 'en';
+                const langVoices = voices.filter(v => v.lang.startsWith(targetedLang));
+
+                if (langVoices.length === 0 && targetedLang === 'ar') {
+                    // Fallback to English if no Arabic voice found
+                    return voices.find(v => v.lang.startsWith('en')) || voices[0];
+                }
 
                 if (customId.includes('Female')) {
-                    // Look for Google US English or similar natural female sounding ones
-                    return enVoices.find(v => v.name.includes('Female') || v.name.includes('Google US English')) || enVoices[0];
+                    return langVoices.find(v => v.name.includes('Female') || v.name.includes('Google US English') || v.name.includes('Zira') || v.name.includes('Hoda')) || langVoices[0];
                 } else {
-                    return enVoices.find(v => v.name.includes('Male') || v.name.includes('Google UK English Male')) || enVoices[1] || enVoices[0];
+                    return langVoices.find(v => v.name.includes('Male') || v.name.includes('Google UK English Male') || v.name.includes('David') || v.name.includes('Naayf')) || langVoices[1] || langVoices[0];
                 }
             };
 
@@ -43,20 +47,43 @@ class VoiceEngine {
     /**
      * Speaks the given text.
      * @param {string} text 
+     * @param {string} forceLang
      */
-    async speak(text) {
+    async speak(text, forceLang = null) {
         const customVoiceId = localStorage.getItem('selected_voice') || 'Female 1';
         const speed = parseFloat(localStorage.getItem('voice_speed')) || 1.0;
+        const currentAppLang = localStorage.getItem('app_lang') || 'en';
+        const speechLang = forceLang || currentAppLang;
 
         this.stop();
 
         this.utterance = new SpeechSynthesisUtterance(text);
-        this.utterance.voice = await this.getBestVoice(customVoiceId);
+        this.utterance.voice = await this.getBestVoice(customVoiceId, speechLang);
         this.utterance.rate = speed;
         this.utterance.pitch = 1.0;
-        this.utterance.lang = 'en-US';
+        this.utterance.lang = speechLang === 'ar' ? 'ar-SA' : 'en-US';
 
         this.synth.speak(this.utterance);
+    }
+
+    async speakPreview(voiceId, langCode) {
+        const previews = {
+            en: {
+                'Female 1': "Wisdom begins in wonder. Let's bloom together.",
+                'Male 1': "The only true knowledge is knowing you know nothing. Shall we explore?",
+                'Female 2': "The stars are not afraid to shine in the dark. Voice your thoughts.",
+                'Male 2': "A journey of a thousand miles begins with a single word. I am Boreas."
+            },
+            ar: {
+                'Female 1': "الحكمة تبدأ بالدهشة. لنزهر معاً في رحلة العلم.",
+                'Male 1': "المعرفة الحقيقية هي أن تعرف عمق جهلك. هل نبدأ الاستكشاف؟",
+                'Female 2': "النجوم لا تخشى اللمعان في الظلام. أطلق العنان لأفكارك.",
+                'Male 2': "رحلة الألف ميل تبدأ بكلمة واحدة. أنا بورياس، رفيقك."
+            }
+        };
+
+        const text = previews[langCode][voiceId] || previews[langCode]['Female 1'];
+        await this.speak(text, langCode);
     }
 
     pause() {

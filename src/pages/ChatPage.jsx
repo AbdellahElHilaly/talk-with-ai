@@ -232,7 +232,7 @@ const ChatPage = () => {
             <div className="px-6 pb-12 pt-4 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent">
                 <motion.div className="max-w-md mx-auto relative group">
                     <div className="absolute -inset-1 bg-brand-indigo/5 rounded-[2.5rem] blur-lg opacity-0 group-within:opacity-100 transition-opacity" />
-                    <div className={`relative bg-white p-2 rounded-[2.5rem] flex items-center border border-slate-200 shadow-soft focus-within:border-brand-indigo/30 transition-all ${rtl ? 'flex-row-reverse' : ''}`}>
+                    <div className="relative bg-white p-2 rounded-[2.5rem] flex items-center border border-slate-200 shadow-soft focus-within:border-brand-indigo/30 transition-all">
                         <input
                             type="text"
                             value={message}

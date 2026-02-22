@@ -4,6 +4,7 @@ import { X, CheckCircle2, User, Mic2, Speaker } from 'lucide-react';
 import { validateGroqKey } from '../utils/auth';
 import { translations } from '../utils/translations';
 import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
+import { voiceEngine } from '../utils/voice';
 
 const Sidebar = ({ isOpen, onClose }) => {
     const [lang, setLang] = useState(getCurrentLang());
@@ -27,6 +28,12 @@ const Sidebar = ({ isOpen, onClose }) => {
         setAppLang(newLang);
         setLang(newLang);
         window.location.reload();
+    };
+
+    const handleVoiceSelect = (vId) => {
+        setSelectedVoice(vId);
+        // Play cute philosophy preview
+        voiceEngine.speakPreview(vId, lang);
     };
 
     const validateKey = async () => {
@@ -142,7 +149,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                     {voices.map((v) => (
                                         <button
                                             key={v.id}
-                                            onClick={() => setSelectedVoice(v.id)}
+                                            onClick={() => handleVoiceSelect(v.id)}
                                             className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${selectedVoice === v.id
                                                     ? 'border-brand-indigo bg-indigo-50/30'
                                                     : 'border-slate-50 hover:border-indigo-100'
