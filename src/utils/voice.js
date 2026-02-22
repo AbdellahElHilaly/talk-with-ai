@@ -14,9 +14,9 @@ class VoiceEngine {
     /**
      * Calls ElevenLabs API to get high-quality audio.
      */
-    async speakElevenLabs(text, langCode, elevenKey) {
+    async speakElevenLabs(text, langCode, elevenKey, forceVoice = null) {
         const key = elevenKey.trim();
-        const customVoiceId = localStorage.getItem('selected_voice') || 'Female 1';
+        const customVoiceId = forceVoice || localStorage.getItem('selected_voice') || 'Female 1';
 
         const voiceMap = {
             en: {
@@ -66,22 +66,22 @@ class VoiceEngine {
             // Handle playback errors
             this.audioElement.onerror = (e) => {
                 console.error('Audio Element Error:', e);
-                this.speakBrowser(text, langCode);
+                this.speakBrowser(text, langCode, customVoiceId);
             };
 
             await this.audioElement.play();
         } catch (error) {
             console.error('ElevenLabs TTS Error:', error);
             // Fallback to browser synth
-            this.speakBrowser(text, langCode);
+            this.speakBrowser(text, langCode, customVoiceId);
         }
     }
 
     /**
      * Fallback to Web Speech API
      */
-    async speakBrowser(text, langCode) {
-        const customVoiceId = localStorage.getItem('selected_voice') || 'Female 1';
+    async speakBrowser(text, langCode, forceVoice = null) {
+        const customVoiceId = forceVoice || localStorage.getItem('selected_voice') || 'Female 1';
         const speed = parseFloat(localStorage.getItem('voice_speed')) || 1.0;
 
         this.utterance = new SpeechSynthesisUtterance(text);
@@ -129,9 +129,9 @@ class VoiceEngine {
         this.stop();
 
         if (elevenKey && elevenKey.length > 10) {
-            await this.speakElevenLabs(text, speechLang, elevenKey);
+            await this.speakElevenLabs(text, speechLang, elevenKey, forceVoice);
         } else {
-            await this.speakBrowser(text, speechLang);
+            await this.speakBrowser(text, speechLang, forceVoice);
         }
     }
 
@@ -151,9 +151,9 @@ class VoiceEngine {
 
         const elevenKey = localStorage.getItem('eleven_labs_key');
         if (elevenKey && elevenKey.length > 10) {
-            await this.speakElevenLabs(text, langCode, elevenKey);
+            await this.speakElevenLabs(text, langCode, elevenKey, voiceId);
         } else {
-            await this.speakBrowser(text, langCode);
+            await this.speakBrowser(text, langCode, voiceId);
         }
     }
 

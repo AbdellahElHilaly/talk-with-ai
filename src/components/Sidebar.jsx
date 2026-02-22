@@ -12,7 +12,13 @@ const Sidebar = ({ isOpen, onClose }) => {
     const [apiKey, setApiKey] = useState(localStorage.getItem('groq_api_key') || '');
     const [elevenKey, setElevenKey] = useState(localStorage.getItem('eleven_labs_key') || '');
     const [speed, setSpeed] = useState(parseFloat(localStorage.getItem('voice_speed')) || 1);
-    const [selectedVoice, setSelectedVoice] = useState(localStorage.getItem('selected_voice') || 'Female 1');
+    const [selectedVoice, setSelectedVoice] = useState(() => {
+        const saved = localStorage.getItem('selected_voice');
+        // If it's a technical ID, map it back to labels
+        if (saved === '21m00Tcm4TlvDq8ikWAM') return 'Female 1';
+        if (saved === 'pNInz6obpgDQGcFmaJgB') return 'Male 1';
+        return saved || 'Female 1';
+    });
     const [isValidating, setIsValidating] = useState(false);
     const [isVerified, setIsVerified] = useState(!!localStorage.getItem('groq_api_key') && localStorage.getItem('groq_api_key') !== 'static');
 
