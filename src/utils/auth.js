@@ -28,13 +28,22 @@ export const isStaticMode = () => {
 /**
  * Sends a message to Groq (Llama) and expects a JSON response with translation.
  */
-export const chatWithGroq = async (messages, apiKey) => {
+export const chatWithGroq = async (messages, apiKey, learnedWords = [], ignoredWords = []) => {
+    let vocabularyInstructions = '';
+    if (learnedWords.length > 0) {
+        vocabularyInstructions += `\n- The user is learning these words: [${learnedWords.join(', ')}]. TRY to use them in your response if they fit naturally. If you use them, you MUST include them in the "translate" object.`;
+    }
+    if (ignoredWords.length > 0) {
+        vocabularyInstructions += `\n- AVOID using these words if possible: [${ignoredWords.join(', ')}]. If you choose to use them anyway, DO NOT include them in the "translate" object.`;
+    }
+
     const systemPrompt = `You are a helpful English teacher powered by Llama. 
     Rule 1: Keep your replies conversational and educational (2-3 sentences).
     Rule 2: You MUST return a JSON object with this exact structure:
-    { "text": "Your English response", "translate": { "difficult_word": "Arabic translation", ... } }
-    Rule 3: You MUST provide the actual Arabic translation as the value for each key in the "translate" object. DO NOT leave values empty. 
-    Identify 3-5 educational keywords from your response and translate them accurately into Arabic.`;
+    { "text": "Your English response", "translate": { "word": "translation", ... } }
+    Rule 3: You MUST provide accurately translated Arabic meanings for words in the "translate" object.
+    ${vocabularyInstructions}
+    Rule 4: Besides the words mentioned above, identify 2-3 other educational keywords from your response and translate them into Arabic.`;
 
     try {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {

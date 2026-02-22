@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, Play, Square, Settings, Loader2 } from 'lucide-react';
+import { Send, Play, Square, Settings, Loader2, Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import Word from '../components/Word';
@@ -19,6 +19,14 @@ const ChatPage = () => {
     const [isAITyping, setIsAITyping] = useState(false);
     const [nowPlaying, setNowPlaying] = useState(null);
     const [voiceStatus, setVoiceStatus] = useState('idle'); // idle, loading, playing
+    const [learnedWords, setLearnedWords] = useState(() => {
+        const saved = localStorage.getItem('learned_words');
+        return saved ? JSON.parse(saved) : [];
+    });
+    const [ignoredWords, setIgnoredWords] = useState(() => {
+        const saved = localStorage.getItem('ignored_words');
+        return saved ? JSON.parse(saved) : [];
+    });
     const navigate = useNavigate();
     const scrollRef = React.useRef(null);
 
@@ -38,10 +46,36 @@ const ChatPage = () => {
         return () => voiceEngine.onStateChange = null;
     }, []);
 
+    React.useEffect(() => {
+        localStorage.setItem('learned_words', JSON.stringify(learnedWords));
+    }, [learnedWords]);
+
+    React.useEffect(() => {
+        localStorage.setItem('ignored_words', JSON.stringify(ignoredWords));
+    }, [ignoredWords]);
+
     const lang = getCurrentLang();
     const t = translations[lang];
     const rtl = isRTL();
     const staticMode = isStaticMode();
+
+    const toggleLearned = (word) => {
+        const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+        setLearnedWords(prev => {
+            if (prev.includes(cleanWord)) return prev.filter(w => w !== cleanWord);
+            return [...prev.filter(w => w !== cleanWord), cleanWord];
+        });
+        setIgnoredWords(prev => prev.filter(w => w !== cleanWord));
+    };
+
+    const toggleIgnored = (word) => {
+        const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+        setIgnoredWords(prev => {
+            if (prev.includes(cleanWord)) return prev.filter(w => w !== cleanWord);
+            return [...prev.filter(w => w !== cleanWord), cleanWord];
+        });
+        setLearnedWords(prev => prev.filter(w => w !== cleanWord));
+    };
 
     const handleWordSelect = (en, ar) => {
         if (selectedWord?.en === en) {
@@ -80,7 +114,7 @@ const ChatPage = () => {
             }));
             context.push({ role: 'user', content: userMsg.text });
 
-            const aiResponse = await chatWithGroq(context, apiKey);
+            const aiResponse = await chatWithGroq(context, apiKey, learnedWords, ignoredWords);
 
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
@@ -135,10 +169,41 @@ const ChatPage = () => {
                                     animate={{ y: 0, opacity: 1 }}
                                     exit={{ y: -20, opacity: 0 }}
                                     transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                                    className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}
+                                    className={`flex items-center gap-4 ${rtl ? 'flex-row-reverse' : ''}`}
                                 >
-                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">{selectedWord.en}</span>
-                                    <span className="text-base font-black text-brand-indigo arabic-text leading-none">{selectedWord.ar}</span>
+                                    <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
+                                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">{selectedWord.en}</span>
+                                        <span className="text-base font-black text-brand-indigo arabic-text leading-none">{selectedWord.ar}</span>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-full border border-slate-100">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleLearned(selectedWord.en);
+                                            }}
+                                            className={`p-1.5 rounded-full transition-all active:scale-90 ${learnedWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, ''))
+                                                ? 'bg-emerald-500 text-white shadow-sm'
+                                                : 'text-slate-400 hover:bg-white hover:text-emerald-500'
+                                                }`}
+                                            title="Add to learning"
+                                        >
+                                            <Plus size={12} strokeWidth={3} />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleIgnored(selectedWord.en);
+                                            }}
+                                            className={`p-1.5 rounded-full transition-all active:scale-90 ${ignoredWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, ''))
+                                                ? 'bg-rose-500 text-white shadow-sm'
+                                                : 'text-slate-400 hover:bg-white hover:text-rose-500'
+                                                }`}
+                                            title="Remove/Ignore"
+                                        >
+                                            <X size={12} strokeWidth={3} />
+                                        </button>
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
