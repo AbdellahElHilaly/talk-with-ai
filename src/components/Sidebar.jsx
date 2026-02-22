@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle } from 'lucide-react';
+import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { validateGroqKey } from '../utils/auth';
 import { translations } from '../utils/translations';
@@ -21,9 +21,13 @@ const Sidebar = ({ isOpen, onClose }) => {
     });
     const [isValidating, setIsValidating] = useState(false);
     const [isVerified, setIsVerified] = useState(!!localStorage.getItem('groq_api_key') && localStorage.getItem('groq_api_key') !== 'static');
+    const [isSaving, setIsSaving] = useState(false);
 
-    const saveElevenKey = () => {
+    const saveElevenKey = async () => {
+        setIsSaving(true);
         localStorage.setItem('eleven_labs_key', elevenKey);
+        await new Promise(r => setTimeout(r, 600));
+        setIsSaving(false);
         alert(lang === 'ar' ? "تم حفظ مفتاح ElevenLabs! 🚀" : "ElevenLabs Key Saved! 🚀");
     };
 
@@ -67,9 +71,12 @@ const Sidebar = ({ isOpen, onClose }) => {
         setIsValidating(false);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        setIsSaving(true);
         localStorage.setItem('voice_speed', speed);
         localStorage.setItem('selected_voice', selectedVoice);
+        await new Promise(r => setTimeout(r, 800));
+        setIsSaving(false);
         onClose();
     };
 
@@ -197,9 +204,10 @@ const Sidebar = ({ isOpen, onClose }) => {
                                     <motion.button
                                         whileTap={{ scale: 0.98 }}
                                         onClick={saveElevenKey}
-                                        className="w-full py-3 bg-brand-indigo/10 text-brand-indigo rounded-xl font-black text-[9px] uppercase tracking-[0.1em] hover:bg-brand-indigo/20 transition-all"
+                                        disabled={isSaving}
+                                        className="w-full py-3 bg-brand-indigo/10 text-brand-indigo rounded-xl font-black text-[9px] uppercase tracking-[0.1em] hover:bg-brand-indigo/20 transition-all flex items-center justify-center gap-2"
                                     >
-                                        {t.saveKey}
+                                        {isSaving ? <Loader2 size={12} className="animate-spin" /> : t.saveKey}
                                     </motion.button>
                                 </div>
                             </div>
@@ -255,9 +263,10 @@ const Sidebar = ({ isOpen, onClose }) => {
                             <motion.button
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleSave}
-                                className="w-full py-5 bg-brand-indigo text-white rounded-[1.8rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-200"
+                                disabled={isSaving}
+                                className="w-full py-5 bg-brand-indigo text-white rounded-[1.8rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-200 flex items-center justify-center gap-3 disabled:opacity-80"
                             >
-                                {t.applyChanges}
+                                {isSaving ? <Loader2 size={18} className="animate-spin" /> : t.applyChanges}
                             </motion.button>
                             <p className="text-center mt-6 text-[8px] font-bold text-slate-300 uppercase tracking-widest">
                                 Smart-Lern Core v2.4.0

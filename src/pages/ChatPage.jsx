@@ -16,7 +16,16 @@ const ChatPage = () => {
     const [selectedWord, setSelectedWord] = useState(null);
     const [message, setMessage] = useState('');
     const [nowPlaying, setNowPlaying] = useState(null);
+    const [voiceStatus, setVoiceStatus] = useState('idle'); // idle, loading, playing
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        voiceEngine.onStateChange = (state) => {
+            setVoiceStatus(state);
+            if (state === 'idle') setNowPlaying(null);
+        };
+        return () => voiceEngine.onStateChange = null;
+    }, []);
 
     const lang = getCurrentLang();
     const t = translations[lang];
@@ -208,15 +217,25 @@ const ChatPage = () => {
                                                 ))}
                                             </div>
                                             {nowPlaying === item.id && (
-                                                <div className="flex gap-0.5 items-center">
-                                                    {[1, 2, 3].map(i => (
+                                                <div className="flex gap-1 items-center">
+                                                    {voiceStatus === 'loading' ? (
                                                         <motion.div
-                                                            key={i}
-                                                            animate={{ height: [4, 10, 4] }}
-                                                            transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
-                                                            className="w-0.5 bg-brand-indigo rounded-full"
+                                                            animate={{ rotate: 360 }}
+                                                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                                            className="w-3 h-3 border-2 border-brand-indigo/30 border-t-brand-indigo rounded-full"
                                                         />
-                                                    ))}
+                                                    ) : voiceStatus === 'playing' ? (
+                                                        <div className="flex gap-0.5 items-center">
+                                                            {[1, 2, 3].map(i => (
+                                                                <motion.div
+                                                                    key={i}
+                                                                    animate={{ height: [4, 10, 4] }}
+                                                                    transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
+                                                                    className="w-0.5 bg-brand-indigo rounded-full"
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    ) : null}
                                                 </div>
                                             )}
                                         </div>

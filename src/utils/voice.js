@@ -9,12 +9,26 @@ class VoiceEngine {
         this.utterance = null;
         this.isPaused = false;
         this.audioElement = new Audio();
+        this.onStateChange = null;
+        this.state = 'idle'; // idle, loading, playing
+
+        this.audioElement.onplay = () => this.updateState('playing');
+        this.audioElement.onended = () => this.updateState('idle');
+        this.audioElement.onpause = () => {
+            if (!this.isPaused) this.updateState('idle');
+        };
+    }
+
+    updateState(newState) {
+        this.state = newState;
+        if (this.onStateChange) this.onStateChange(newState);
     }
 
     /**
      * Calls ElevenLabs API to get high-quality audio.
      */
     async speakElevenLabs(text, langCode, elevenKey, forceVoice = null) {
+        this.updateState('loading');
         const key = elevenKey.trim();
         const customVoiceId = forceVoice || localStorage.getItem('selected_voice') || 'Female 1';
 
@@ -71,6 +85,7 @@ class VoiceEngine {
             await this.audioElement.play();
         } catch (error) {
             console.error('ElevenLabs TTS Error - Premium voice failed:', error);
+            this.updateState('idle');
             // Fallback disabled per user request: stop browser voices if API key exists
         }
     }
@@ -87,6 +102,10 @@ class VoiceEngine {
         this.utterance.rate = speed;
         this.utterance.pitch = 1.0;
         this.utterance.lang = langCode === 'ar' ? 'ar-SA' : 'en-US';
+
+        this.utterance.onstart = () => this.updateState('playing');
+        this.utterance.onend = () => this.updateState('idle');
+        this.utterance.onerror = () => this.updateState('idle');
 
         this.synth.speak(this.utterance);
     }
@@ -182,6 +201,7 @@ class VoiceEngine {
         this.audioElement.pause();
         this.audioElement.src = "";
         this.isPaused = false;
+        this.updateState('idle');
     }
 }
 
