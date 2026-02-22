@@ -82,8 +82,8 @@ export const translations = {
         }
     },
     ar: {
-        readyToBloom: "هل أنت مستعد لـ",
-        bloom: "تزهر؟",
+        readyToBloom: "هل أنت مستعد",
+        bloom: "للازدهار؟",
         tagline: "دعنا نتحدث، نستمع، وننمي مفرداتك معاً.",
         launchBtn: "ابدأ الرحلة",
         installBtn: "تثبيت على الشاشة الرئيسية",
