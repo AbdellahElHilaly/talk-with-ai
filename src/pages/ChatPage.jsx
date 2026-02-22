@@ -217,7 +217,7 @@ const ChatPage = () => {
                                                         title="Play"
                                                         onClick={() => {
                                                             voiceEngine.stop();
-                                                            voiceEngine.speak(item.text);
+                                                            voiceEngine.speak(item.text, 'en');
                                                             setNowPlaying(item.id);
                                                         }}
                                                         className="text-brand-indigo active:scale-90 transition-all p-1.5 bg-indigo-50 rounded-full"
