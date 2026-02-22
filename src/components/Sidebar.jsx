@@ -124,21 +124,22 @@ const Sidebar = ({ isOpen, onClose }) => {
                             {/* API Section */}
                             <div className="flex flex-col gap-4 text-left">
                                 <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <a
-                                        href="https://console.groq.com/keys"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="group/link flex items-center gap-2"
-                                    >
-                                        <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover/link:text-brand-indigo transition-colors">{t.groqIntelligence}</label>
-                                    </a>
-                                    {isVerified && <CheckCircle2 size={14} className="text-emerald-500" />}
+                                    <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <a
+                                            href="https://console.groq.com/keys"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group/link"
+                                        >
+                                            <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover/link:text-brand-indigo transition-colors">{t.groqIntelligence}</label>
+                                        </a>
+                                        <Link to="/guide" className="text-[8px] font-black text-brand-indigo/40 hover:text-brand-indigo transition-colors uppercase tracking-tighter shrink-0">
+                                            ({t.clickHere})
+                                        </Link>
+                                    </div>
+                                    {isVerified && <CheckCircle2 size={12} className="text-emerald-500" />}
                                 </div>
-                                <div className="space-y-3">
-                                    <Link to="/guide" className={`flex items-center gap-1.5 text-[9px] font-bold text-brand-indigo hover:text-indigo-600 transition-colors ${rtl ? 'justify-end' : 'justify-start'}`}>
-                                        <HelpCircle size={10} />
-                                        {t.clickHere}
-                                    </Link>
+                                <div className="space-y-2">
                                     <input
                                         type="password"
                                         value={apiKey}
@@ -153,7 +154,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                         whileTap={{ scale: 0.98 }}
                                         onClick={validateKey}
                                         disabled={isValidating}
-                                        className="w-full py-3.5 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-slate-100 transition-all hover:bg-slate-800"
+                                        className="w-full py-3 bg-slate-900 text-white rounded-2xl font-black text-[9px] uppercase tracking-[0.2em] shadow-lg shadow-slate-100 transition-all hover:bg-slate-800"
                                     >
                                         {isValidating ? t.verifying : isVerified ? t.verified : t.verifyKey}
                                     </motion.button>
@@ -163,26 +164,25 @@ const Sidebar = ({ isOpen, onClose }) => {
                             {/* API Section (GOOGLE CLOUD) */}
                             <div className="flex flex-col gap-4 text-left">
                                 <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <a
-                                        href="https://console.cloud.google.com/apis/credentials"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="group/link flex items-center gap-2"
-                                    >
-                                        <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover/link:text-brand-indigo transition-colors">{t.cloudVoice}</label>
-                                    </a>
-                                    {googleKey && googleKey.length > 10 && <CheckCircle2 size={14} className="text-brand-indigo" />}
-                                </div>
-                                <div className="space-y-3">
                                     <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
-                                            {t.googleHelp}
-                                        </p>
-                                        <Link to="/guide" className="shrink-0 flex items-center gap-1 text-[9px] font-bold text-brand-indigo hover:text-indigo-600 transition-colors">
-                                            <HelpCircle size={10} />
-                                            {t.clickHere}
+                                        <a
+                                            href="https://console.cloud.google.com/apis/credentials"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group/link"
+                                        >
+                                            <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover/link:text-brand-indigo transition-colors">{t.cloudVoice}</label>
+                                        </a>
+                                        <Link to="/guide" className="text-[8px] font-black text-brand-indigo/40 hover:text-brand-indigo transition-colors uppercase tracking-tighter shrink-0">
+                                            ({t.clickHere})
                                         </Link>
                                     </div>
+                                    {googleKey && googleKey.length > 10 && <CheckCircle2 size={12} className="text-brand-indigo" />}
+                                </div>
+                                <div className="space-y-2">
+                                    <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
+                                        {t.googleHelp}
+                                    </p>
                                     <input
                                         type="password"
                                         value={googleKey}
