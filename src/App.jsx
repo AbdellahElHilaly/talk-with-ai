@@ -199,6 +199,16 @@ const HomePage = () => {
                 >
                   {isValidating ? 'Validating...' : 'Unlock My Potential'}
                 </button>
+
+                <button
+                  onClick={() => {
+                    localStorage.setItem('groq_api_key', 'static');
+                    setOnboardingStep(null);
+                  }}
+                  className="w-full mt-3 text-[10px] font-black text-slate-300 hover:text-brand-indigo uppercase tracking-widest transition-colors py-2"
+                >
+                  Maybe later, just let me explore ✨
+                </button>
               </motion.div>
             ) : (
               <motion.div
@@ -226,7 +236,7 @@ const HomePage = () => {
                     onClick={() => setOnboardingStep(null)}
                     className="text-[10px] font-bold text-slate-300 uppercase tracking-widest pt-2"
                   >
-                    Maybe later
+                    Let's Chat!
                   </button>
                 </div>
               </motion.div>
@@ -271,6 +281,7 @@ const ChatPage = () => {
   const [selectedWord, setSelectedWord] = useState(null);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const isStaticMode = localStorage.getItem('groq_api_key') === 'static';
 
   const handleWordSelect = (en, ar) => {
     if (selectedWord?.en === en) {
@@ -281,6 +292,10 @@ const ChatPage = () => {
   };
 
   const handleSend = () => {
+    if (isStaticMode) {
+      alert("You are in Explore Mode! ✨ Add your Groq API key in settings to unlock real AI replies.");
+      return;
+    }
     if (message.trim()) {
       setMessage('');
     }
@@ -312,10 +327,17 @@ const ChatPage = () => {
                   exit={{ y: -20, opacity: 0 }}
                   className="flex flex-col"
                 >
-                  <span className="logo-font text-2xl text-brand-indigo leading-none -ml-0.5">S-L</span>
+                  <div className="flex items-center gap-2">
+                    <span className="logo-font text-2xl text-brand-indigo leading-none -ml-0.5">S-L</span>
+                    {isStaticMode && (
+                      <span className="text-[6px] px-1.5 py-0.5 bg-indigo-50 text-brand-indigo border border-indigo-100 rounded-full font-black uppercase tracking-tighter">Explore Mode</span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[7px] font-black text-slate-300 uppercase tracking-widest">Connected</span>
+                    <div className={`w-1 h-1 rounded-full ${isStaticMode ? 'bg-amber-400' : 'bg-emerald-400'} animate-pulse`} />
+                    <span className="text-[7px] font-black text-slate-300 uppercase tracking-widest">
+                      {isStaticMode ? 'Local Engine' : 'Connected'}
+                    </span>
                   </div>
                 </motion.div>
               ) : (
