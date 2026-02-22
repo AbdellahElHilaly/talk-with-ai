@@ -19,83 +19,67 @@ const GlassButton = ({ children, onClick, active = false }) => (
 // --- Pages ---
 
 const HomePage = () => {
-  const [message, setMessage] = useState('');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
-
-  const handleSend = () => {
-    if (message.trim()) {
-      navigate('/chat', { state: { message } });
-    }
-  };
 
   return (
     <div className="h-full w-full relative flex flex-col bg-slate-50 overflow-hidden font-sans">
-      {/* Magical Minimal Header - Floating Spark */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
-        <div className="w-1.5 h-1.5 rounded-full bg-brand-indigo animate-ping" />
-        <span className="text-[10px] font-black tracking-[0.5em] text-slate-300 uppercase">Mind Nexus</span>
-      </div>
+      {/* Background Decorative Elements */}
+      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-100/40 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-rose-50/30 rounded-full blur-[120px]" />
 
-      <button
-        onClick={() => setIsSidebarOpen(true)}
-        className="absolute top-6 right-6 p-4 rounded-2xl z-10 text-slate-400 bg-white/80 backdrop-blur-xl border border-white shadow-soft transition-all active:scale-95"
-      >
-        <Settings size={20} />
-      </button>
-
-      <div className="flex-1 flex flex-col items-center justify-center p-10">
+      <div className="relative flex-1 flex flex-col items-center justify-center px-8 text-center">
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
+          initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="text-center mb-16"
+          className="mb-12 flex flex-col items-center"
         >
-          <h1 className="text-5xl font-black text-slate-900 tracking-tighter mb-4 leading-none">
+          <div className="w-16 h-16 bg-white rounded-3xl shadow-magical flex items-center justify-center mb-8 rotate-12">
+            <div className="w-8 h-8 rounded-full border-4 border-brand-indigo animate-spin-slow" />
+          </div>
+
+          <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter mb-4 leading-none">
             Hello, <br />
             <span className="text-brand-indigo">Seeker.</span>
           </h1>
-          <p className="text-slate-400 font-medium">What's on your mind today?</p>
+          <p className="text-slate-400 text-lg md:text-xl font-medium max-w-xs mx-auto">
+            Your neural gateway to English mastery is ready.
+          </p>
         </motion.div>
 
-        <motion.div
+        <motion.button
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="w-full max-w-md relative group"
+          transition={{ delay: 0.2 }}
+          whileHover={{ scale: 1.05, translateY: -5 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate('/chat')}
+          className="group relative px-12 py-5 bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl transition-all"
         >
-          {/* Magical Outer Glow (Visible on Focus) */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-brand-indigo/20 to-indigo-400/20 rounded-[2.5rem] blur-xl opacity-0 group-within:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-indigo to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className="relative z-10 text-white font-black tracking-[0.2em] uppercase text-sm">
+            Start Journey
+          </span>
+          {/* Subtle Glow Ring */}
+          <div className="absolute inset-0 border border-white/10 rounded-[2rem]" />
+        </motion.button>
 
-          <div className="relative bg-white p-2 rounded-[2.2rem] flex items-center shadow-magical border border-indigo-50/50">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Whisper your thoughts..."
-              className="flex-1 bg-transparent py-4 px-6 outline-none text-lg text-slate-900 placeholder:text-slate-400 font-medium"
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            />
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={handleSend}
-              className="bg-brand-indigo text-white h-14 w-14 rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 shrink-0 transition-transform"
-            >
-              <Send size={22} strokeWidth={2.5} />
-            </motion.button>
-          </div>
-
-          {/* Prompt Suggestion Sparkle */}
-          <div className="mt-6 flex justify-center gap-2">
-            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
-              <div className="w-1 h-3 bg-brand-indigo/30 rounded-full" />
-              Tap to explore the nexus
-            </span>
-          </div>
-        </motion.div>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-10 text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]"
+        >
+          Ready to dive into the nexus?
+        </motion.p>
       </div>
 
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <div className="absolute bottom-10 left-0 right-0 flex justify-center">
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">v2.0 Beta</span>
+          <div className="w-1 h-3 bg-indigo-100 rounded-full" />
+          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Sync Active</span>
+        </div>
+      </div>
     </div>
   );
 };
