@@ -2,13 +2,19 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2, User, Mic2, Speaker } from 'lucide-react';
 import { validateGroqKey } from '../utils/auth';
+import { translations } from '../utils/translations';
+import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
 
 const Sidebar = ({ isOpen, onClose }) => {
+    const [lang, setLang] = useState(getCurrentLang());
     const [apiKey, setApiKey] = useState(localStorage.getItem('groq_api_key') || '');
     const [speed, setSpeed] = useState(parseFloat(localStorage.getItem('voice_speed')) || 1);
     const [selectedVoice, setSelectedVoice] = useState(localStorage.getItem('selected_voice') || 'Female 1');
     const [isValidating, setIsValidating] = useState(false);
     const [isVerified, setIsVerified] = useState(!!localStorage.getItem('groq_api_key') && localStorage.getItem('groq_api_key') !== 'static');
+
+    const t = translations[lang];
+    const rtl = isRTL();
 
     const voices = [
         { id: 'Female 1', icon: User, label: 'Bloom (F)', color: 'text-rose-500' },
@@ -17,9 +23,15 @@ const Sidebar = ({ isOpen, onClose }) => {
         { id: 'Male 2', icon: Speaker, label: 'Boreas (M)', color: 'text-emerald-500' },
     ];
 
+    const toggleLang = (newLang) => {
+        setAppLang(newLang);
+        setLang(newLang);
+        window.location.reload();
+    };
+
     const validateKey = async () => {
         if (!apiKey.startsWith('gsk_')) {
-            alert("Please enter a valid Groq key starting with 'gsk_'.");
+            alert(lang === 'ar' ? "يرجى إدخال مفتاح Groq صحيح يبدأ بـ 'gsk_'." : "Please enter a valid Groq key starting with 'gsk_'.");
             return;
         }
 
@@ -29,10 +41,10 @@ const Sidebar = ({ isOpen, onClose }) => {
         if (isValid) {
             localStorage.setItem('groq_api_key', apiKey);
             setIsVerified(true);
-            alert("API Key Verified Successfully! ✨");
+            alert(lang === 'ar' ? "تم التحقق من المفتاح بنجاح! ✨" : "API Key Verified Successfully! ✨");
         } else {
             setIsVerified(false);
-            alert("Verification failed. Please check your key! 💖");
+            alert(lang === 'ar' ? "فشل التحقق. يرجى التأكد من المفتاح! 💖" : "Verification failed. Please check your key! 💖");
         }
         setIsValidating(false);
     };
@@ -55,16 +67,17 @@ const Sidebar = ({ isOpen, onClose }) => {
                         className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-40"
                     />
                     <motion.div
-                        initial={{ x: '-100%' }}
+                        initial={{ x: rtl ? '100%' : '-100%' }}
                         animate={{ x: 0 }}
-                        exit={{ x: '-100%' }}
-                        className="fixed left-0 top-0 h-full w-[85%] max-w-sm bg-white z-50 p-8 flex flex-col shadow-2xl rounded-r-[2.5rem] overflow-y-auto hide-scrollbar"
+                        exit={{ x: rtl ? '100%' : '-100%' }}
+                        className={`fixed ${rtl ? 'right-0' : 'left-0'} top-0 h-full w-[85%] max-w-sm bg-white z-50 p-8 flex flex-col shadow-2xl ${rtl ? 'rounded-l-[2.5rem]' : 'rounded-r-[2.5rem]'} overflow-y-auto hide-scrollbar`}
+                        dir={rtl ? 'rtl' : 'ltr'}
                     >
                         {/* Header */}
-                        <div className="flex justify-between items-center mb-10">
-                            <div className="flex flex-col">
-                                <span className="logo-font text-4xl text-brand-indigo -rotate-3">Smart-Lern</span>
-                                <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.4em] mt-1 ml-1">Settings Panel</span>
+                        <div className={`flex justify-between items-center mb-10 ${rtl ? 'flex-row-reverse' : ''}`}>
+                            <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
+                                <span className={`logo-font text-4xl text-brand-indigo ${rtl ? 'rotate-3' : '-rotate-3'}`}>Smart-Lern</span>
+                                <span className={`text-[9px] font-black text-slate-300 uppercase tracking-[0.4em] mt-1 ${rtl ? 'mr-1' : 'ml-1'}`}>{t.settingsPanel}</span>
                             </div>
                             <button
                                 onClick={onClose}
@@ -75,10 +88,29 @@ const Sidebar = ({ isOpen, onClose }) => {
                         </div>
 
                         <div className="flex flex-col gap-10">
+                            {/* Language Selector */}
+                            <div className="flex flex-col gap-4 text-left">
+                                <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{t.language}</label>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => toggleLang('en')}
+                                        className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] transition-all ${lang === 'en' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400'}`}
+                                    >
+                                        ENGLISH
+                                    </button>
+                                    <button
+                                        onClick={() => toggleLang('ar')}
+                                        className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] transition-all ${lang === 'ar' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400'}`}
+                                    >
+                                        العربية
+                                    </button>
+                                </div>
+                            </div>
+
                             {/* API Section */}
-                            <div className="flex flex-col gap-4">
-                                <div className="flex justify-between items-center">
-                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Groq Intelligence</label>
+                            <div className="flex flex-col gap-4 text-left">
+                                <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{t.groqIntelligence}</label>
                                     {isVerified && <CheckCircle2 size={14} className="text-emerald-500" />}
                                 </div>
                                 <div className="space-y-3">
@@ -90,7 +122,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                             setIsVerified(false);
                                         }}
                                         placeholder="gsk_..."
-                                        className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-indigo-200 outline-none transition-all text-slate-950 font-mono text-xs"
+                                        className={`w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-indigo-200 outline-none transition-all text-slate-950 font-mono text-xs ${rtl ? 'text-right' : 'text-left'}`}
                                     />
                                     <motion.button
                                         whileTap={{ scale: 0.98 }}
@@ -98,22 +130,22 @@ const Sidebar = ({ isOpen, onClose }) => {
                                         disabled={isValidating}
                                         className="w-full py-3.5 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-slate-100 transition-all hover:bg-slate-800"
                                     >
-                                        {isValidating ? 'Checking...' : isVerified ? 'Verified ✓' : 'Verify Key'}
+                                        {isValidating ? t.verifying : isVerified ? t.verified : t.verifyKey}
                                     </motion.button>
                                 </div>
                             </div>
 
                             {/* Voice Selection */}
-                            <div className="flex flex-col gap-4">
-                                <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Voice Engine</label>
+                            <div className="flex flex-col gap-4 text-left">
+                                <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{t.voiceEngine}</label>
                                 <div className="grid grid-cols-2 gap-3">
                                     {voices.map((v) => (
                                         <button
                                             key={v.id}
                                             onClick={() => setSelectedVoice(v.id)}
                                             className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${selectedVoice === v.id
-                                                ? 'border-brand-indigo bg-indigo-50/30'
-                                                : 'border-slate-50 hover:border-indigo-100'
+                                                    ? 'border-brand-indigo bg-indigo-50/30'
+                                                    : 'border-slate-50 hover:border-indigo-100'
                                                 }`}
                                         >
                                             <v.icon className={`w-5 h-5 ${v.color}`} />
@@ -126,9 +158,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                             </div>
 
                             {/* Velocity Section */}
-                            <div className="flex flex-col gap-6">
-                                <div className="flex justify-between items-center">
-                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Speech Velocity</label>
+                            <div className="flex flex-col gap-6 text-left">
+                                <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{t.speechVelocity}</label>
                                     <span className="text-xl font-black text-brand-indigo font-mono italic">{speed}x</span>
                                 </div>
                                 <div className="relative px-2">
@@ -141,9 +173,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                                         onChange={(e) => setSpeed(e.target.value)}
                                         className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-brand-indigo"
                                     />
-                                    <div className="flex justify-between mt-2 px-1">
-                                        <span className="text-[8px] font-bold text-slate-300">SLOW</span>
-                                        <span className="text-[8px] font-bold text-slate-300">FAST</span>
+                                    <div className={`flex justify-between mt-2 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <span className="text-[8px] font-bold text-slate-300">{t.slow}</span>
+                                        <span className="text-[8px] font-bold text-slate-300">{t.fast}</span>
                                     </div>
                                 </div>
                             </div>
@@ -156,7 +188,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                 onClick={handleSave}
                                 className="w-full py-5 bg-brand-indigo text-white rounded-[1.8rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-200"
                             >
-                                Apply Changes
+                                {t.applyChanges}
                             </motion.button>
                             <p className="text-center mt-6 text-[8px] font-bold text-slate-300 uppercase tracking-widest">
                                 Smart-Lern Core v2.4.0
