@@ -53,12 +53,13 @@ export const getActiveGroqKey = () => {
 
 export const rotateGroqKey = () => {
     const keys = getGroqKeys();
-    if (keys.length > 0) {
+    if (keys.length > 1) {
         const [first, ...rest] = keys;
-        saveGroqKeys(rest);
-        return rest.length > 0 ? rest[0] : null;
+        const rotated = [...rest, first]; // Round Robin
+        saveGroqKeys(rotated);
+        return rotated[0];
     }
-    return null;
+    return keys[0] || null;
 };
 
 export const isStaticMode = () => {
@@ -132,36 +133,47 @@ export const chatWithGroq = async (messages, learnedWords = [], ignoredWords = [
  */
 export const syncTranslations = async (words) => {
     if (!words || words.length === 0) return {};
-    let apiKey = getActiveGroqKey();
-    if (!apiKey) return {};
+    let keys = getGroqKeys();
+    if (keys.length === 0) return {};
 
     const systemPrompt = `You are a translation assistant. 
     Return a JSON object where keys are the English words provided and values are their concise Arabic translations.
     Format: { "word": "translation", ... }`;
 
-    try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: `Translate these words to Arabic: ${words.join(', ')}` }
-                ],
-                temperature: 0.2,
-                response_format: { type: "json_object" }
-            })
-        });
+    const attemptSync = async (availableKeys) => {
+        if (availableKeys.length === 0) return {};
+        const currentKey = availableKeys[0];
 
-        if (!response.ok) return {};
-        const data = await response.json();
-        return JSON.parse(data.choices[0].message.content);
-    } catch (err) {
-        console.error("Sync Translation Error:", err);
-        return {};
-    }
+        try {
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${currentKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: `Translate these words to Arabic: ${words.join(', ')}` }
+                    ],
+                    temperature: 0.2,
+                    response_format: { type: "json_object" }
+                })
+            });
+
+            if (response.status === 401 || response.status === 429) {
+                return attemptSync(availableKeys.slice(1));
+            }
+
+            if (!response.ok) return {};
+            const data = await response.json();
+            return JSON.parse(data.choices[0].message.content);
+        } catch (err) {
+            console.error("Sync Translation Error:", err);
+            return attemptSync(availableKeys.slice(1));
+        }
+    };
+
+    return attemptSync(keys);
 };

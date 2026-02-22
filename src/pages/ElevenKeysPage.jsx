@@ -179,15 +179,14 @@ const ElevenKeysPage = () => {
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.9 }}
-                                        className={`bg-white p-5 rounded-[2.5rem] border transition-all ${info.status === 'dead' ? 'border-rose-100 bg-rose-50/20' :
-                                            isLow ? 'border-amber-100 bg-amber-50/20' : 'border-slate-100'
+                                        className={`bg-white p-5 rounded-[2.5rem] border transition-all ${info.status === 'dead' ? 'border-amber-100 bg-amber-50/20' :
+                                                isLow ? 'border-amber-100 bg-amber-50/20' : 'border-slate-100'
                                             } shadow-sm flex flex-col gap-4 group`}
                                     >
                                         <div className="flex items-center justify-between gap-4">
                                             <div className="flex items-center gap-4 overflow-hidden">
-                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${isLow ? 'bg-amber-50 text-amber-500' :
-                                                    info.status === 'good' ? 'bg-indigo-50 text-brand-indigo' :
-                                                        info.status === 'dead' ? 'bg-rose-50 text-rose-500' :
+                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${isLow || info.status === 'dead' ? 'bg-amber-50 text-amber-500' :
+                                                        info.status === 'good' ? 'bg-indigo-50 text-brand-indigo' :
                                                             'bg-slate-50 text-slate-300'
                                                     }`}>
                                                     {isLow ? <AlertTriangle size={24} /> :
@@ -198,8 +197,8 @@ const ElevenKeysPage = () => {
                                                 <div className="flex flex-col overflow-hidden">
                                                     <span className="font-mono text-[10px] text-slate-400 tracking-tight truncate max-w-[120px] md:max-w-xs">{key}</span>
                                                     <span className={`text-[8px] font-black uppercase tracking-widest mt-1 ${isLow || info.status === 'dead' ? 'text-amber-500' :
-                                                            info.status === 'good' ? 'text-brand-indigo' :
-                                                                'text-slate-300'
+                                                        info.status === 'good' ? 'text-brand-indigo' :
+                                                            'text-slate-300'
                                                         }`}>
                                                         {isLow ? (lang === 'ar' ? 'تنبيه: رصيد منخفض' : 'Warning: Low Credits') :
                                                             info.status === 'good' ? `${info.tier} Plan` :

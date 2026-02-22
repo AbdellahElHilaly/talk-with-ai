@@ -45,7 +45,7 @@ export const saveTranslations = (newTranslations) => {
     const current = getWordTranslations();
     const updated = { ...current, ...newTranslations };
     localStorage.setItem(KEYS.TRANSLATIONS, JSON.stringify(updated));
-    // No notify needed for background translation updates usually
+    notifyUpdate();
 };
 
 // --- ACTIONS ---

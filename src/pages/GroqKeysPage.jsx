@@ -157,12 +157,12 @@ const GroqKeysPage = () => {
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.9 }}
-                                        className={`bg-white p-4 rounded-[2rem] border transition-all ${health.status === 'dead' ? 'border-rose-100 bg-rose-50/20' : 'border-slate-100'} shadow-sm flex items-center justify-between group`}
+                                        className={`bg-white p-4 rounded-[2rem] border transition-all ${health.status === 'dead' ? 'border-amber-100 bg-amber-50/20' : 'border-slate-100'} shadow-sm flex items-center justify-between group`}
                                     >
                                         <div className="flex items-center gap-4 overflow-hidden">
                                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${health.status === 'good' ? 'bg-emerald-50 text-emerald-500' :
-                                                    health.status === 'dead' ? 'bg-rose-50 text-rose-500' :
-                                                        'bg-slate-50 text-slate-300'
+                                                health.status === 'dead' ? 'bg-amber-50 text-amber-500' :
+                                                    'bg-slate-50 text-slate-300'
                                                 }`}>
                                                 {health.status === 'good' ? <CheckCircle2 size={24} /> :
                                                     health.status === 'dead' ? <ZapOff size={24} /> :
@@ -172,11 +172,11 @@ const GroqKeysPage = () => {
                                                 <span className="font-mono text-[10px] text-slate-500 tracking-tight truncate max-w-[120px] md:max-w-xs">{key}</span>
                                                 <div className="flex items-center gap-2 mt-1">
                                                     <span className={`text-[8px] font-black uppercase tracking-tighter ${health.status === 'good' ? 'text-emerald-500' :
-                                                            health.status === 'dead' ? 'text-rose-500' :
-                                                                'text-slate-300'
+                                                        health.status === 'dead' ? 'text-amber-500' :
+                                                            'text-slate-300'
                                                         }`}>
                                                         {health.status === 'good' ? (index === 0 ? 'Active & Healthy' : 'Ready to use') :
-                                                            health.status === 'dead' ? 'Key Expired or Invalid' : 'Checking Evolution...'}
+                                                            health.status === 'dead' ? (lang === 'ar' ? 'المفتاح غير صالح حالياً' : 'Key currently invalid') : 'Checking Evolution...'}
                                                     </span>
                                                 </div>
                                             </div>

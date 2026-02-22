@@ -61,12 +61,13 @@ export const getActiveElevenKey = () => {
 
 export const rotateElevenKey = () => {
     const keys = getElevenKeys();
-    if (keys.length > 0) {
+    if (keys.length > 1) {
         const [first, ...rest] = keys;
-        saveElevenKeys(rest);
-        return rest.length > 0 ? rest[0] : null;
+        const rotated = [...rest, first]; // Round Robin
+        saveElevenKeys(rotated);
+        return rotated[0];
     }
-    return null;
+    return keys[0] || null;
 };
 
 class VoiceEngine {
