@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, User, UserCircle2, Settings2, Mic2, Speaker } from 'lucide-react';
+import { X, CheckCircle2, User, Mic2, Speaker } from 'lucide-react';
+import { validateGroqKey } from '../utils/auth';
 
 const Sidebar = ({ isOpen, onClose }) => {
     const [apiKey, setApiKey] = useState(localStorage.getItem('groq_api_key') || '');
@@ -23,27 +24,17 @@ const Sidebar = ({ isOpen, onClose }) => {
         }
 
         setIsValidating(true);
-        try {
-            const response = await fetch('https://api.groq.com/openai/v1/models', {
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+        const isValid = await validateGroqKey(apiKey);
 
-            if (response.ok) {
-                localStorage.setItem('groq_api_key', apiKey);
-                setIsVerified(true);
-                alert("API Key Verified Successfully! ✨");
-            } else {
-                throw new Error('Invalid Key');
-            }
-        } catch (err) {
+        if (isValid) {
+            localStorage.setItem('groq_api_key', apiKey);
+            setIsVerified(true);
+            alert("API Key Verified Successfully! ✨");
+        } else {
             setIsVerified(false);
             alert("Verification failed. Please check your key! 💖");
-        } finally {
-            setIsValidating(false);
         }
+        setIsValidating(false);
     };
 
     const handleSave = () => {
@@ -121,8 +112,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                                             key={v.id}
                                             onClick={() => setSelectedVoice(v.id)}
                                             className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${selectedVoice === v.id
-                                                    ? 'border-brand-indigo bg-indigo-50/30'
-                                                    : 'border-slate-50 hover:border-indigo-100'
+                                                ? 'border-brand-indigo bg-indigo-50/30'
+                                                : 'border-slate-50 hover:border-indigo-100'
                                                 }`}
                                         >
                                             <v.icon className={`w-5 h-5 ${v.color}`} />
