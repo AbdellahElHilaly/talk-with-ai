@@ -38,11 +38,11 @@ const HomePage = () => {
           </div>
 
           <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter mb-4 leading-none">
-            Welcome, <br />
-            <span className="text-brand-indigo">Seeker.</span>
+            Ready to <br />
+            <span className="text-brand-indigo italic">Bloom?</span>
           </h1>
-          <p className="text-slate-400 text-lg md:text-xl font-medium max-w-xs mx-auto">
-            Your intelligence gateway is ready.
+          <p className="text-slate-400 text-lg md:text-xl font-medium max-w-sm mx-auto">
+            Let's chat, listen, and grow your vocabulary together.
           </p>
         </motion.div>
 
