@@ -120,17 +120,16 @@ const HomePage = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          whileHover={{ scale: 1.05, translateY: -5 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => navigate('/chat')}
-          className="group relative px-12 py-5 bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl transition-all"
+          className="group relative px-12 py-5 bg-brand-indigo rounded-[2rem] overflow-hidden shadow-2xl shadow-indigo-100 transition-all"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-indigo to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
           <span className="relative z-10 text-white font-black tracking-[0.2em] uppercase text-sm">
             Launch S-L
           </span>
           {/* Subtle Glow Ring */}
-          <div className="absolute inset-0 border border-white/10 rounded-[2rem]" />
+          <div className="absolute inset-0 border border-white/20 rounded-[2rem]" />
         </motion.button>
 
         {deferredPrompt && (
@@ -192,13 +191,14 @@ const HomePage = () => {
                   />
                 </div>
 
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
                   onClick={validateAndSaveKey}
                   disabled={isValidating}
-                  className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-xl shadow-slate-200"
+                  className="w-full bg-brand-indigo text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-indigo-100"
                 >
                   {isValidating ? 'Validating...' : 'Unlock My Potential'}
-                </button>
+                </motion.button>
 
                 <button
                   onClick={() => {
@@ -226,12 +226,13 @@ const HomePage = () => {
                   I'm verified and ready. Install me on your home screen for the fastest access to your learning journey!
                 </p>
                 <div className="flex flex-col gap-3">
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleInstall}
-                    className="w-full bg-brand-indigo text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-xl shadow-indigo-100"
+                    className="w-full bg-brand-indigo text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-indigo-100"
                   >
                     Install Smart-Lern
-                  </button>
+                  </motion.button>
                   <button
                     onClick={() => setOnboardingStep(null)}
                     className="text-[10px] font-bold text-slate-300 uppercase tracking-widest pt-2"
