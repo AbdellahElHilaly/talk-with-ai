@@ -27,10 +27,6 @@ const Sidebar = ({ isOpen, onClose }) => {
     const voices = [
         { id: 'Female 1', icon: User, label: 'Bloom (F)', color: 'text-rose-500' },
         { id: 'Male 1', icon: User, label: 'Atlas (M)', color: 'text-indigo-500' },
-        { id: 'Female 2', icon: Mic2, label: 'Nova (F)', color: 'text-amber-500' },
-        { id: 'Male 2', icon: Speaker, label: 'Boreas (M)', color: 'text-emerald-500' },
-        { id: 'Female 3', icon: Speaker, label: 'Ember (F)', color: 'text-orange-500' },
-        { id: 'Male 3', icon: Mic2, label: 'Orion (M)', color: 'text-sky-500' },
     ];
 
     const toggleLang = (newLang) => {

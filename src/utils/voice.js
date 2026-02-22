@@ -20,21 +20,13 @@ class VoiceEngine {
 
         const voiceMap = {
             en: {
-                'Female 1': '21m00Tcm4TlvDq8ikWAM', // Rachel (Safe)
-                'Male 1': 'pNInz6obpgDQGcFmaJgB',   // Adam (Safe)
-                'Female 2': 'EXAVITQu4vr4xnSDxMaL', // Bella (Safe)
-                'Male 2': 'VR6AewrXVreHct0p9W69',   // Arnold (Safe)
-                'Female 3': 'AZnzlk1Xhk61S3Y90Yx8', // Nicole (Safe)
-                'Male 3': 'txP8QU9LUOocPaU3bhoc'    // Josh (Safe)
+                'Female 1': '21m00Tcm4TlvDq8ikWAM', // Rachel (Most Stable Free Voice)
+                'Male 1': 'pNInz6obpgDQGcFmaJgB'    // Adam (Most Stable Free Voice)
             },
             ar: {
-                // Using the same Safe Pre-made voices as they support Multilingual v2
+                // Rachel and Adam support Arabic via Multilingual v2
                 'Female 1': '21m00Tcm4TlvDq8ikWAM',
-                'Male 1': 'pNInz6obpgDQGcFmaJgB',
-                'Female 2': 'EXAVITQu4vr4xnSDxMaL',
-                'Male 2': 'VR6AewrXVreHct0p9W69',
-                'Female 3': 'AZnzlk1Xhk61S3Y90Yx8',
-                'Male 3': 'txP8QU9LUOocPaU3bhoc'
+                'Male 1': 'pNInz6obpgDQGcFmaJgB'
             }
         };
 
@@ -147,19 +139,11 @@ class VoiceEngine {
         const previews = {
             en: {
                 'Female 1': "Wisdom begins in wonder. Let's bloom together.",
-                'Male 1': "The only true knowledge is knowing you know nothing. Shall we explore?",
-                'Female 2': "The stars are not afraid to shine in the dark. Voice your thoughts.",
-                'Male 2': "A journey of a thousand miles begins with a single word. I am Arnold.",
-                'Female 3': "Kindness is a language which the deaf can hear and the blind can see.",
-                'Male 3': "Everything you've ever wanted is on the other side of fear."
+                'Male 1': "The only true knowledge is knowing you know nothing. Shall we explore?"
             },
             ar: {
                 'Female 1': "الحكمة تبدأ بالدهشة. لنزهر معاً في رحلة العلم.",
-                'Male 1': "المعرفة الحقيقية هي أن تعرف عمق جهلك. هل نبدأ الاستكشاف؟",
-                'Female 2': "النجوم لا تخشى اللمعان في الظلام. أطلق العنان لأفكارك.",
-                'Male 2': "رحلة الألف ميل تبدأ بكلمة واحدة. أنا آرنولد، رفيقك.",
-                'Female 3': "اللطف لغة يسمعها الأصم ويراها الكفيف. أنا نيكول.",
-                'Male 3': "كل ما تريده يقع على الجانب الآخر من الخوف. أنا جوش."
+                'Male 1': "المعرفة الحقيقية هي أن تعرف عمق جهلك. هل نبدأ الاستكشاف؟"
             }
         };
 
