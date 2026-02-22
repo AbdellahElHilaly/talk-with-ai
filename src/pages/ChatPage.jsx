@@ -9,10 +9,13 @@ import { isStaticMode } from '../utils/auth';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 
+import { voiceEngine } from '../utils/voice';
+
 const ChatPage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [selectedWord, setSelectedWord] = useState(null);
     const [message, setMessage] = useState('');
+    const [nowPlaying, setNowPlaying] = useState(null);
     const navigate = useNavigate();
 
     const lang = getCurrentLang();
@@ -38,11 +41,48 @@ const ChatPage = () => {
         }
     };
 
-    const playbackActions = [
-        { icon: RotateCcw, label: 'Reset', color: 'text-slate-500 hover:text-slate-700' },
-        { icon: Pause, label: 'Pause', color: 'text-amber-500 hover:text-amber-600' },
-        { icon: Play, label: 'Play', color: 'text-brand-indigo hover:text-indigo-700', primary: true, filled: true },
-        { icon: Square, label: 'Stop', color: 'text-rose-500 hover:text-rose-600', filled: true }
+    const playbackActions = (item) => [
+        {
+            icon: RotateCcw,
+            label: 'Reset',
+            color: 'text-slate-500 hover:text-slate-700',
+            onClick: () => {
+                voiceEngine.stop();
+                voiceEngine.speak(item.text);
+                setNowPlaying(item.id);
+            }
+        },
+        {
+            icon: Pause,
+            label: 'Pause',
+            color: 'text-amber-500 hover:text-amber-600',
+            onClick: () => voiceEngine.pause()
+        },
+        {
+            icon: Play,
+            label: 'Play',
+            color: 'text-brand-indigo hover:text-indigo-700',
+            primary: true,
+            filled: true,
+            onClick: () => {
+                if (voiceEngine.isPaused) {
+                    voiceEngine.resume();
+                } else {
+                    voiceEngine.speak(item.text);
+                }
+                setNowPlaying(item.id);
+            }
+        },
+        {
+            icon: Square,
+            label: 'Stop',
+            color: 'text-rose-500 hover:text-rose-600',
+            filled: true,
+            onClick: () => {
+                voiceEngine.stop();
+                setNowPlaying(null);
+            }
+        }
     ];
 
     return (
@@ -151,10 +191,11 @@ const ChatPage = () => {
                                         <div className="h-[1px] w-full bg-slate-100 group-hover:bg-indigo-50 transition-colors" />
                                         <div className={`flex items-center gap-5 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
                                             <div className={`flex items-center gap-4 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                                {playbackActions.map((action, idx) => (
+                                                {playbackActions(item).map((action, idx) => (
                                                     <button
                                                         key={idx}
                                                         title={action.label}
+                                                        onClick={action.onClick}
                                                         className={`${action.color} active:scale-90 transition-all p-1 drop-shadow-sm`}
                                                     >
                                                         <action.icon
@@ -166,6 +207,18 @@ const ChatPage = () => {
                                                     </button>
                                                 ))}
                                             </div>
+                                            {nowPlaying === item.id && (
+                                                <div className="flex gap-0.5 items-center">
+                                                    {[1, 2, 3].map(i => (
+                                                        <motion.div
+                                                            key={i}
+                                                            animate={{ height: [4, 10, 4] }}
+                                                            transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
+                                                            className="w-0.5 bg-brand-indigo rounded-full"
+                                                        />
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
