@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2, AlertCircle } from 'lucide-react';
+import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2, AlertCircle, Bookmark, GraduationCap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { validateGroqKey, getGroqKeys } from '../utils/auth';
 import { translations } from '../utils/translations';
 import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
 import { voiceEngine, getElevenKeys } from '../utils/voice';
+import { getLearnedWords } from '../utils/vocabulary';
 
 const Sidebar = ({ isOpen, onClose }) => {
     const [lang, setLang] = useState(getCurrentLang());
@@ -141,6 +142,23 @@ const Sidebar = ({ isOpen, onClose }) => {
                                         <div className={getElevenKeys().length > 0 ? 'text-emerald-500' : 'text-slate-200'}>
                                             <CheckCircle2 size={16} strokeWidth={2.5} />
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Vocabulary Section */}
+                            <div className="flex flex-col gap-5 pt-2 border-t border-slate-50">
+                                <div className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <Link to="/settings/vocabulary" className={`flex items-center gap-3 flex-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <label className="text-[11px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover:text-brand-indigo transition-colors">
+                                            {lang === 'ar' ? 'كلماتي المميزة' : 'MY WORDS'}
+                                        </label>
+                                        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
+                                            <span className="text-[8px] font-black text-slate-500">{getLearnedWords().length}</span>
+                                        </div>
+                                    </Link>
+                                    <div className={`flex items-center gap-4 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <Bookmark size={16} className="text-slate-200" strokeWidth={2.5} />
                                     </div>
                                 </div>
                             </div>

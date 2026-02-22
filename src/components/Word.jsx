@@ -7,11 +7,12 @@ const Word = ({ en, ar, onSelect, isActive }) => {
         <motion.span
             onClick={() => onSelect(en, ar)}
             whileTap={{ scale: 0.95 }}
-            className={`inline-block transition-all duration-300 cursor-pointer ${isActive
-                ? 'text-brand-indigo underline underline-offset-8 decoration-2 font-black'
-                : isTradable
-                    ? 'text-slate-900 font-bold hover:text-brand-indigo'
-                    : 'text-slate-500 font-medium hover:text-slate-700'
+            className={`inline-block transition-colors duration-300 cursor-pointer ${isTradable ? 'font-bold' : 'font-medium'
+                } ${isActive
+                    ? 'text-brand-indigo'
+                    : isTradable
+                        ? 'text-slate-900 hover:text-brand-indigo'
+                        : 'text-slate-500 hover:text-slate-700'
                 }`}
         >
             {en}

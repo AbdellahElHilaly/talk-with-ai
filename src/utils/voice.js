@@ -263,6 +263,13 @@ class VoiceEngine {
         }
     }
 
+    async speakBrowserOnly(text, forceLang = null, forceVoice = null) {
+        this.stop();
+        const seqId = this.currentSequence;
+        const lang = forceLang || localStorage.getItem('app_lang') || 'en';
+        await this.speakBrowser(text, lang, forceVoice, seqId);
+    }
+
     async speakPreview(voiceId, langCode) {
         const previews = {
             en: {

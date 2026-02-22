@@ -27,6 +27,16 @@ const ChatPage = () => {
         const saved = localStorage.getItem('ignored_words');
         return saved ? JSON.parse(saved) : [];
     });
+
+    React.useEffect(() => {
+        const handleVocabUpdate = () => {
+            const saved = localStorage.getItem('learned_words');
+            setLearnedWords(saved ? JSON.parse(saved) : []);
+        };
+        window.addEventListener('vocabularyUpdated', handleVocabUpdate);
+        return () => window.removeEventListener('vocabularyUpdated', handleVocabUpdate);
+    }, []);
+
     const navigate = useNavigate();
     const scrollRef = React.useRef(null);
 
@@ -77,14 +87,10 @@ const ChatPage = () => {
     };
 
     const handleWordSelect = (en, ar) => {
-        if (selectedWord?.en === en) {
-            setSelectedWord(null);
-        } else {
-            setSelectedWord({ en, ar });
-            // The "Magic" touch: Hear the word while seeing the translation
-            const cleanWord = en.toLowerCase().replace(/[.,!?;:]/g, '');
-            voiceEngine.speak(cleanWord, 'en');
-        }
+        setSelectedWord({ en, ar });
+        // The "Magic" touch: Hear the word while seeing the translation
+        const cleanWord = en.toLowerCase().replace(/[.,!?;:]/g, '');
+        voiceEngine.speak(cleanWord, 'en');
     };
 
     const handleSend = async () => {

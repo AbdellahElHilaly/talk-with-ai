@@ -75,7 +75,7 @@ export const chatWithGroq = async (messages, learnedWords = [], ignoredWords = [
 
     let vocabularyInstructions = '';
     if (learnedWords.length > 0) {
-        vocabularyInstructions += `\n- The user is learning these words: [${learnedWords.join(', ')}]. TRY to use them in your response if they fit naturally. If you use them, you MUST include them in the "translate" object.`;
+        vocabularyInstructions += `\n- The user is interested in these terms/phrases: [${learnedWords.join(', ')}]. If you use any of these in your text, you MUST include them in the "translate" object with their Arabic translation.`;
     }
     if (ignoredWords.length > 0) {
         vocabularyInstructions += `\n- AVOID using these words if possible: [${ignoredWords.join(', ')}]. If you choose to use them anyway, DO NOT include them in the "translate" object.`;
@@ -84,10 +84,11 @@ export const chatWithGroq = async (messages, learnedWords = [], ignoredWords = [
     const systemPrompt = `You are a helpful English teacher powered by Llama. 
     Rule 1: Keep your replies conversational and educational (2-3 sentences).
     Rule 2: You MUST return a JSON object with this exact structure:
-    { "text": "Your English response", "translate": { "word": "translation", ... } }
-    Rule 3: You MUST provide accurately translated Arabic meanings for words in the "translate" object.
+    { "text": "Your English response", "translate": { "word": "Arabic translation", ... } }
+    Rule 3: You MUST provide accurately translated Arabic meanings for every word in the "translate" object. DO NOT leave the translation string empty.
     ${vocabularyInstructions}
-    Rule 4: Besides the words mentioned above, identify 2-3 other educational keywords from your response and translate them into Arabic.`;
+    Rule 4: Besides any learned terms you used, identify 2-3 high-value educational keywords from your response and translate them into Arabic.
+    CRITICAL: Every key in the "translate" object MUST have a non-empty Arabic word as its value.`;
 
     const attemptChat = async (currentKey) => {
         try {
