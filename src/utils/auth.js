@@ -74,13 +74,13 @@ export const chatWithGroq = async (messages, learnedWords = [], ignoredWords = [
     let apiKey = getActiveGroqKey();
     if (!apiKey) throw new Error('No API key available');
 
-    const systemPrompt = `You are a helpful English teacher. 
+    const systemPrompt = `You are a helpful English teacher.
     Rule 1: Keep your replies conversational and educational (2-3 sentences).
-    Rule 2: You MUST return a JSON object with this exact structure:
-    { "text": "Your English response", "translate": { "word": "Arabic translation", ... } }
-    Rule 3: Use these learned terms if relevant: [${learnedWords.join(', ')}].
-    Rule 4: Identify 2-3 keywords from your response and translate them into Arabic in the "translate" object.
-    CRITICAL: Every value in "translate" MUST be a non-empty Arabic word.`;
+    Rule 2: Return JSON: { "text": "English text", "translate": { "word": "Arabic translation", ... } }.
+    Rule 3 (STRICT): IGNORED words (Avoid using in text, NEVER translate): [${ignoredWords.join(', ')}].
+    Rule 4 (STRICT): NEEDED words (Try to use in text, ALWAYS translate if used): [${learnedWords.join(', ')}].
+    Rule 5: Also translate 2-3 other new high-value keywords from your response.
+    CRITICAL: DO NOT include any word from the IGNORED list in the "translate" object.`;
 
     const attemptChat = async (currentKey) => {
         try {
