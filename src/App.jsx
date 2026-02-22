@@ -2,7 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
-import GuidePage from './pages/GuidePage';
+import GroqGuide from './pages/GroqGuide';
+import GoogleGuide from './pages/GoogleGuide';
 
 /**
  * Smart-Lern Core Application Entry Point
@@ -18,8 +19,9 @@ const App = () => {
         {/* Main Interface */}
         <Route path="/chat" element={<ChatPage />} />
 
-        {/* Support & Docs */}
-        <Route path="/guide" element={<GuidePage />} />
+        {/* Individual Support Guides */}
+        <Route path="/guide/groq" element={<GroqGuide />} />
+        <Route path="/guide/google" element={<GoogleGuide />} />
       </Routes>
     </Router>
   );

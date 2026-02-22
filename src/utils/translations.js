@@ -53,7 +53,27 @@ export const translations = {
         googleStep1: "Go to Google Cloud Console.",
         googleStep2: "Enable 'Cloud Text-to-Speech API'.",
         googleStep3: "Create an API Key under 'Credentials' and paste it in Settings.",
-        back: "Back"
+        back: "Back",
+        groqGuide: {
+            title: "Setup Intelligence (Groq)",
+            subtitle: "Give your AI a powerful brain",
+            whatIs: "Think of an API Key as a 'Digital Key' that lets our app talk to a super-intelligent computer. Without it, the AI cannot answer your questions.",
+            step1: "1. Go to the Groq Cloud Console (Click the button below).",
+            step2: "2. Sign in with your Google account or email.",
+            step3: "3. On the left sidebar, look for 'API Keys'.",
+            step4: "4. Click the 'Create API Key' button. Give it a name like 'My Smart Lern'.",
+            step5: "5. Copy the long code that appears. It usually starts with 'gsk_'. Keep it secret!"
+        },
+        googleGuide: {
+            title: "Setup Voice (Google Cloud)",
+            subtitle: "Give your AI a human-like voice",
+            whatIs: "This key allows the app to use Google's premium voices. It's like giving the app a real throat to speak clearly.",
+            step1: "1. Visit the Google Cloud Console.",
+            step2: "2. Create a 'New Project' if you don't have one.",
+            step3: "3. Search for 'Cloud Text-to-Speech API' and click 'Enable'.",
+            step4: "4. Go to 'Credentials' -> 'Create Credentials' -> 'API Key'.",
+            step5: "5. Copy that key and paste it in the app settings."
+        }
     },
     ar: {
         readyToBloom: "هل أنت مستعد لـ",
@@ -109,6 +129,26 @@ export const translations = {
         googleStep1: "اذهب إلى وحدة تحكم Google Cloud.",
         googleStep2: "قم بتفعيل 'Cloud Text-to-Speech API'.",
         googleStep3: "أنشئ مفتاح API من قسم 'Credentials' وضعه في الإعدادات.",
-        back: "رجوع"
+        back: "رجوع",
+        groqGuide: {
+            title: "إعداد الذكاء (Groq)",
+            subtitle: "امنح تطبيقك عقلاً خارقاً",
+            whatIs: "تخيل أن 'مفتاح الـ API' هو عبارة عن 'مفتاح رقمي' يسمح لتطبيقنا بالتحدث مع كمبيوتر فائق الذكاء. بدون هذا المفتاح، لن يتمكن الذكاء الاصطناعي من الإجابة على أسئلتك.",
+            step1: "1. اذهب إلى لوحة تحكم Groq Cloud (اضغط على الزر أدناه).",
+            step2: "2. قم بتسجيل الدخول باستخدام حساب جوجل أو بريدك الإلكتروني.",
+            step3: "3. في الشريط الجانبي الأيسر، ابحث عن 'API Keys'.",
+            step4: "4. اضغط على زر 'Create API Key'. أعطه اسماً مثل 'My Smart Lern'.",
+            step5: "5. انسخ الكود الطويل الذي سيظهر. عادة ما يبدأ بـ 'gsk_'. حافظ عليه سراً!"
+        },
+        googleGuide: {
+            title: "إعداد الصوت (Google Cloud)",
+            subtitle: "امنح تطبيقك صوتاً بشرياً",
+            whatIs: "هذا المفتاح يسمح للتطبيق باستخدام أصوات جوجل الاحترافية. إنه بمثابة إعطاء التطبيق 'حنجرة حقيقية' ليتحدث بوضوح تام.",
+            step1: "1. قم بزيارة لوحة تحكم Google Cloud.",
+            step2: "2. أنشئ 'مشروعاً جديداً' (New Project) إذا لم يكن لديك واحد.",
+            step3: "3. ابحث عن 'Cloud Text-to-Speech API' واضغط على 'Enable'.",
+            step4: "4. اذهب إلى 'Credentials' -> 'Create Credentials' -> 'API Key'.",
+            step5: "5. انسخ هذا المفتاح وضعه في إعدادات التطبيق."
+        }
     }
 };

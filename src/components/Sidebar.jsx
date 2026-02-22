@@ -133,7 +133,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                         >
                                             <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover/link:text-brand-indigo transition-colors">{t.groqIntelligence}</label>
                                         </a>
-                                        <Link to="/guide" className="text-[8px] font-black text-brand-indigo/40 hover:text-brand-indigo transition-colors uppercase tracking-tighter shrink-0">
+                                        <Link to="/guide/groq" className="text-[8px] font-black text-brand-indigo/40 hover:text-brand-indigo transition-colors uppercase tracking-tighter shrink-0">
                                             ({t.clickHere})
                                         </Link>
                                     </div>
@@ -173,7 +173,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                         >
                                             <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover/link:text-brand-indigo transition-colors">{t.cloudVoice}</label>
                                         </a>
-                                        <Link to="/guide" className="text-[8px] font-black text-brand-indigo/40 hover:text-brand-indigo transition-colors uppercase tracking-tighter shrink-0">
+                                        <Link to="/guide/google" className="text-[8px] font-black text-brand-indigo/40 hover:text-brand-indigo transition-colors uppercase tracking-tighter shrink-0">
                                             ({t.clickHere})
                                         </Link>
                                     </div>
