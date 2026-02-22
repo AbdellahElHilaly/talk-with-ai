@@ -30,9 +30,23 @@ class VoiceEngine {
                 }
 
                 if (customId.includes('Female')) {
-                    return langVoices.find(v => v.name.includes('Female') || v.name.includes('Google US English') || v.name.includes('Zira') || v.name.includes('Hoda')) || langVoices[0];
+                    // Priority list for female voices
+                    return langVoices.find(v =>
+                        v.name.includes('Female') ||
+                        v.name.includes('Google US English') ||
+                        v.name.includes('Zira') ||
+                        v.name.includes('Hoda') ||
+                        v.name.includes('Microsoft Mary')
+                    ) || langVoices[0];
                 } else {
-                    return langVoices.find(v => v.name.includes('Male') || v.name.includes('Google UK English Male') || v.name.includes('David') || v.name.includes('Naayf')) || langVoices[1] || langVoices[0];
+                    // Priority list for male voices
+                    return langVoices.find(v =>
+                        v.name.includes('Male') ||
+                        v.name.includes('Google UK English Male') ||
+                        v.name.includes('David') ||
+                        v.name.includes('Naayf') ||
+                        v.name.includes('Microsoft Mike')
+                    ) || langVoices[1] || langVoices[0];
                 }
             };
 
@@ -47,10 +61,11 @@ class VoiceEngine {
     /**
      * Speaks the given text.
      * @param {string} text 
-     * @param {string} forceLang
+     * @param {string} forceLang - 'en' or 'ar'
+     * @param {string} forceVoice - Optional override for the voice ID
      */
-    async speak(text, forceLang = null) {
-        const customVoiceId = localStorage.getItem('selected_voice') || 'Female 1';
+    async speak(text, forceLang = null, forceVoice = null) {
+        const customVoiceId = forceVoice || localStorage.getItem('selected_voice') || 'Female 1';
         const speed = parseFloat(localStorage.getItem('voice_speed')) || 1.0;
         const currentAppLang = localStorage.getItem('app_lang') || 'en';
         const speechLang = forceLang || currentAppLang;
@@ -83,7 +98,8 @@ class VoiceEngine {
         };
 
         const text = previews[langCode][voiceId] || previews[langCode]['Female 1'];
-        await this.speak(text, langCode);
+        // Crucial fix: Pass voiceId to ensure the selected voice plays
+        await this.speak(text, langCode, voiceId);
     }
 
     pause() {

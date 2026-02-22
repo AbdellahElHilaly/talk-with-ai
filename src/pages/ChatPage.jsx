@@ -245,7 +245,7 @@ const ChatPage = () => {
                             onClick={handleSend}
                             className="bg-brand-indigo text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg shadow-indigo-100 active:scale-90 transition-transform shrink-0"
                         >
-                            <Send size={18} strokeWidth={2.5} className={rtl ? 'rotate-180' : ''} />
+                            <Send size={18} strokeWidth={2.5} className={rtl ? '-scale-x-100' : ''} />
                         </button>
                     </div>
                 </motion.div>
