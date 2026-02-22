@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings } from 'lucide-react';
-import { validateGroqKey, saveApiKey } from '../utils/auth';
+import { validateGroqKey, getGroqKeys, addGroqKey } from '../utils/auth';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 
@@ -18,15 +18,15 @@ const HomePage = () => {
     const rtl = isRTL();
 
     useEffect(() => {
-        const savedKey = localStorage.getItem('groq_api_key');
-        if (!savedKey) {
+        const keys = getGroqKeys();
+        if (keys.length === 0) {
             setOnboardingStep('api');
         }
 
         const handlePrompt = (e) => {
             e.preventDefault();
             setDeferredPrompt(e);
-            if (localStorage.getItem('groq_api_key')) {
+            if (getGroqKeys().length > 0) {
                 setOnboardingStep('install');
             }
         };
@@ -42,10 +42,9 @@ const HomePage = () => {
         }
 
         setIsValidating(true);
-        const isValid = await validateGroqKey(apiKey);
+        const success = await addGroqKey(apiKey);
 
-        if (isValid) {
-            saveApiKey(apiKey);
+        if (success) {
             if (deferredPrompt) setOnboardingStep('install');
             else setOnboardingStep(null);
         } else {
@@ -168,7 +167,6 @@ const HomePage = () => {
 
                                 <button
                                     onClick={() => {
-                                        localStorage.setItem('groq_api_key', 'static');
                                         setOnboardingStep(null);
                                     }}
                                     className="w-full mt-3 text-[10px] font-black text-slate-300 hover:text-brand-indigo uppercase tracking-widest transition-colors py-2"

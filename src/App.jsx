@@ -4,6 +4,8 @@ import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
 import GroqGuide from './pages/GroqGuide';
 import ElevenLabsGuide from './pages/ElevenLabsGuide';
+import GroqKeysPage from './pages/GroqKeysPage';
+import ElevenKeysPage from './pages/ElevenKeysPage';
 
 /**
  * Smart-Lern Core Application Entry Point
@@ -18,6 +20,10 @@ const App = () => {
 
         {/* Main Interface */}
         <Route path="/chat" element={<ChatPage />} />
+
+        {/* API Keys Management */}
+        <Route path="/settings/groq-keys" element={<GroqKeysPage />} />
+        <Route path="/settings/eleven-keys" element={<ElevenKeysPage />} />
 
         {/* Individual Support Guides */}
         <Route path="/guide/groq" element={<GroqGuide />} />

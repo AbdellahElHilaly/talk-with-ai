@@ -36,7 +36,6 @@ const ChatPage = () => {
         }
     }, [messages, isAITyping]);
 
-    const apiKey = localStorage.getItem('groq_api_key');
 
     React.useEffect(() => {
         voiceEngine.onStateChange = (state) => {
@@ -114,7 +113,7 @@ const ChatPage = () => {
             }));
             context.push({ role: 'user', content: userMsg.text });
 
-            const aiResponse = await chatWithGroq(context, apiKey, learnedWords, ignoredWords);
+            const aiResponse = await chatWithGroq(context, learnedWords, ignoredWords);
 
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,

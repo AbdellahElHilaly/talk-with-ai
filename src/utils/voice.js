@@ -3,6 +3,49 @@
  * Handles Text-to-Speech using the Web Speech API and ElevenLabs API.
  */
 
+export const getElevenKeys = () => {
+    const saved = localStorage.getItem('eleven_labs_keys');
+    return saved ? JSON.parse(saved) : [];
+};
+
+export const saveElevenKeys = (keys) => {
+    localStorage.setItem('eleven_labs_keys', JSON.stringify(keys));
+};
+
+export const addElevenKey = async (key) => {
+    // Basic validation (at least length or format check)
+    if (key && key.length > 10) {
+        const keys = getElevenKeys();
+        if (!keys.includes(key)) {
+            keys.push(key);
+            saveElevenKeys(keys);
+        }
+        return true;
+    }
+    return false;
+};
+
+export const removeElevenKey = (key) => {
+    const keys = getElevenKeys();
+    const filtered = keys.filter(k => k !== key);
+    saveElevenKeys(filtered);
+};
+
+export const getActiveElevenKey = () => {
+    const keys = getElevenKeys();
+    return keys.length > 0 ? keys[0] : null;
+};
+
+export const rotateElevenKey = () => {
+    const keys = getElevenKeys();
+    if (keys.length > 0) {
+        const [first, ...rest] = keys;
+        saveElevenKeys(rest);
+        return rest.length > 0 ? rest[0] : null;
+    }
+    return null;
+};
+
 class VoiceEngine {
     constructor() {
         this.synth = window.speechSynthesis;
@@ -54,8 +97,12 @@ class VoiceEngine {
     /**
      * Calls ElevenLabs API to get high-quality audio.
      */
-    async speakElevenLabs(text, langCode, elevenKey, sequenceId, forceVoice = null) {
-        const key = elevenKey.trim();
+    async speakElevenLabs(text, langCode, sequenceId, forceVoice = null) {
+        const key = getActiveElevenKey();
+        if (!key) {
+            return this.speakBrowser(text, langCode, forceVoice, sequenceId);
+        }
+
         const customVoiceId = forceVoice || localStorage.getItem('selected_voice') || 'Female 1';
 
         const voiceMap = {
@@ -78,7 +125,7 @@ class VoiceEngine {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'xi-api-key': key,
+                    'xi-api-key': key.trim(),
                     'Accept': 'audio/mpeg'
                 },
                 body: JSON.stringify({
@@ -91,9 +138,14 @@ class VoiceEngine {
             if (sequenceId !== this.currentSequence) return; // Stale request
 
             if (!response.ok) {
-                // If credits exhausted, fallback to browser
+                // If credits exhausted or key invalid, rotate and retry or fallback
                 if (response.status === 401 || response.status === 403 || response.status === 429) {
-                    return this.speakBrowser(text, langCode, customVoiceId, sequenceId);
+                    const nextKey = rotateElevenKey();
+                    if (nextKey) {
+                        return this.speakElevenLabs(text, langCode, sequenceId, forceVoice);
+                    } else {
+                        return this.speakBrowser(text, langCode, customVoiceId, sequenceId);
+                    }
                 }
                 throw new Error(`ElevenLabs failed: ${response.status}`);
             }
@@ -201,11 +253,11 @@ class VoiceEngine {
         this.stop(); // Increments sequence
         const seqId = this.currentSequence;
 
-        const elevenKey = localStorage.getItem('eleven_labs_key');
         const lang = forceLang || localStorage.getItem('app_lang') || 'en';
+        const elevenKey = getActiveElevenKey();
 
-        if (elevenKey && elevenKey.trim().length > 10) {
-            await this.speakElevenLabs(text, lang, elevenKey, seqId, forceVoice);
+        if (elevenKey) {
+            await this.speakElevenLabs(text, lang, seqId, forceVoice);
         } else {
             await this.speakBrowser(text, lang, forceVoice, seqId);
         }

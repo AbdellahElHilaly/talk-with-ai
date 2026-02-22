@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2 } from 'lucide-react';
+import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { validateGroqKey } from '../utils/auth';
+import { validateGroqKey, getGroqKeys } from '../utils/auth';
 import { translations } from '../utils/translations';
 import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
-import { voiceEngine } from '../utils/voice';
+import { voiceEngine, getElevenKeys } from '../utils/voice';
 
 const Sidebar = ({ isOpen, onClose }) => {
     const [lang, setLang] = useState(getCurrentLang());
-    const [apiKey, setApiKey] = useState(localStorage.getItem('groq_api_key') || '');
-    const [elevenKey, setElevenKey] = useState(localStorage.getItem('eleven_labs_key') || '');
     const [speed, setSpeed] = useState(parseFloat(localStorage.getItem('voice_speed')) || 1);
     const [selectedVoice, setSelectedVoice] = useState(() => {
         const saved = localStorage.getItem('selected_voice');
@@ -19,17 +17,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         if (saved === 'pNInz6obpgDQGcFmaJgB') return 'Male 1';
         return saved || 'Female 1';
     });
-    const [isValidating, setIsValidating] = useState(false);
-    const [isVerified, setIsVerified] = useState(!!localStorage.getItem('groq_api_key') && localStorage.getItem('groq_api_key') !== 'static');
     const [isSaving, setIsSaving] = useState(false);
-
-    const saveElevenKey = async () => {
-        setIsSaving(true);
-        localStorage.setItem('eleven_labs_key', elevenKey);
-        await new Promise(r => setTimeout(r, 600));
-        setIsSaving(false);
-        alert(lang === 'ar' ? "تم حفظ مفتاح ElevenLabs! 🚀" : "ElevenLabs Key Saved! 🚀");
-    };
 
     const t = translations[lang];
     const rtl = isRTL();
@@ -49,26 +37,6 @@ const Sidebar = ({ isOpen, onClose }) => {
         setSelectedVoice(vId);
         // Play cute philosophy preview
         voiceEngine.speakPreview(vId, lang);
-    };
-
-    const validateKey = async () => {
-        if (!apiKey.startsWith('gsk_')) {
-            alert(lang === 'ar' ? "يرجى إدخال مفتاح Groq صحيح يبدأ بـ 'gsk_'." : "Please enter a valid Groq key starting with 'gsk_'.");
-            return;
-        }
-
-        setIsValidating(true);
-        const isValid = await validateGroqKey(apiKey);
-
-        if (isValid) {
-            localStorage.setItem('groq_api_key', apiKey);
-            setIsVerified(true);
-            alert(lang === 'ar' ? "تم التحقق من المفتاح بنجاح! ✨" : "API Key Verified Successfully! ✨");
-        } else {
-            setIsVerified(false);
-            alert(lang === 'ar' ? "فشل التحقق. يرجى التأكد من المفتاح! 💖" : "Verification failed. Please check your key! 💖");
-        }
-        setIsValidating(false);
     };
 
     const handleSave = async () => {
@@ -99,20 +67,20 @@ const Sidebar = ({ isOpen, onClose }) => {
                         dir={rtl ? 'rtl' : 'ltr'}
                     >
                         {/* Header */}
-                        <div className={`flex justify-between items-center mb-10 ${rtl ? 'flex-row-reverse' : ''}`}>
+                        <div className={`flex justify-between items-center mb-6 ${rtl ? 'flex-row-reverse' : ''}`}>
                             <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
-                                <span className={`logo-font text-4xl text-brand-indigo ${rtl ? 'rotate-3' : '-rotate-3'}`}>Smart-Lern</span>
+                                <span className={`logo-font text-3xl text-brand-indigo ${rtl ? 'rotate-3' : '-rotate-3'}`}>Smart-Lern</span>
                                 <span className={`text-[9px] font-black text-slate-300 uppercase tracking-[0.4em] mt-1 ${rtl ? 'mr-1' : 'ml-1'}`}>{t.settingsPanel}</span>
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-rose-500 transition-all active:scale-90"
+                                className="p-2 rounded-2xl bg-slate-50 text-slate-400 hover:text-rose-500 transition-all active:scale-90"
                             >
-                                <X size={20} strokeWidth={3} />
+                                <X size={18} strokeWidth={3} />
                             </button>
                         </div>
 
-                        <div className="flex flex-col gap-10">
+                        <div className="flex flex-col gap-6">
                             {/* Language Selector */}
                             <div className="flex flex-col gap-4 text-left">
                                 <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{t.language}</label>
@@ -132,110 +100,79 @@ const Sidebar = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
 
-                            {/* API Section */}
-                            <div className="flex flex-col gap-4 text-left">
-                                <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <a
-                                            href="https://console.groq.com/keys"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="group/link"
-                                        >
-                                            <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover/link:text-brand-indigo transition-colors">{t.groqIntelligence}</label>
-                                        </a>
-                                        <Link to="/guide/groq" className="text-[8px] font-black text-brand-indigo/40 hover:text-brand-indigo transition-colors uppercase tracking-tighter shrink-0">
-                                            ({t.clickHere})
+                            {/* API Section (Minimal) */}
+                            <div className="flex flex-col gap-5">
+                                {/* GROQ API ROW */}
+                                <div className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <Link to="/settings/groq-keys" className={`flex items-center gap-3 flex-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <label className="text-[11px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover:text-brand-indigo transition-colors">
+                                            {lang === 'ar' ? 'دردشة ذكية' : 'CHAT API'}
+                                        </label>
+                                        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
+                                            <span className="text-[8px] font-black text-slate-500">{getGroqKeys().length}</span>
+                                        </div>
+                                    </Link>
+
+                                    <div className={`flex items-center gap-4 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <Link to="/guide/groq" className="text-slate-300 hover:text-brand-indigo transition-colors" title={t.setupGuide}>
+                                            <HelpCircle size={16} strokeWidth={2.5} />
                                         </Link>
+                                        <div className={getGroqKeys().length > 0 ? 'text-emerald-500' : 'text-slate-200'}>
+                                            <CheckCircle2 size={16} strokeWidth={2.5} />
+                                        </div>
                                     </div>
-                                    {isVerified && <CheckCircle2 size={12} className="text-emerald-500" />}
                                 </div>
-                                <div className="space-y-2">
-                                    <input
-                                        type="password"
-                                        value={apiKey}
-                                        onChange={(e) => {
-                                            setApiKey(e.target.value);
-                                            setIsVerified(false);
-                                        }}
-                                        placeholder="gsk_..."
-                                        className={`w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-indigo-200 outline-none transition-all text-slate-950 font-mono text-xs ${rtl ? 'text-right' : 'text-left'}`}
-                                    />
-                                    <motion.button
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={validateKey}
-                                        disabled={isValidating}
-                                        className="w-full py-3 bg-slate-900 text-white rounded-2xl font-black text-[9px] uppercase tracking-[0.2em] shadow-lg shadow-slate-100 transition-all hover:bg-slate-800"
-                                    >
-                                        {isValidating ? t.verifying : isVerified ? t.verified : t.verifyKey}
-                                    </motion.button>
+
+                                {/* ELEVENLABS API ROW */}
+                                <div className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <Link to="/settings/eleven-keys" className={`flex items-center gap-3 flex-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <label className="text-[11px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover:text-brand-indigo transition-colors">
+                                            {lang === 'ar' ? 'صوت ذكي' : 'VOICE API'}
+                                        </label>
+                                        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
+                                            <span className="text-[8px] font-black text-slate-500">{getElevenKeys().length}</span>
+                                        </div>
+                                    </Link>
+
+                                    <div className={`flex items-center gap-4 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <Link to="/guide/eleven" className="text-slate-300 hover:text-brand-indigo transition-colors" title={t.setupGuide}>
+                                            <HelpCircle size={16} strokeWidth={2.5} />
+                                        </Link>
+                                        <div className={getElevenKeys().length > 0 ? 'text-emerald-500' : 'text-slate-200'}>
+                                            <CheckCircle2 size={16} strokeWidth={2.5} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* API Section (GOOGLE CLOUD) */}
-                            <div className="flex flex-col gap-4 text-left">
-                                <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <a
-                                            href="https://elevenlabs.io"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="group/link"
-                                        >
-                                            <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover/link:text-brand-indigo transition-colors">{t.cloudVoice}</label>
-                                        </a>
-                                        <Link to="/guide/eleven" className="text-[8px] font-black text-brand-indigo/40 hover:text-brand-indigo transition-colors uppercase tracking-tighter shrink-0">
-                                            ({t.clickHere})
-                                        </Link>
-                                    </div>
-                                    {elevenKey && elevenKey.length > 10 && <CheckCircle2 size={12} className="text-brand-indigo" />}
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
-                                        {t.elevenHelp}
-                                    </p>
-                                    <input
-                                        type="password"
-                                        value={elevenKey}
-                                        onChange={(e) => setElevenKey(e.target.value)}
-                                        placeholder="API Key..."
-                                        className={`w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-brand-indigo/30 outline-none transition-all text-slate-950 font-mono text-xs ${rtl ? 'text-right' : 'text-left'}`}
-                                    />
-                                    <motion.button
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={saveElevenKey}
-                                        disabled={isSaving}
-                                        className="w-full py-3 bg-brand-indigo/10 text-brand-indigo rounded-xl font-black text-[9px] uppercase tracking-[0.1em] hover:bg-brand-indigo/20 transition-all flex items-center justify-center gap-2"
-                                    >
-                                        {isSaving ? <Loader2 size={12} className="animate-spin" /> : t.saveKey}
-                                    </motion.button>
-                                </div>
-                            </div>
-
-                            {/* Voice Selection */}
+                            {/* Voice Selection (Minimal) */}
                             <div className="flex flex-col gap-4 text-left">
                                 <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{t.voiceEngine}</label>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="flex flex-col gap-2">
                                     {voices.map((v) => (
                                         <button
                                             key={v.id}
                                             onClick={() => handleVoiceSelect(v.id)}
-                                            className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${selectedVoice === v.id
-                                                ? 'border-brand-indigo bg-indigo-50/30'
-                                                : 'border-slate-50 hover:border-indigo-100'
-                                                }`}
+                                            className={`flex items-center justify-between py-2 transition-all group ${rtl ? 'flex-row-reverse' : ''}`}
                                         >
-                                            <v.icon className={`w-5 h-5 ${v.color}`} />
-                                            <span className={`text-[9px] font-black uppercase tracking-tighter ${selectedVoice === v.id ? 'text-brand-indigo' : 'text-slate-400'}`}>
-                                                {v.label}
-                                            </span>
+                                            <div className={`flex items-center gap-3 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                                <div className={`p-2 rounded-xl transition-colors ${selectedVoice === v.id ? 'bg-indigo-50' : 'bg-slate-50 group-hover:bg-slate-100'}`}>
+                                                    <v.icon size={16} className={`${selectedVoice === v.id ? v.color : 'text-slate-400'}`} />
+                                                </div>
+                                                <span className={`text-[11px] font-black uppercase tracking-tight transition-colors ${selectedVoice === v.id ? 'text-brand-indigo' : 'text-slate-500 hover:text-slate-900'}`}>
+                                                    {v.label}
+                                                </span>
+                                            </div>
+                                            {selectedVoice === v.id && (
+                                                <motion.div layoutId="activeVoice" className="w-1.5 h-1.5 rounded-full bg-brand-indigo" />
+                                            )}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             {/* Velocity Section */}
-                            <div className="flex flex-col gap-6 text-left">
+                            <div className="flex flex-col gap-3 text-left">
                                 <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
                                     <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{t.speechVelocity}</label>
                                     <span className="text-xl font-black text-brand-indigo font-mono italic">{speed}x</span>
@@ -250,7 +187,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                         onChange={(e) => setSpeed(e.target.value)}
                                         className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-brand-indigo"
                                     />
-                                    <div className={`flex justify-between mt-2 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <div className={`flex justify-between mt-1 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
                                         <span className="text-[8px] font-bold text-slate-300">{t.slow}</span>
                                         <span className="text-[8px] font-bold text-slate-300">{t.fast}</span>
                                     </div>
@@ -259,16 +196,16 @@ const Sidebar = ({ isOpen, onClose }) => {
                         </div>
 
                         {/* Bottom Actions */}
-                        <div className="mt-auto pt-10">
+                        <div className="mt-8">
                             <motion.button
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleSave}
                                 disabled={isSaving}
-                                className="w-full py-5 bg-brand-indigo text-white rounded-[1.8rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-200 flex items-center justify-center gap-3 disabled:opacity-80"
+                                className="w-full py-4 bg-brand-indigo text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-100 flex items-center justify-center gap-3 disabled:opacity-80"
                             >
                                 {isSaving ? <Loader2 size={18} className="animate-spin" /> : t.applyChanges}
                             </motion.button>
-                            <p className="text-center mt-6 text-[8px] font-bold text-slate-300 uppercase tracking-widest">
+                            <p className="text-center mt-4 text-[8px] font-bold text-slate-300 uppercase tracking-widest">
                                 Smart-Lern Core v2.4.0
                             </p>
                         </div>
