@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings } from 'lucide-react';
-import { validateGroqKey, saveApiKey } from '../utils/auth';
+import { validateGrokKey, saveApiKey } from '../utils/auth';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 
@@ -36,13 +36,13 @@ const HomePage = () => {
     }, []);
 
     const validateAndSaveKey = async () => {
-        if (!apiKey.startsWith('gsk_')) {
-            alert(lang === 'ar' ? "يرجى إدخال مفتاح Groq صحيح يبدأ بـ 'gsk_'." : "Oops! That doesn't look like a Groq key. It usually starts with 'gsk_'.");
+        if (!apiKey) {
+            alert(lang === 'ar' ? "يرجى إدخال مفتاح Grok." : "Please enter a Grok key.");
             return;
         }
 
         setIsValidating(true);
-        const isValid = await validateGroqKey(apiKey);
+        const isValid = await validateGrokKey(apiKey);
 
         if (isValid) {
             saveApiKey(apiKey);
@@ -135,7 +135,7 @@ const HomePage = () => {
                                 <div className="space-y-4 mb-8">
                                     <div className="flex items-start gap-3">
                                         <div className="w-5 h-5 rounded-full bg-indigo-50 text-brand-indigo text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</div>
-                                        <p className="text-[11px] text-slate-400 font-medium">{t.step1} <a href="https://console.groq.com/keys" target="_blank" className="text-brand-indigo underline">Groq Console</a></p>
+                                        <p className="text-[11px] text-slate-400 font-medium">{t.step1} <a href="https://console.x.ai" target="_blank" className="text-brand-indigo underline">xAI Console</a></p>
                                     </div>
                                     <div className="flex items-start gap-3">
                                         <div className="w-5 h-5 rounded-full bg-indigo-50 text-brand-indigo text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</div>
@@ -152,7 +152,7 @@ const HomePage = () => {
                                         type="password"
                                         value={apiKey}
                                         onChange={(e) => setApiKey(e.target.value)}
-                                        placeholder="gsk_..."
+                                        placeholder="xai-..."
                                         className={`w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm outline-none focus:border-brand-indigo/30 transition-all font-mono ${rtl ? 'text-right' : 'text-left'}`}
                                     />
                                 </div>
