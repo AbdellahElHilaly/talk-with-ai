@@ -20,6 +20,78 @@ const GlassButton = ({ children, onClick, active = false }) => (
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const [apiKey, setApiKey] = useState('');
+  const [onboardingStep, setOnboardingStep] = useState(null); // 'api', 'install', null
+  const [isValidating, setIsValidating] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    // 1. Check for API key
+    const savedKey = localStorage.getItem('groq_api_key');
+    if (!savedKey) {
+      setOnboardingStep('api');
+    } else {
+      // Key exists, maybe check PWA?
+      checkPWA();
+    }
+
+    // 2. Listen for PWA install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      if (localStorage.getItem('groq_api_key')) {
+        setOnboardingStep('install');
+      }
+    });
+
+    return () => window.removeEventListener('beforeinstallprompt', null);
+  }, []);
+
+  const checkPWA = () => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (!isStandalone && deferredPrompt) {
+      setOnboardingStep('install');
+    }
+  };
+
+  const validateAndSaveKey = async () => {
+    if (!apiKey.startsWith('gsk_')) {
+      alert("Oops! That doesn't look like a Groq key. It usually starts with 'gsk_'.");
+      return;
+    }
+
+    setIsValidating(true);
+    try {
+      // Minimal test call to Groq
+      const response = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        localStorage.setItem('groq_api_key', apiKey);
+        if (deferredPrompt) setOnboardingStep('install');
+        else setOnboardingStep(null);
+      } else {
+        throw new Error('Invalid Key');
+      }
+    } catch (err) {
+      alert("Hmm, my heart couldn't verify that key. Please check it and try again! ✨");
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') setDeferredPrompt(null);
+      setOnboardingStep(null);
+    }
+  };
 
   return (
     <div className="h-full w-full relative flex flex-col bg-slate-50 overflow-hidden font-sans">
@@ -63,15 +135,107 @@ const HomePage = () => {
           <div className="absolute inset-0 border border-white/10 rounded-[2rem]" />
         </motion.button>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-10 text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]"
-        >
-          Powering your growth via Smart-Lern
-        </motion.p>
+        {deferredPrompt && (
+          <button
+            onClick={handleInstall}
+            className="mt-6 text-[10px] font-black text-brand-indigo hover:text-indigo-600 uppercase tracking-widest transition-colors"
+          >
+            + Install to Home Screen
+          </button>
+        )}
       </div>
+
+      {/* Onboarding Modals Overlay */}
+      <AnimatePresence>
+        {onboardingStep && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-md"
+          >
+            {onboardingStep === 'api' ? (
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 p-6 opacity-10">
+                  <Settings size={80} className="rotate-12" />
+                </div>
+
+                <h3 className="text-2xl font-black text-slate-900 mb-2">Power Me Up! ✨</h3>
+                <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                  To start our journey, I need a tiny bit of help. Please grab your <span className="text-brand-indigo font-bold">Groq API Key</span> from their dashboard.
+                </p>
+
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-indigo-50 text-brand-indigo text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</div>
+                    <p className="text-[11px] text-slate-400 font-medium">Visit <a href="https://console.groq.com/keys" target="_blank" className="text-brand-indigo underline">Groq Console</a></p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-indigo-50 text-brand-indigo text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</div>
+                    <p className="text-[11px] text-slate-400 font-medium">Create a new API Key</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-indigo-50 text-brand-indigo text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</div>
+                    <p className="text-[11px] text-slate-400 font-medium">Paste it below and let's bloom!</p>
+                  </div>
+                </div>
+
+                <div className="relative mb-4">
+                  <input
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="gsk_..."
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm outline-none focus:border-brand-indigo/30 transition-all font-mono"
+                  />
+                </div>
+
+                <button
+                  onClick={validateAndSaveKey}
+                  disabled={isValidating}
+                  className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-xl shadow-slate-200"
+                >
+                  {isValidating ? 'Validating...' : 'Unlock My Potential'}
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl text-center"
+              >
+                <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-12 h-12 bg-emerald-400 rounded-full flex items-center justify-center shadow-lg shadow-emerald-100">
+                    <span className="text-white text-2xl">📱</span>
+                  </div>
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 mb-2">Stay Close! 💖</h3>
+                <p className="text-slate-500 text-sm leading-relaxed mb-8">
+                  I'm verified and ready. Install me on your home screen for the fastest access to your learning journey!
+                </p>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={handleInstall}
+                    className="w-full bg-brand-indigo text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-xl shadow-indigo-100"
+                  >
+                    Install Smart-Lern
+                  </button>
+                  <button
+                    onClick={() => setOnboardingStep(null)}
+                    className="text-[10px] font-bold text-slate-300 uppercase tracking-widest pt-2"
+                  >
+                    Maybe later
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="absolute bottom-10 left-0 right-0 flex justify-center">
         <div className="flex items-center gap-3">
@@ -230,7 +394,7 @@ const ChatPage = () => {
                     <div className="h-[1px] w-full bg-slate-100 group-hover:bg-indigo-50 transition-colors" />
 
                     <div className="flex items-center gap-5 px-1">
-              
+
 
                       <div className="flex items-center gap-4">
                         {playbackActions.map((action, idx) => {
