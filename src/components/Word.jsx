@@ -6,16 +6,14 @@ const Word = ({ en, ar, onSelect, isActive }) => {
     return (
         <motion.span
             onClick={() => onSelect(en, ar)}
-            whileTap={{ scale: 0.95 }}
-            className={`inline-block transition-colors duration-300 cursor-pointer px-1 py-0.5 rounded-md min-h-[44px] flex items-center touch-manipulation select-none ${
-                isTradable ? 'font-bold' : 'font-medium'
-            } ${
-                isActive
-                    ? 'text-brand-indigo bg-indigo-50'
+            whileTap={{ scale: 0.98 }}
+            className={`inline transition-colors duration-200 cursor-pointer touch-manipulation select-none ${isTradable ? 'font-bold' : 'font-medium'
+                } ${isActive
+                    ? 'text-brand-indigo'
                     : isTradable
-                        ? 'text-slate-900 hover:text-brand-indigo hover:bg-slate-50 active:bg-slate-100'
+                        ? 'text-slate-950 hover:text-brand-indigo outline-none'
                         : 'text-slate-500 hover:text-slate-700'
-            }`}
+                }`}
             role="button"
             tabIndex={0}
             aria-label={`Translate word: ${en}`}

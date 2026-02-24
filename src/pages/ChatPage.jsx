@@ -429,17 +429,19 @@ const ChatPage = () => {
                                         </div>
                                     </div>
 
-                                    <div className="text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-950 text-left" dir="ltr">
+                                    <div className="text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight text-slate-950 text-left overflow-hidden" dir="ltr">
                                         {words.map((word, i) => {
                                             const translation = translationsMap[`${item.id}-${i}`];
                                             return (
-                                                <Word
-                                                    key={i}
-                                                    en={word}
-                                                    ar={translation}
-                                                    onSelect={(en) => handleWordSelect(en, item.id, item.text, i)}
-                                                    isActive={selectedWord?.messageId === item.id && selectedWord?.index === i}
-                                                />
+                                                <React.Fragment key={i}>
+                                                    <Word
+                                                        en={word}
+                                                        ar={translation}
+                                                        onSelect={(en) => handleWordSelect(en, item.id, item.text, i)}
+                                                        isActive={selectedWord?.messageId === item.id && selectedWord?.index === i}
+                                                    />
+                                                    {i < words.length - 1 && ' '}
+                                                </React.Fragment>
                                             );
                                         })}
                                     </div>
