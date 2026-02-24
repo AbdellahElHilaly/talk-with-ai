@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Engagement&display=swap');
+@import "./accessibility-improvements.css";
 
 @theme {
   --color-brand-ghost: #F8FAFC;

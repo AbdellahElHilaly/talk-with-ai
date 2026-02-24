@@ -106,7 +106,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                         initial={{ x: rtl ? '100%' : '-100%' }}
                         animate={{ x: 0 }}
                         exit={{ x: rtl ? '100%' : '-100%' }}
-                        className={`fixed ${rtl ? 'right-0' : 'left-0'} top-0 h-full w-[85%] max-w-sm bg-white z-50 p-8 flex flex-col shadow-2xl ${rtl ? 'rounded-l-[2.5rem]' : 'rounded-r-[2.5rem]'} overflow-y-auto hide-scrollbar`}
+                        className={`fixed ${rtl ? 'right-0' : 'left-0'} top-0 h-full w-full max-w-xs bg-white z-50 p-6 flex flex-col shadow-2xl ${rtl ? 'rounded-l-[2rem]' : 'rounded-r-[2rem]'} overflow-y-auto hide-scrollbar`}
                         dir={rtl ? 'rtl' : 'ltr'}
                     >
                         <div className={`flex justify-between items-center mb-6 ${rtl ? 'flex-row-reverse' : ''}`}>
@@ -126,8 +126,14 @@ const Sidebar = ({ isOpen, onClose }) => {
                             <div className="flex flex-col gap-4 text-left">
                                 <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{t.language}</label>
                                 <div className="flex gap-2">
-                                    <button onClick={() => toggleLang('en')} className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] transition-all ${lang === 'en' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400'}`}>ENGLISH</button>
-                                    <button onClick={() => toggleLang('ar')} className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] transition-all ${lang === 'ar' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400'}`}>العربية</button>
+                                    <button onClick={() => toggleLang('en')} className={`flex-1 py-3 px-4 rounded-xl border-2 font-black text-sm transition-all flex items-center justify-center gap-2 ${lang === 'en' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400 hover:border-slate-200'}`}>
+                                        <span className="text-base">🇺🇸</span>
+                                        <span className="text-[10px] tracking-wider">EN</span>
+                                    </button>
+                                    <button onClick={() => toggleLang('ar')} className={`flex-1 py-3 px-4 rounded-xl border-2 font-black text-sm transition-all flex items-center justify-center gap-2 ${lang === 'ar' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400 hover:border-slate-200'}`}>
+                                        <span className="text-base">🇸🇦</span>
+                                        <span className="text-[10px] tracking-wider">AR</span>
+                                    </button>
                                 </div>
                             </div>
 
@@ -139,11 +145,14 @@ const Sidebar = ({ isOpen, onClose }) => {
                                             <button 
                                                 key={character.id} 
                                                 onClick={() => handleCharacterSelect(character.id)}
-                                                className={`flex flex-col items-center gap-2 min-w-[70px] transition-all ${
+                                                className={`flex flex-col items-center gap-2 min-w-[70px] transition-all touch-manipulation ${
                                                     selectedCharacter === character.id 
                                                         ? 'transform scale-105' 
                                                         : 'hover:scale-105'
                                                 }`}
+                                                aria-label={`Select ${lang === 'ar' ? character.nameAr : character.name} character`}
+                                                role="radio"
+                                                aria-checked={selectedCharacter === character.id}
                                             >
                                                 <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all ${
                                                     selectedCharacter === character.id 
