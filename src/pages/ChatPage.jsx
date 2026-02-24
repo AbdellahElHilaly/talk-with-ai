@@ -291,7 +291,7 @@ const ChatPage = () => {
 
 
     return (
-        <div className="h-full flex flex-col bg-slate-50 overflow-hidden pb-safe" dir={rtl ? 'rtl' : 'ltr'}>
+        <div className="max-full flex flex-col bg-slate-50 overflow-hidden pb-safe" dir={rtl ? 'rtl' : 'ltr'}>
             {/* MAGICAL TOP BAR */}
             <div className="px-6 py-4 flex justify-between items-center z-20 sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-100">
                 <div className="flex items-center gap-4 flex-1">
@@ -345,7 +345,7 @@ const ChatPage = () => {
                                             className={`p-1.5 rounded-full transition-all active:scale-90 ${learnedWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, ''))
                                                 ? 'bg-emerald-500 text-white shadow-sm'
                                                 : 'text-slate-400 hover:bg-white hover:text-emerald-500'
-                                            }`}
+                                                }`}
                                             title="Add to learning"
                                         >
                                             <Plus size={12} strokeWidth={3} />
@@ -358,7 +358,7 @@ const ChatPage = () => {
                                             className={`p-1.5 rounded-full transition-all active:scale-90 ${ignoredWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, ''))
                                                 ? 'bg-rose-500 text-white shadow-sm'
                                                 : 'text-slate-400 hover:bg-white hover:text-rose-500'
-                                            }`}
+                                                }`}
                                             title="Remove/Ignore"
                                         >
                                             <X size={12} strokeWidth={3} />
@@ -389,9 +389,9 @@ const ChatPage = () => {
                     )}
                     <button
                         onClick={() => navigate('/')}
-                        className="text-[9px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
+                        className="text-[9px] font-black text-white   tracking-widest active:scale-95 transition-all "
                     >
-                        {t.exit}
+                        <span className="bg-black px-4 py-1.5 rounded-full">{t.exit}</span>
                     </button>
                 </div>
             </div>
@@ -457,7 +457,7 @@ const ChatPage = () => {
                                     <div className="flex flex-col gap-3 group">
                                         <div className="h-[1px] w-full bg-slate-100 group-hover:bg-indigo-50 transition-colors" />
                                         <div className={`flex items-center gap-5 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                            <div className={`flex items-center gap-3 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                            <div className={`flex items-center gap-1.5 ${rtl ? 'flex-row-reverse' : ''}`}>
                                                 {nowPlaying === item.id ? (
                                                     <button
                                                         title="Stop"
@@ -465,7 +465,7 @@ const ChatPage = () => {
                                                             voiceEngine.stop();
                                                             setNowPlaying(null);
                                                         }}
-                                                        className="text-rose-500 active:scale-90 transition-all p-1.5 bg-rose-50 rounded-full"
+                                                        className="text-rose-500  rounded-full"
                                                     >
                                                         <Square size={14} fill="currentColor" strokeWidth={2.5} />
                                                     </button>
@@ -477,14 +477,14 @@ const ChatPage = () => {
                                                             voiceEngine.speak(item.text, 'en');
                                                             setNowPlaying(item.id);
                                                         }}
-                                                        className="text-brand-indigo active:scale-90 transition-all p-1.5 bg-indigo-50 rounded-full"
+                                                        className="text-brand-indigo rounded-full"
                                                     >
                                                         <Play size={14} fill="currentColor" strokeWidth={2.5} />
                                                     </button>
                                                 )}
 
                                                 {nowPlaying === item.id && (
-                                                    <div className="flex gap-1 items-center px-2">
+                                                    <div className="flex gap-1 items-center">
                                                         {voiceStatus === 'loading' ? (
                                                             <motion.div
                                                                 animate={{ rotate: 360 }}
