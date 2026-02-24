@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Plus, Trash2, Volume2, Search, X, Loader2, ArrowRightLeft, Check, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { VocabService } from '../utils/vocabulary';
+import { TranslateController } from '../controllers/translateController';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 import { voiceEngine } from '../utils/voice';
@@ -19,6 +20,7 @@ const InterestingWordsPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [alertConfig, setAlertConfig] = useState({ show: false, message: '', type: 'success' });
     const [nowPlaying, setNowPlaying] = useState(null);
+    const [isAddingWord, setIsAddingWord] = useState(false);
 
     const lang = getCurrentLang();
     const t = translations[lang];
@@ -42,16 +44,67 @@ const InterestingWordsPage = () => {
         };
     }, []);
 
-    const handleAdd = () => {
-        if (!newWordInput.trim()) return;
-        const success = VocabService.addWord(newWordInput.trim(), '', activeTab);
-        if (success) {
-            setNewWordInput('');
+    const handleAdd = async () => {
+        if (!newWordInput.trim() || isAddingWord) return;
+        
+        setIsAddingWord(true);
+        
+        try {
+            // Check if we have API keys
+            const groqKeys = JSON.parse(localStorage.getItem('groq_api_keys') || '[]');
+            
+            if (groqKeys.length === 0) {
+                // Static mode - add word without translation
+                const success = VocabService.addWord(newWordInput.trim(), '', activeTab);
+                if (success) {
+                    setNewWordInput('');
+                    setAlertConfig({
+                        show: true,
+                        message: lang === 'ar' ? "تمت الإضافة! ✨" : "Word added! ✨",
+                        type: 'success'
+                    });
+                }
+                return;
+            }
+
+            // DICTIONARY TRANSLATION - with spell correction
+            const translation = await TranslateController.translateVocabulary(newWordInput.trim());
+            
+            // AI returns { "correctedWord": "translation" }
+            // Get the first (and likely only) key-value pair
+            const entries = Object.entries(translation);
+            if (entries.length > 0) {
+                const [correctedWord, arabicTranslation] = entries[0];
+                
+                // Add the corrected word with its translation
+                const success = VocabService.addWord(correctedWord, arabicTranslation, activeTab);
+                
+                if (success) {
+                    setNewWordInput('');
+                    
+                    // Show different message if word was corrected
+                    const wasCorrection = correctedWord.toLowerCase() !== newWordInput.trim().toLowerCase();
+                    const successMessage = wasCorrection 
+                        ? (lang === 'ar' ? `تم التصحيح إلى: ${correctedWord} ✨` : `Corrected to: ${correctedWord} ✨`)
+                        : (lang === 'ar' ? "تمت الإضافة مع الترجمة! ✨" : "Added with translation! ✨");
+                    
+                    setAlertConfig({
+                        show: true,
+                        message: successMessage,
+                        type: 'success'
+                    });
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error adding word:', error);
             setAlertConfig({
                 show: true,
-                message: lang === 'ar' ? "تمت الإضافة! ✨" : "Word added! ✨",
-                type: 'success'
+                message: lang === 'ar' ? 'خطأ في إضافة الكلمة' : 'Error adding word',
+                type: 'error'
             });
+        } finally {
+            setIsAddingWord(false);
         }
     };
 
@@ -134,10 +187,14 @@ const InterestingWordsPage = () => {
                     />
                     <button
                         onClick={handleAdd}
-                        disabled={!newWordInput.trim()}
-                        className={`absolute ${rtl ? 'left-2' : 'right-2'} top-2 bottom-2 aspect-square bg-slate-900 text-white rounded-2xl flex items-center justify-center hover:bg-brand-indigo transition-colors`}
+                        disabled={!newWordInput.trim() || isAddingWord}
+                        className={`absolute ${rtl ? 'left-2' : 'right-2'} top-2 bottom-2 aspect-square bg-slate-900 text-white rounded-2xl flex items-center justify-center hover:bg-brand-indigo transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
-                        <Plus size={20} />
+                        {isAddingWord ? (
+                            <Loader2 size={20} className="animate-spin" />
+                        ) : (
+                            <Plus size={20} />
+                        )}
                     </button>
                 </div>
 

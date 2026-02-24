@@ -109,22 +109,87 @@ const ChatPage = () => {
     const t = translations[lang];
     const rtl = isRTL();
 
-    const toggleLearned = (word) => {
+    const toggleLearned = async (word) => {
         const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
-        setLearnedWords(prev => {
-            if (prev.includes(cleanWord)) return prev.filter(w => w !== cleanWord);
-            return [...prev.filter(w => w !== cleanWord), cleanWord];
-        });
-        setIgnoredWords(prev => prev.filter(w => w !== cleanWord));
+        const isCurrentlyLearned = learnedWords.includes(cleanWord);
+        const isCurrentlyIgnored = ignoredWords.includes(cleanWord);
+        
+        if (isCurrentlyLearned) {
+            // Remove from learned
+            VocabService.deleteWord(cleanWord);
+            setLearnedWords(prev => prev.filter(w => w !== cleanWord));
+        } else if (isCurrentlyIgnored) {
+            // Move from ignored to learned (no API call needed)
+            VocabService.deleteWord(cleanWord);
+            const existingTranslation = VocabService.getWordTranslations()[cleanWord] || '';
+            VocabService.addWord(cleanWord, existingTranslation, 'learned');
+            setIgnoredWords(prev => prev.filter(w => w !== cleanWord));
+            setLearnedWords(prev => [...prev, cleanWord]);
+        } else {
+            // New word - needs dictionary translation
+            try {
+                if (!staticMode) {
+                    // Send request for dictionary-style translation
+                    const translation = await TranslateController.translateVocabulary(cleanWord);
+                    const entries = Object.entries(translation);
+                    if (entries.length > 0) {
+                        const [correctedWord, arabicTranslation] = entries[0];
+                        VocabService.addWord(correctedWord, arabicTranslation, 'learned');
+                        setLearnedWords(prev => [...prev.filter(w => w !== correctedWord), correctedWord]);
+                    }
+                } else {
+                    // Static mode - no translation
+                    VocabService.addWord(cleanWord, '', 'learned');
+                    setLearnedWords(prev => [...prev.filter(w => w !== cleanWord), cleanWord]);
+                }
+            } catch (error) {
+                console.error('Error adding to learned:', error);
+                // Fallback: add without translation
+                VocabService.addWord(cleanWord, '', 'learned');
+                setLearnedWords(prev => [...prev.filter(w => w !== cleanWord), cleanWord]);
+            }
+        }
     };
 
-    const toggleIgnored = (word) => {
+    const toggleIgnored = async (word) => {
         const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
-        setIgnoredWords(prev => {
-            if (prev.includes(cleanWord)) return prev.filter(w => w !== cleanWord);
-            return [...prev.filter(w => w !== cleanWord), cleanWord];
-        });
-        setLearnedWords(prev => prev.filter(w => w !== cleanWord));
+        const isCurrentlyIgnored = ignoredWords.includes(cleanWord);
+        const isCurrentlyLearned = learnedWords.includes(cleanWord);
+        
+        if (isCurrentlyIgnored) {
+            // Remove from ignored
+            VocabService.deleteWord(cleanWord);
+            setIgnoredWords(prev => prev.filter(w => w !== cleanWord));
+        } else if (isCurrentlyLearned) {
+            // Move from learned to ignored (no API call needed)
+            VocabService.deleteWord(cleanWord);
+            VocabService.addWord(cleanWord, '', 'ignored');
+            setLearnedWords(prev => prev.filter(w => w !== cleanWord));
+            setIgnoredWords(prev => [...prev, cleanWord]);
+        } else {
+            // New word - needs spell check via dictionary translation
+            try {
+                if (!staticMode) {
+                    // Send request for dictionary-style translation (for spell correction)
+                    const translation = await TranslateController.translateVocabulary(cleanWord);
+                    const entries = Object.entries(translation);
+                    if (entries.length > 0) {
+                        const [correctedWord] = entries[0]; // Don't need translation for ignored words
+                        VocabService.addWord(correctedWord, '', 'ignored');
+                        setIgnoredWords(prev => [...prev.filter(w => w !== correctedWord), correctedWord]);
+                    }
+                } else {
+                    // Static mode
+                    VocabService.addWord(cleanWord, '', 'ignored');
+                    setIgnoredWords(prev => [...prev.filter(w => w !== cleanWord), cleanWord]);
+                }
+            } catch (error) {
+                console.error('Error adding to ignored:', error);
+                // Fallback: add without correction
+                VocabService.addWord(cleanWord, '', 'ignored');
+                setIgnoredWords(prev => [...prev.filter(w => w !== cleanWord), cleanWord]);
+            }
+        }
     };
 
     const handleWordSelect = async (en, messageId, fullText, index) => {
@@ -146,7 +211,7 @@ const ChatPage = () => {
             return;
         }
 
-        // Fetch on-demand
+        // CONTEXTUAL TRANSLATION - uses context + word + index for precise meaning
         try {
             setSelectedWord({ en, ar: "...", index, messageId }); // Loading state
             const ar = await TranslateController.translateWord(fullText, cleanWord, index);

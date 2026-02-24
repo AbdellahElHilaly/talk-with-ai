@@ -1,5 +1,6 @@
 import { CHAT_PROMPT } from './chat';
 import { TRANSLATE_PROMPT } from './translate';
+import { VOCAB_TRANSLATE_PROMPT } from './vocabulary';
 
 /**
  * AiService Class
@@ -34,6 +35,15 @@ export class AiService {
         prompt = prompt.replace('%word', word);
         prompt = prompt.replace('%index', index);
 
+        return prompt;
+    }
+
+    /**
+     * Constructs the prompt for standard vocabulary translations (batch).
+     */
+    static translateVocab(words) {
+        let prompt = VOCAB_TRANSLATE_PROMPT;
+        prompt = prompt.replace('%words', words.join(', '));
         return prompt;
     }
 }
