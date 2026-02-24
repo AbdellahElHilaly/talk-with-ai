@@ -418,12 +418,12 @@ const ChatPage = () => {
                             >
                                 <div className="flex flex-col gap-5">
                                     {/* Character Profile */}
-                                    <div className={`flex items-center gap-3 px-2 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center border border-indigo-100">
-                                            <span className="text-lg">{currentCharacter.icon}</span>
+                                    <div className={`flex items-center gap-4 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center border border-indigo-100 shadow-sm flex-shrink-0">
+                                            <span className="text-2xl">{currentCharacter.icon}</span>
                                         </div>
                                         <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
-                                            <span className="text-[10px] font-black text-brand-indigo uppercase tracking-widest">
+                                            <span className="text-sm font-semibold text-brand-indigo tracking-tight">
                                                 {lang === 'ar' ? currentCharacter.nameAr : currentCharacter.name}
                                             </span>
                                         </div>
