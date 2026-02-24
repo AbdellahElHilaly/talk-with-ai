@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2, AlertCircle, Bookmark, GraduationCap, Trash2 } from 'lucide-react';
+import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2, AlertCircle, Bookmark, GraduationCap, Trash2, Share2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getGroqKeys, getElevenKeys } from '../utils/keyStorage';
 import { translations } from '../utils/translations';
@@ -8,11 +8,13 @@ import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
 import { voiceEngine } from '../utils/voice';
 import { VocabService } from '../utils/vocabulary';
 import { CHARACTERS } from '../prompts/characters';
+import Alert from './shared/Alert';
 
 const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
     const [lang, setLang] = useState(getCurrentLang());
     const [speed, setSpeed] = useState(parseFloat(localStorage.getItem('voice_speed')) || 1);
     const [learnedCount, setLearnedCount] = useState(VocabService.getLearnedWords().length);
+    const [alertConfig, setAlertConfig] = useState({ show: false, message: '', type: 'success' });
 
     React.useEffect(() => {
         const handleUpdate = () => setLearnedCount(VocabService.getLearnedWords().length);
@@ -64,14 +66,39 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
         setTimeout(() => setIsCleaningCache(false), 1000);
     };
 
-    React.useEffect(() => {
-        // Update cache stats periodically
-        const interval = setInterval(() => {
-            setCacheStats(voiceEngine.getCacheStats());
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
+    const handleShareAll = async () => {
+        const groqKeys = getGroqKeys();
+        const elevenKeys = getElevenKeys();
 
+        if (groqKeys.length === 0 && elevenKeys.length === 0) return;
+
+        const baseUrl = window.location.origin + "/talk-with-ai/import-keys";
+        let url = baseUrl + "?";
+        if (groqKeys.length > 0) url += `groq=${groqKeys.join(',')}`;
+        if (elevenKeys.length > 0) {
+            if (groqKeys.length > 0) url += "&";
+            url += `eleven=${elevenKeys.join(',')}`;
+        }
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Smart-Lern API Account',
+                    text: 'Import my AI & Voice API keys to your Smart-Lern app!',
+                    url: url
+                });
+            } catch (err) {
+                console.error("Error sharing:", err);
+            }
+        } else {
+            navigator.clipboard.writeText(url);
+            setAlertConfig({
+                show: true,
+                message: t.shareSuccess,
+                type: 'success'
+            });
+        }
+    };
 
     React.useEffect(() => {
         // Update cache stats periodically
@@ -109,6 +136,13 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
                         className={`fixed ${rtl ? 'right-0' : 'left-0'} top-0 h-full w-full max-w-xs bg-white z-50 p-6 flex flex-col shadow-2xl ${rtl ? 'rounded-l-[2rem]' : 'rounded-r-[2rem]'} overflow-y-auto hide-scrollbar`}
                         dir={rtl ? 'rtl' : 'ltr'}
                     >
+                        <Alert
+                            show={alertConfig.show}
+                            message={alertConfig.message}
+                            type={alertConfig.type}
+                            onClose={() => setAlertConfig(prev => ({ ...prev, show: false }))}
+                        />
+
                         <div className={`flex justify-between items-center mb-6 ${rtl ? 'flex-row-reverse' : ''}`}>
                             <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
                                 <span className={`logo-font text-3xl text-brand-indigo ${rtl ? 'rotate-3' : '-rotate-3'}`}>Smart-Lern</span>
@@ -175,6 +209,19 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
                             </div>
 
                             <div className="flex flex-col gap-5">
+                                <div className={`flex items-center justify-between pb-2 border-b border-slate-50 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none pt-1">API KEYS</label>
+                                    {(getGroqKeys().length > 0 || getElevenKeys().length > 0) && (
+                                        <button
+                                            onClick={handleShareAll}
+                                            className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-brand-indigo rounded-lg hover:bg-brand-indigo hover:text-white transition-all group/share"
+                                        >
+                                            <Share2 size={12} strokeWidth={3} />
+                                            <span className="text-[9px] font-black uppercase tracking-widest">{lang === 'ar' ? 'مشاركة' : 'SHARE'}</span>
+                                        </button>
+                                    )}
+                                </div>
+
                                 <div className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>
                                     <Link to="/settings/groq-keys" className={`flex items-center gap-3 flex-1 ${rtl ? 'flex-row-reverse' : ''}`}>
                                         <label className="text-[11px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover:text-brand-indigo transition-colors">{lang === 'ar' ? 'دردشة ذكية' : 'CHAT API'}</label>

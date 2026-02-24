@@ -80,7 +80,13 @@ export const translations = {
             step4: "4. You will see your API Key there. Click the 'Eye' icon to see it, then copy it.",
             step5: "5. Paste the key in the Smart-Lern settings and enjoy the magic!"
         },
-        clearChat: "Clear Conversation"
+        clearChat: "Clear Conversation",
+        shareSuccess: "Share link copied! 🔗",
+        shareAll: "Share All Keys",
+        shareAllCombined: "Share All API Keys",
+        keysImported: "Keys Imported! ✨",
+        verifyingAccount: "Verifying your API keys...",
+        allKeysVerified: "All keys have been verified and saved successfully."
     },
     ar: {
         readyToBloom: "هل أنت مستعد",
@@ -163,6 +169,12 @@ export const translations = {
             step4: "4. ستجد مفتاح الـ API هناك. اضغط على علامة 'العين' لرؤيته، ثم انسخه.",
             step5: "5. ضع المفتاح في إعدادات Smart-Lern واستمتع بالسحر!"
         },
-        clearChat: "حذف المحادثة"
+        clearChat: "حذف المحادثة",
+        shareSuccess: "تم نسخ رابط المشاركة! 🔗",
+        shareAll: "مشاركة جميع المفاتيح",
+        shareAllCombined: "مشاركة جميع مفاتيح الـ API",
+        keysImported: "تم استيراد المفاتيح! ✨",
+        verifyingAccount: "جاري التحقق من مفاتيحك...",
+        allKeysVerified: "تم التحقق من جميع المفاتيح وحفظها بنجاح."
     }
 };

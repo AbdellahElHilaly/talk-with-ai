@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Plus, Trash2, CheckCircle2, Loader2, Copy, Activity, ZapOff, BarChart3, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, Plus, Trash2, CheckCircle2, Loader2, Copy, Activity, ZapOff, BarChart3, AlertTriangle, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getElevenKeys, addElevenKey, removeElevenKey, validateElevenKey } from '../utils/keyStorage';
 import { translations } from '../utils/translations';
@@ -87,6 +87,30 @@ const ElevenKeysPage = () => {
         });
     };
 
+    const handleShare = async (sharedKeys) => {
+        const baseUrl = window.location.origin + "/talk-with-ai/import-keys";
+        const url = `${baseUrl}?eleven=${sharedKeys.join(',')}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Smart-Lern ElevenLabs Keys',
+                    text: 'Import my voice API keys to your Smart-Lern app!',
+                    url: url
+                });
+            } catch (err) {
+                console.error("Error sharing:", err);
+            }
+        } else {
+            navigator.clipboard.writeText(url);
+            setAlertConfig({
+                show: true,
+                message: lang === 'ar' ? "تم نسخ رابط المشاركة! 🔗" : "Share link copied! 🔗",
+                type: 'success'
+            });
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col" dir={rtl ? 'rtl' : 'ltr'}>
             <AnimatePresence>
@@ -110,28 +134,40 @@ const ElevenKeysPage = () => {
             />
 
             {/* Header */}
-            <div className="bg-white border-b border-slate-100 px-6 py-6 flex items-center gap-4 sticky top-0 z-10 shrink-0">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="p-2 -ml-2 text-slate-400 hover:text-brand-indigo transition-colors"
-                >
-                    <ChevronLeft size={24} className={rtl ? 'rotate-180' : ''} />
-                </button>
-                <div className="flex flex-col">
-                    <h1 className="text-xl font-black text-slate-900 tracking-tight">{t.cloudVoice}</h1>
-                    <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.manageKeys}</span>
-                        <div className="w-1 h-1 rounded-full bg-slate-200" />
-                        <a
-                            href="https://elevenlabs.io"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[10px] font-black text-brand-indigo uppercase tracking-widest hover:underline"
-                        >
-                            {t.clickHere}
-                        </a>
+            <div className="bg-white border-b border-slate-100 px-6 py-6 flex items-center justify-between sticky top-0 z-10 shrink-0">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="p-2 -ml-2 text-slate-400 hover:text-brand-indigo transition-colors"
+                    >
+                        <ChevronLeft size={24} className={rtl ? 'rotate-180' : ''} />
+                    </button>
+                    <div className="flex flex-col">
+                        <h1 className="text-xl font-black text-slate-900 tracking-tight">{t.cloudVoice}</h1>
+                        <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.manageKeys}</span>
+                            <div className="w-1 h-1 rounded-full bg-slate-200" />
+                            <a
+                                href="https://elevenlabs.io"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] font-black text-brand-indigo uppercase tracking-widest hover:underline"
+                            >
+                                {t.clickHere}
+                            </a>
+                        </div>
                     </div>
                 </div>
+
+                {keys.length > 0 && (
+                    <button
+                        onClick={() => handleShare(keys)}
+                        className="p-3 bg-indigo-50 text-brand-indigo rounded-2xl hover:bg-brand-indigo hover:text-white transition-all shadow-sm"
+                        title="Share All Keys"
+                    >
+                        <Share2 size={20} />
+                    </button>
+                )}
             </div>
 
             <main className="flex-1 p-6 max-w-2xl mx-auto w-full flex flex-col gap-8 pb-10">
@@ -202,6 +238,7 @@ const ElevenKeysPage = () => {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1 shrink-0">
+                                                <button onClick={() => handleShare([key])} className="p-3 text-slate-300 hover:text-brand-indigo transition-colors"><Share2 size={18} /></button>
                                                 <button onClick={() => handleCopy(key)} className="p-3 text-slate-300 hover:text-brand-indigo transition-colors"><Copy size={18} /></button>
                                                 <button onClick={() => handleDelete(key)} className="p-3 text-slate-300 hover:text-rose-500 transition-colors"><Trash2 size={18} /></button>
                                             </div>

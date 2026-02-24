@@ -8,6 +8,7 @@ import ElevenLabsGuide from './pages/ElevenLabsGuide';
 import GroqKeysPage from './pages/GroqKeysPage';
 import ElevenKeysPage from './pages/ElevenKeysPage';
 import InterestingWordsPage from './pages/InterestingWordsPage';
+import ImportKeysPage from './pages/ImportKeysPage';
 
 /**
  * Smart-Lern Core Application Entry Point
@@ -20,6 +21,7 @@ const App = () => {
         <Routes>
           {/* Welcome & Onboarding */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/import-keys" element={<ImportKeysPage />} />
 
           {/* Main Interface */}
           <Route path="/chat" element={<ErrorBoundary><ChatPage /></ErrorBoundary>} />
