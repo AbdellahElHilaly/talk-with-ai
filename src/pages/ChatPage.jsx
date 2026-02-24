@@ -51,6 +51,8 @@ const ChatPage = () => {
             setTranslationsMap({});
             sessionStorage.removeItem('chat_session_messages');
             sessionStorage.removeItem('chat_translations_map');
+            // Also clear voice cache for fresh start with new character
+            voiceEngine.clearAudioCache();
         };
         window.addEventListener('characterChanged', handleCharacterChange);
         return () => window.removeEventListener('characterChanged', handleCharacterChange);

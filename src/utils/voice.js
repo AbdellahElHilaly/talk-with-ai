@@ -80,6 +80,8 @@ class VoiceEngine {
 
         // Cache for ElevenLabs audio: { "voiceId-text": "blobUrl" }
         this.audioCache = new Map();
+        this.MAX_CACHE_SIZE = 20; // Maximum cached audio files
+        this.cacheAccessOrder = []; // Track access order for LRU cleanup
 
         this.audioElement.onplay = () => this.updateState('playing');
         this.audioElement.onended = () => {
@@ -87,6 +89,45 @@ class VoiceEngine {
         };
         this.audioElement.onpause = () => {
             if (this.state === 'playing') this.updateState('idle');
+        };
+    }
+
+    /**
+     * Clean up old audio cache entries when limit is exceeded
+     */
+    cleanupAudioCache() {
+        while (this.audioCache.size > this.MAX_CACHE_SIZE) {
+            // Remove oldest accessed item (LRU - Least Recently Used)
+            const oldestKey = this.cacheAccessOrder.shift();
+            const audioUrl = this.audioCache.get(oldestKey);
+            if (audioUrl) {
+                URL.revokeObjectURL(audioUrl);
+                this.audioCache.delete(oldestKey);
+            }
+        }
+    }
+
+    /**
+     * Manually clear all audio cache (Memory cleanup)
+     */
+    clearAudioCache() {
+        // Revoke all blob URLs to free memory
+        for (const audioUrl of this.audioCache.values()) {
+            URL.revokeObjectURL(audioUrl);
+        }
+        this.audioCache.clear();
+        this.cacheAccessOrder = [];
+        console.log('🧹 Audio cache cleared! Memory freed.');
+    }
+
+    /**
+     * Get cache statistics
+     */
+    getCacheStats() {
+        return {
+            size: this.audioCache.size,
+            maxSize: this.MAX_CACHE_SIZE,
+            memoryUsage: `${this.audioCache.size}/${this.MAX_CACHE_SIZE}`
         };
     }
 
@@ -149,6 +190,14 @@ class VoiceEngine {
         // CHECK CACHE FIRST
         if (this.audioCache.has(cacheKey)) {
             if (sequenceId !== this.currentSequence) return;
+            
+            // Update access order for LRU
+            const index = this.cacheAccessOrder.indexOf(cacheKey);
+            if (index > -1) {
+                this.cacheAccessOrder.splice(index, 1);
+            }
+            this.cacheAccessOrder.push(cacheKey);
+            
             this.audioElement.src = this.audioCache.get(cacheKey);
             await this.audioElement.play();
             return;
@@ -187,7 +236,10 @@ class VoiceEngine {
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
 
+            // Add to cache with cleanup
             this.audioCache.set(cacheKey, audioUrl);
+            this.cacheAccessOrder.push(cacheKey);
+            this.cleanupAudioCache(); // Auto cleanup when needed
 
             if (sequenceId !== this.currentSequence) return;
 

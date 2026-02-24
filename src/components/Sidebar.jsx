@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2, AlertCircle, Bookmark, GraduationCap } from 'lucide-react';
+import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2, AlertCircle, Bookmark, GraduationCap, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getGroqKeys, getElevenKeys } from '../utils/keyStorage';
 import { translations } from '../utils/translations';
@@ -30,6 +30,8 @@ const Sidebar = ({ isOpen, onClose }) => {
         return localStorage.getItem('selected_character') || 'girlfriend';
     });
     const [isSaving, setIsSaving] = useState(false);
+    const [isCleaningCache, setIsCleaningCache] = useState(false);
+    const [cacheStats, setCacheStats] = useState(() => voiceEngine.getCacheStats());
 
     const t = translations[lang];
     const rtl = isRTL();
@@ -55,6 +57,29 @@ const Sidebar = ({ isOpen, onClose }) => {
         localStorage.setItem('selected_character', characterId);
         window.dispatchEvent(new CustomEvent('characterChanged', { detail: characterId }));
     };
+    const handleClearCache = () => {
+        setIsCleaningCache(true);
+        voiceEngine.clearAudioCache();
+        setCacheStats(voiceEngine.getCacheStats());
+        setTimeout(() => setIsCleaningCache(false), 1000);
+    };
+
+    React.useEffect(() => {
+        // Update cache stats periodically
+        const interval = setInterval(() => {
+            setCacheStats(voiceEngine.getCacheStats());
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+
+    React.useEffect(() => {
+        // Update cache stats periodically
+        const interval = setInterval(() => {
+            setCacheStats(voiceEngine.getCacheStats());
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -180,6 +205,33 @@ const Sidebar = ({ isOpen, onClose }) => {
                                         </div>
                                     </Link>
                                     <Bookmark size={16} className="text-slate-200" strokeWidth={2.5} />
+                                </div>
+
+                                <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
+                                        <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">
+                                            {lang === 'ar' ? 'ذاكرة الصوت' : 'VOICE MEMORY'}
+                                        </label>
+                                        <span className="text-[8px] text-slate-400 mt-0.5">
+                                            {lang === 'ar' ? `محفوظ: ${cacheStats.memoryUsage}` : `Cached: ${cacheStats.memoryUsage}`}
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={handleClearCache}
+                                        disabled={isCleaningCache || cacheStats.size === 0}
+                                        className={`p-2 rounded-xl transition-all disabled:opacity-50 ${
+                                            cacheStats.size > 0 
+                                                ? 'bg-rose-50 text-rose-500 hover:bg-rose-100 active:scale-90' 
+                                                : 'bg-slate-50 text-slate-300'
+                                        }`}
+                                        title={lang === 'ar' ? 'تنظيف ذاكرة الصوت' : 'Clear voice cache'}
+                                    >
+                                        {isCleaningCache ? (
+                                            <Loader2 size={16} className="animate-spin" />
+                                        ) : (
+                                            <Trash2 size={16} strokeWidth={2.5} />
+                                        )}
+                                    </button>
                                 </div>
                             </div>
 
