@@ -1,144 +1,75 @@
 /**
- * Vocabulary Management System
- * Stores words, their categories (learned/ignored), and AI-provided translations.
+ * VocabService Class
+ * Manages learned and ignored words in localStorage.
  */
-
-const KEYS = {
-    LEARNED: 'learned_words',
-    IGNORED: 'ignored_words',
-    TRANSLATIONS: 'word_translations'
-};
-
-// --- GETTERS ---
-
-export const getLearnedWords = () => {
-    const saved = localStorage.getItem(KEYS.LEARNED);
-    return saved ? JSON.parse(saved) : [];
-};
-
-export const getIgnoredWords = () => {
-    const saved = localStorage.getItem(KEYS.IGNORED);
-    return saved ? JSON.parse(saved) : [];
-};
-
-export const getWordTranslations = () => {
-    const saved = localStorage.getItem(KEYS.TRANSLATIONS);
-    return saved ? JSON.parse(saved) : {};
-};
-
-export const getUntranslatedWords = () => {
-    const learned = getLearnedWords();
-    const ignored = getIgnoredWords();
-    const translations = getWordTranslations();
-
-    const all = [...learned, ...ignored];
-    return all.filter(word => !translations[word] || translations[word].trim() === '');
-};
-
-// --- SETTERS & EVENTS ---
-
-const notifyUpdate = () => {
-    window.dispatchEvent(new Event('vocabularyUpdated'));
-};
-
-export const saveTranslations = (newTranslations) => {
-    const current = getWordTranslations();
-    const updated = { ...current, ...newTranslations };
-    localStorage.setItem(KEYS.TRANSLATIONS, JSON.stringify(updated));
-    notifyUpdate();
-};
-
-// --- ACTIONS ---
-
-export const addWord = (word, translation = '', listType = 'learned') => {
-    if (!word) return;
-    const cleanWord = word.trim().toLowerCase();
-
-    const learned = getLearnedWords();
-    const ignored = getIgnoredWords();
-    const translations = getWordTranslations();
-
-    // Remove from both lists first to ensure no duplicates
-    const newLearned = learned.filter(w => w !== cleanWord);
-    const newIgnored = ignored.filter(w => w !== cleanWord);
-
-    if (listType === 'learned') {
-        newLearned.unshift(cleanWord);
-    } else {
-        newIgnored.unshift(cleanWord);
+export class VocabService {
+    static getLearnedWords() {
+        const saved = localStorage.getItem('learned_words');
+        return saved ? JSON.parse(saved) : [];
     }
 
-    if (translation) {
-        translations[cleanWord] = translation;
-        localStorage.setItem(KEYS.TRANSLATIONS, JSON.stringify(translations));
+    static getIgnoredWords() {
+        const saved = localStorage.getItem('ignored_words');
+        return saved ? JSON.parse(saved) : [];
     }
 
-    localStorage.setItem(KEYS.LEARNED, JSON.stringify(newLearned));
-    localStorage.setItem(KEYS.IGNORED, JSON.stringify(newIgnored));
-
-    notifyUpdate();
-    return true;
-};
-
-export const moveWord = (word, toList) => {
-    const learned = getLearnedWords();
-    const ignored = getIgnoredWords();
-
-    const newLearned = learned.filter(w => w !== word);
-    const newIgnored = ignored.filter(w => w !== word);
-
-    if (toList === 'learned') {
-        newLearned.unshift(word);
-    } else {
-        newIgnored.unshift(word);
+    static getWordTranslations() {
+        const saved = localStorage.getItem('word_translations');
+        return saved ? JSON.parse(saved) : {};
     }
 
-    localStorage.setItem(KEYS.LEARNED, JSON.stringify(newLearned));
-    localStorage.setItem(KEYS.IGNORED, JSON.stringify(newIgnored));
-    notifyUpdate();
-};
-
-export const updateWord = (oldWord, newWord, translation) => {
-    const learned = getLearnedWords();
-    const ignored = getIgnoredWords();
-    const translations = getWordTranslations();
-
-    const isLearned = learned.includes(oldWord);
-
-    // Remove old word data
-    const newLearned = learned.filter(w => w !== oldWord);
-    const newIgnored = ignored.filter(w => w !== oldWord);
-    delete translations[oldWord];
-
-    // Add new word data
-    const cleanNew = newWord.trim().toLowerCase();
-    if (isLearned) {
-        newLearned.unshift(cleanNew);
-    } else {
-        newIgnored.unshift(cleanNew);
+    static saveLearnedWords(words) {
+        const next = JSON.stringify(words);
+        if (localStorage.getItem('learned_words') === next) return;
+        localStorage.setItem('learned_words', next);
+        this.notify();
     }
 
-    if (translation) {
-        translations[cleanNew] = translation;
+    static saveIgnoredWords(words) {
+        const next = JSON.stringify(words);
+        if (localStorage.getItem('ignored_words') === next) return;
+        localStorage.setItem('ignored_words', next);
+        this.notify();
     }
 
-    localStorage.setItem(KEYS.LEARNED, JSON.stringify(newLearned));
-    localStorage.setItem(KEYS.IGNORED, JSON.stringify(newIgnored));
-    localStorage.setItem(KEYS.TRANSLATIONS, JSON.stringify(translations));
+    static saveTranslations(translations) {
+        const current = this.getWordTranslations();
+        localStorage.setItem('word_translations', JSON.stringify({ ...current, ...translations }));
+        this.notify();
+    }
 
-    notifyUpdate();
-};
+    static addWord(word, translation = '', list = 'learned') {
+        const cleanWord = word.toLowerCase().trim();
+        if (list === 'learned') {
+            const words = this.getLearnedWords();
+            if (!words.includes(cleanWord)) {
+                this.saveLearnedWords([...words, cleanWord]);
+            }
+        } else {
+            const words = this.getIgnoredWords();
+            if (!words.includes(cleanWord)) {
+                this.saveIgnoredWords([...words, cleanWord]);
+            }
+        }
+        if (translation) {
+            this.saveTranslations({ [cleanWord]: translation });
+        }
+        return true;
+    }
 
-export const deleteWord = (word) => {
-    const learned = getLearnedWords();
-    const ignored = getIgnoredWords();
-    const translations = getWordTranslations();
+    static deleteWord(word) {
+        const cleanWord = word.toLowerCase().trim();
+        this.saveLearnedWords(this.getLearnedWords().filter(w => w !== cleanWord));
+        this.saveIgnoredWords(this.getIgnoredWords().filter(w => w !== cleanWord));
+    }
 
-    localStorage.setItem(KEYS.LEARNED, JSON.stringify(learned.filter(w => w !== word)));
-    localStorage.setItem(KEYS.IGNORED, JSON.stringify(ignored.filter(w => w !== word)));
+    static moveWord(word, targetList) {
+        const cleanWord = word.toLowerCase().trim();
+        this.deleteWord(cleanWord);
+        this.addWord(cleanWord, '', targetList);
+    }
 
-    delete translations[word];
-    localStorage.setItem(KEYS.TRANSLATIONS, JSON.stringify(translations));
-
-    notifyUpdate();
-};
+    static notify() {
+        window.dispatchEvent(new CustomEvent('vocabularyUpdated'));
+    }
+}

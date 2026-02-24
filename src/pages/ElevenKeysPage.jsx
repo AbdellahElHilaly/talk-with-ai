@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Plus, Trash2, CheckCircle2, AlertCircle, Loader2, Copy, Activity, ZapOff, BarChart3, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, Plus, Trash2, CheckCircle2, Loader2, Copy, Activity, ZapOff, BarChart3, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getElevenKeys, addElevenKey, removeElevenKey, validateElevenKey } from '../utils/voice';
+import { getElevenKeys, addElevenKey, removeElevenKey, validateElevenKey } from '../utils/keyStorage';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 import Spinner from '../components/shared/Spinner';
@@ -31,8 +31,6 @@ const ElevenKeysPage = () => {
             for (const key of keys) {
                 const data = await validateElevenKey(key);
 
-                // --- AUTO-CLEANUP LOGIC ---
-                // If it's truly expired (0 characters), remove it immediately as requested
                 if (data && data.remaining <= 0) {
                     removeElevenKey(key);
                     setKeys(prev => prev.filter(k => k !== key));
@@ -137,12 +135,10 @@ const ElevenKeysPage = () => {
             </div>
 
             <main className="flex-1 p-6 max-w-2xl mx-auto w-full flex flex-col gap-8 pb-10">
-                {/* Intro */}
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
                     {t.elevenHelp}
                 </p>
 
-                {/* Add Key Input */}
                 <div className="space-y-4">
                     <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest block">{t.addKey}</label>
                     <div className="relative">
@@ -163,7 +159,6 @@ const ElevenKeysPage = () => {
                     </div>
                 </div>
 
-                {/* Keys List */}
                 <div className="space-y-4">
                     <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest block">{t.keysCount}: {keys.length}</label>
                     <div className="flex flex-col gap-4">
@@ -180,28 +175,28 @@ const ElevenKeysPage = () => {
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.9 }}
                                         className={`bg-white p-5 rounded-[2.5rem] border transition-all ${info.status === 'dead' ? 'border-amber-100 bg-amber-50/20' :
-                                                isLow ? 'border-amber-100 bg-amber-50/20' : 'border-slate-100'
+                                            isLow ? 'border-amber-100 bg-amber-50/20' : 'border-slate-100'
                                             } shadow-sm flex flex-col gap-4 group`}
                                     >
                                         <div className="flex items-center justify-between gap-4">
                                             <div className="flex items-center gap-4 overflow-hidden">
                                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${isLow || info.status === 'dead' ? 'bg-amber-50 text-amber-500' :
-                                                        info.status === 'good' ? 'bg-indigo-50 text-brand-indigo' :
-                                                            'bg-slate-50 text-slate-300'
+                                                    info.status === 'good' ? (info.restricted ? 'bg-blue-50 text-blue-500' : 'bg-indigo-50 text-brand-indigo') :
+                                                        'bg-slate-50 text-slate-300'
                                                     }`}>
                                                     {isLow ? <AlertTriangle size={24} /> :
-                                                        info.status === 'good' ? <BarChart3 size={24} /> :
+                                                        info.status === 'good' ? (info.restricted ? <CheckCircle2 size={24} /> : <BarChart3 size={24} />) :
                                                             info.status === 'dead' ? <ZapOff size={24} /> :
                                                                 <Loader2 size={24} className="animate-spin opacity-20" />}
                                                 </div>
                                                 <div className="flex flex-col overflow-hidden">
                                                     <span className="font-mono text-[10px] text-slate-400 tracking-tight truncate max-w-[120px] md:max-w-xs">{key}</span>
                                                     <span className={`text-[8px] font-black uppercase tracking-widest mt-1 ${isLow || info.status === 'dead' ? 'text-amber-500' :
-                                                        info.status === 'good' ? 'text-brand-indigo' :
+                                                        info.status === 'good' ? (info.restricted ? 'text-blue-500' : 'text-brand-indigo') :
                                                             'text-slate-300'
                                                         }`}>
                                                         {isLow ? (lang === 'ar' ? 'تنبيه: رصيد منخفض' : 'Warning: Low Credits') :
-                                                            info.status === 'good' ? `${info.tier} Plan` :
+                                                            info.status === 'good' ? (info.restricted ? (lang === 'ar' ? 'مفتاح محدود (جاهز للنطق)' : 'Restricted (TTS Ready)') : `${info.tier} Plan`) :
                                                                 info.status === 'dead' ? 'Access Restricted' : 'Checking Evolution...'}
                                                     </span>
                                                 </div>
@@ -212,7 +207,7 @@ const ElevenKeysPage = () => {
                                             </div>
                                         </div>
 
-                                        {info.status === 'good' && (
+                                        {info.status === 'good' && !info.restricted && (
                                             <div className="space-y-2 px-2">
                                                 <div className="flex justify-between text-[8px] font-black text-slate-400 uppercase tracking-widest">
                                                     <span>{lang === 'ar' ? 'الحروف المستخدمة' : 'Characters Used'}</span>

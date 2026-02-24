@@ -1,53 +1,55 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, Play, Square, Settings, Loader2, Plus, X } from 'lucide-react';
+import { Send, Play, Square, Settings, Loader2, Plus, X, Trash2, RefreshCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import Word from '../components/Word';
-import chatData from '../data/data.json';
-import { isStaticMode, chatWithGroq } from '../utils/auth';
+import { ChatController } from '../controllers/chatController';
+import { TranslateController } from '../controllers/translateController';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
-
 import { voiceEngine } from '../utils/voice';
-import * as vocab from '../utils/vocabulary';
+import { VocabService } from '../utils/vocabulary';
 
 const ChatPage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [selectedWord, setSelectedWord] = useState(null);
     const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState(chatData);
+    const [messages, setMessages] = useState(() => {
+        const saved = sessionStorage.getItem('chat_session_messages');
+        return saved ? JSON.parse(saved) : [];
+    });
     const [isAITyping, setIsAITyping] = useState(false);
     const [nowPlaying, setNowPlaying] = useState(null);
     const [voiceStatus, setVoiceStatus] = useState('idle'); // idle, loading, playing
-    const [learnedWords, setLearnedWords] = useState(() => {
-        const saved = localStorage.getItem('learned_words');
+    const [learnedWords, setLearnedWords] = useState(() => VocabService.getLearnedWords());
+    const [ignoredWords, setIgnoredWords] = useState(() => VocabService.getIgnoredWords());
+
+    // Global map for on-demand translations: { "messageId-word": "translation" }
+    const [translationsMap, setTranslationsMap] = useState({});
+
+    const getGroqKeys = () => {
+        const saved = localStorage.getItem('groq_api_keys');
         return saved ? JSON.parse(saved) : [];
-    });
-    const [ignoredWords, setIgnoredWords] = useState(() => {
-        const saved = localStorage.getItem('ignored_words');
-        return saved ? JSON.parse(saved) : [];
-    });
+    };
+    const [learnedCount, setLearnedCount] = useState(VocabService.getLearnedWords().length);
+    const staticMode = getGroqKeys().length === 0;
+
+    React.useEffect(() => {
+        const handleUpdate = () => setLearnedCount(VocabService.getLearnedWords().length);
+        window.addEventListener('vocabularyUpdated', handleUpdate);
+        return () => window.removeEventListener('vocabularyUpdated', handleUpdate);
+    }, []);
 
     React.useEffect(() => {
         const handleVocabUpdate = () => {
-            setLearnedWords(vocab.getLearnedWords());
-            setIgnoredWords(vocab.getIgnoredWords());
+            const nextL = VocabService.getLearnedWords();
+            const nextI = VocabService.getIgnoredWords();
+
+            setLearnedWords(prev => JSON.stringify(prev) === JSON.stringify(nextL) ? prev : nextL);
+            setIgnoredWords(prev => JSON.stringify(prev) === JSON.stringify(nextI) ? prev : nextI);
         };
         window.addEventListener('vocabularyUpdated', handleVocabUpdate);
-
-        // --- BACKGROUND SYNC ON LOAD ---
-        const syncOnLoad = async () => {
-            const untranslated = vocab.getUntranslatedWords();
-            if (untranslated.length > 0 && !isStaticMode()) {
-                const { syncTranslations } = await import('../utils/auth');
-                const results = await syncTranslations(untranslated);
-                if (results && Object.keys(results).length > 0) {
-                    vocab.saveTranslations(results);
-                }
-            }
-        };
-        syncOnLoad();
 
         return () => window.removeEventListener('vocabularyUpdated', handleVocabUpdate);
     }, []);
@@ -71,17 +73,27 @@ const ChatPage = () => {
     }, []);
 
     React.useEffect(() => {
-        localStorage.setItem('learned_words', JSON.stringify(learnedWords));
+        VocabService.saveLearnedWords(learnedWords);
     }, [learnedWords]);
 
     React.useEffect(() => {
-        localStorage.setItem('ignored_words', JSON.stringify(ignoredWords));
+        VocabService.saveIgnoredWords(ignoredWords);
     }, [ignoredWords]);
+
+    React.useEffect(() => {
+        sessionStorage.setItem('chat_session_messages', JSON.stringify(messages));
+    }, [messages]);
+
+    const handleClearChat = () => {
+        if (window.confirm(lang === 'ar' ? 'هل تريد حذف المحادثة؟' : 'Clear this conversation?')) {
+            setMessages([]);
+            sessionStorage.removeItem('chat_session_messages');
+        }
+    };
 
     const lang = getCurrentLang();
     const t = translations[lang];
     const rtl = isRTL();
-    const staticMode = isStaticMode();
 
     const toggleLearned = (word) => {
         const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
@@ -101,17 +113,38 @@ const ChatPage = () => {
         setLearnedWords(prev => prev.filter(w => w !== cleanWord));
     };
 
-    const handleWordSelect = (en, ar) => {
-        setSelectedWord({ en, ar });
-        // The "Magic" touch: Hear the word while seeing the translation
+    const handleWordSelect = async (en, messageId, fullText) => {
         const cleanWord = en.toLowerCase().replace(/[.,!?;:]/g, '');
+        const cacheKey = `${messageId}-${cleanWord}`;
+
+        // Hearing is instant
         voiceEngine.speak(cleanWord, 'en');
+
+        if (translationsMap[cacheKey]) {
+            setSelectedWord({ en, ar: translationsMap[cacheKey] });
+            return;
+        }
+
+        if (staticMode) {
+            setSelectedWord({ en, ar: "..." }); // Or default
+            return;
+        }
+
+        // Fetch on-demand
+        try {
+            setSelectedWord({ en, ar: "..." }); // Loading state
+            const ar = await TranslateController.translateWord(fullText, cleanWord);
+            setTranslationsMap(prev => ({ ...prev, [cacheKey]: ar }));
+            setSelectedWord({ en, ar });
+        } catch (error) {
+            console.error("Translation failed", error);
+        }
     };
 
     const handleSend = async () => {
         if (!message.trim() || isAITyping) return;
 
-        if (isStaticMode()) {
+        if (staticMode) {
             alert(t.devModeAlert);
             return;
         }
@@ -127,29 +160,24 @@ const ChatPage = () => {
         setIsAITyping(true);
 
         try {
-            // Prepare context for AI (last 5 messages)
             const context = messages.slice(-5).map(m => ({
                 role: m.role === 'ai' ? 'assistant' : m.role,
                 content: m.text
             }));
             context.push({ role: 'user', content: userMsg.text });
 
-            const aiResponse = await chatWithGroq(context, learnedWords, ignoredWords);
-
-            // Save translations to global vocabulary map
-            if (aiResponse.translate) {
-                vocab.saveTranslations(aiResponse.translate);
-            }
+            const aiResponse = await ChatController.sendMessage(context, userMsg.text, learnedWords, ignoredWords);
 
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'ai',
-                ...aiResponse
+                text: aiResponse.text
             }]);
         } catch (error) {
-            alert("Groq Error: " + error.message);
+            alert("Error: " + error.message);
         } finally {
-            setIsAITyping(false);
+            setIsAITyping(true); // Small hack to trigger scroll after re-render
+            setTimeout(() => setIsAITyping(false), 100);
         }
     };
 
@@ -235,12 +263,23 @@ const ChatPage = () => {
                     </div>
                 </div>
 
-                <button
-                    onClick={() => navigate('/')}
-                    className="text-[9px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
-                >
-                    {t.exit}
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                    {messages.length > 0 && (
+                        <button
+                            onClick={handleClearChat}
+                            className="p-2 text-slate-300 hover:text-rose-500 transition-colors"
+                            title={t.clearChat}
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                    )}
+                    <button
+                        onClick={() => navigate('/')}
+                        className="text-[9px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
+                    >
+                        {t.exit}
+                    </button>
+                </div>
             </div>
 
             <main className="flex-1 overflow-y-auto px-6 py-8 scroll-smooth" ref={scrollRef}>
@@ -275,13 +314,13 @@ const ChatPage = () => {
                                     <div className="text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-950 text-left" dir="ltr">
                                         {words.map((word, i) => {
                                             const cleanedKey = word.toLowerCase().replace(/[.,!?;:]/g, '');
-                                            const translation = item.translate?.[cleanedKey];
+                                            const translation = translationsMap[`${item.id}-${cleanedKey}`];
                                             return (
                                                 <Word
                                                     key={i}
                                                     en={word}
                                                     ar={translation}
-                                                    onSelect={handleWordSelect}
+                                                    onSelect={(en) => handleWordSelect(en, item.id, item.text)}
                                                     isActive={selectedWord?.en === word}
                                                 />
                                             );

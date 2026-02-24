@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Plus, Trash2, CheckCircle2, AlertCircle, Loader2, Copy, Activity, ZapOff } from 'lucide-react';
+import { ChevronLeft, Plus, Trash2, CheckCircle2, Loader2, Copy, Activity, ZapOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getGroqKeys, addGroqKey, removeGroqKey, validateGroqKey } from '../utils/auth';
+import { getGroqKeys, addGroqKey, removeGroqKey, validateGroqKey } from '../utils/keyStorage';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 import Spinner from '../components/shared/Spinner';
@@ -21,7 +21,7 @@ const GroqKeysPage = () => {
     const rtl = isRTL();
 
     useEffect(() => {
-        const checkAllHeaths = async () => {
+        const checkAllHealths = async () => {
             const healths = {};
             for (const key of keys) {
                 healths[key] = { status: 'loading' };
@@ -36,7 +36,7 @@ const GroqKeysPage = () => {
                 }));
             }
         };
-        checkAllHeaths();
+        checkAllHealths();
     }, [keys]);
 
     const handleAddKey = async () => {

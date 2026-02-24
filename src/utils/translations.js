@@ -79,7 +79,8 @@ export const translations = {
             step3: "3. Click your 'Profile' icon at the bottom left of the screen.",
             step4: "4. You will see your API Key there. Click the 'Eye' icon to see it, then copy it.",
             step5: "5. Paste the key in the Smart-Lern settings and enjoy the magic!"
-        }
+        },
+        clearChat: "Clear Conversation"
     },
     ar: {
         readyToBloom: "هل أنت مستعد",
@@ -161,6 +162,7 @@ export const translations = {
             step3: "3. اضغط على أيقونة 'الملف الشخصي' (Profile) في أسفل يسار الشاشة.",
             step4: "4. ستجد مفتاح الـ API هناك. اضغط على علامة 'العين' لرؤيته، ثم انسخه.",
             step5: "5. ضع المفتاح في إعدادات Smart-Lern واستمتع بالسحر!"
-        }
+        },
+        clearChat: "حذف المحادثة"
     }
 };

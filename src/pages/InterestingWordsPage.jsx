@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Plus, Trash2, Volume2, Search, X, Loader2, ArrowRightLeft, Check, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import * as vocab from '../utils/vocabulary';
+import { VocabService } from '../utils/vocabulary';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 import { voiceEngine } from '../utils/voice';
@@ -11,9 +11,9 @@ import Alert from '../components/shared/Alert';
 const InterestingWordsPage = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('learned'); // 'learned' or 'ignored'
-    const [learnedWords, setLearnedWords] = useState(vocab.getLearnedWords());
-    const [ignoredWords, setIgnoredWords] = useState(vocab.getIgnoredWords());
-    const [wordTranslations, setWordTranslations] = useState(vocab.getWordTranslations());
+    const [learnedWords, setLearnedWords] = useState(VocabService.getLearnedWords());
+    const [ignoredWords, setIgnoredWords] = useState(VocabService.getIgnoredWords());
+    const [wordTranslations, setWordTranslations] = useState(VocabService.getWordTranslations());
 
     const [newWordInput, setNewWordInput] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -25,9 +25,9 @@ const InterestingWordsPage = () => {
     const rtl = isRTL();
 
     const refreshData = () => {
-        setLearnedWords(vocab.getLearnedWords());
-        setIgnoredWords(vocab.getIgnoredWords());
-        setWordTranslations(vocab.getWordTranslations());
+        setLearnedWords(VocabService.getLearnedWords());
+        setIgnoredWords(VocabService.getIgnoredWords());
+        setWordTranslations(VocabService.getWordTranslations());
     };
 
     useEffect(() => {
@@ -44,7 +44,7 @@ const InterestingWordsPage = () => {
 
     const handleAdd = () => {
         if (!newWordInput.trim()) return;
-        const success = vocab.addWord(newWordInput.trim(), '', activeTab);
+        const success = VocabService.addWord(newWordInput.trim(), '', activeTab);
         if (success) {
             setNewWordInput('');
             setAlertConfig({
@@ -56,7 +56,7 @@ const InterestingWordsPage = () => {
     };
 
     const handleDelete = (word) => {
-        vocab.deleteWord(word);
+        VocabService.deleteWord(word);
         setAlertConfig({
             show: true,
             message: lang === 'ar' ? "تم الحذف" : "Deleted",
@@ -66,7 +66,7 @@ const InterestingWordsPage = () => {
 
     const handleMove = (word) => {
         const toList = activeTab === 'learned' ? 'ignored' : 'learned';
-        vocab.moveWord(word, toList);
+        VocabService.moveWord(word, toList);
         setAlertConfig({
             show: true,
             message: lang === 'ar' ? "تم النقل" : "Moved",

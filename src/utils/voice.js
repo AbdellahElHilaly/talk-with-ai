@@ -30,7 +30,7 @@ export const validateElevenKey = async (apiKey) => {
             remaining: (data.character_limit - data.character_count),
             tier: data.tier
         };
-    } catch (err) {
+    } catch (error) {
         return null;
     }
 };
@@ -77,6 +77,9 @@ class VoiceEngine {
         this.onStateChange = null;
         this.state = 'idle'; // idle, loading, playing
         this.currentSequence = 0; // To prevent race conditions
+
+        // Cache for ElevenLabs audio: { "voiceId-text": "blobUrl" }
+        this.audioCache = new Map();
 
         this.audioElement.onplay = () => this.updateState('playing');
         this.audioElement.onended = () => {
@@ -141,6 +144,15 @@ class VoiceEngine {
         };
 
         const voiceId = voiceMap[langCode]?.[customVoiceId] || voiceMap.en[customVoiceId] || '21m00Tcm4TlvDq8ikWAM';
+        const cacheKey = `${voiceId}-${text.trim().toLowerCase()}`;
+
+        // CHECK CACHE FIRST
+        if (this.audioCache.has(cacheKey)) {
+            if (sequenceId !== this.currentSequence) return;
+            this.audioElement.src = this.audioCache.get(cacheKey);
+            await this.audioElement.play();
+            return;
+        }
 
         try {
             this.updateState('loading');
@@ -159,30 +171,29 @@ class VoiceEngine {
                 })
             });
 
-            if (sequenceId !== this.currentSequence) return; // Stale request
+            if (sequenceId !== this.currentSequence) return;
 
             if (!response.ok) {
-                // If credits exhausted or key invalid, rotate and retry or fallback
                 if (response.status === 401 || response.status === 403 || response.status === 429) {
                     const nextKey = rotateElevenKey();
                     if (nextKey) {
                         return this.speakElevenLabs(text, langCode, sequenceId, forceVoice);
-                    } else {
-                        return this.speakBrowser(text, langCode, customVoiceId, sequenceId);
                     }
+                    return this.speakBrowser(text, langCode, customVoiceId, sequenceId);
                 }
-                throw new Error(`ElevenLabs failed: ${response.status}`);
+                throw new Error(`TTS_FAILED_${response.status}`);
             }
 
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
+
+            this.audioCache.set(cacheKey, audioUrl);
 
             if (sequenceId !== this.currentSequence) return;
 
             this.audioElement.src = audioUrl;
             await this.audioElement.play();
         } catch (error) {
-            console.error('ElevenLabs Error:', error);
             if (sequenceId === this.currentSequence) {
                 this.speakBrowser(text, langCode, customVoiceId, sequenceId);
             }
