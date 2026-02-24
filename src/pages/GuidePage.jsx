@@ -48,7 +48,7 @@ const GuidePage = () => {
                 <div className="space-y-8">
                     {sections.map((section, idx) => (
                         <motion.section
-                            key={idx}
+                            key={section.title}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.1 }}
@@ -62,10 +62,10 @@ const GuidePage = () => {
                             </div>
 
                             <div className="space-y-4">
-                                {section.steps.map((step, sIdx) => (
-                                    <div key={sIdx} className="flex gap-4 items-start">
+                                {section.steps.map((step) => (
+                                    <div key={step} className="flex gap-4 items-start">
                                         <span className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-400 text-[10px] font-black flex items-center justify-center mt-0.5">
-                                            {sIdx + 1}
+                                            {section.steps.indexOf(step) + 1}
                                         </span>
                                         <p className="text-slate-600 font-medium leading-relaxed text-sm">
                                             {step}

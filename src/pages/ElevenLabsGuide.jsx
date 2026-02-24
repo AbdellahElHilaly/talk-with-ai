@@ -1,7 +1,7 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic, ExternalLink, Info, Sparkles, Wand2 } from 'lucide-react';
+import { ArrowLeft, Mic, ExternalLink, Info, Wand2 } from 'lucide-react';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 

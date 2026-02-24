@@ -35,10 +35,10 @@ const InterestingWordsPage = () => {
             if (state === 'idle') setNowPlaying(null);
         };
         const handleVocabUpdate = () => refreshData();
-        window.addEventListener('vocabularyUpdated', handleVocabUpdate);
+        globalThis.addEventListener('vocabularyUpdated', handleVocabUpdate);
         return () => {
             voiceEngine.onStateChange = null;
-            window.removeEventListener('vocabularyUpdated', handleVocabUpdate);
+            globalThis.removeEventListener('vocabularyUpdated', handleVocabUpdate);
         };
     }, []);
 

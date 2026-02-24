@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sparkles, MessageSquare, Bookmark, Download, Zap, ChevronRight } from 'lucide-react';
+import { MessageSquare, Bookmark, Download, Zap, ChevronRight } from 'lucide-react';
 import { translations } from '../utils/translations';
 import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
 
@@ -18,8 +18,8 @@ const HomePage = () => {
             e.preventDefault();
             setDeferredPrompt(e);
         };
-        window.addEventListener('beforeinstallprompt', handlePrompt);
-        return () => window.removeEventListener('beforeinstallprompt', handlePrompt);
+        globalThis.addEventListener('beforeinstallprompt', handlePrompt);
+        return () => globalThis.removeEventListener('beforeinstallprompt', handlePrompt);
     }, []);
 
     const handleInstall = async () => {
@@ -34,7 +34,7 @@ const HomePage = () => {
         const newLang = lang === 'en' ? 'ar' : 'en';
         setAppLang(newLang);
         setLang(newLang);
-        window.location.reload();
+        globalThis.location.reload();
     };
 
     const features = [
@@ -144,9 +144,9 @@ const HomePage = () => {
 
                 {/* Bottom Section: Features List */}
                 <div className="flex flex-col gap-2 w-full max-w-sm mx-auto">
-                    {features.map((item, idx) => (
+                    {features.map((item) => (
                         <div
-                            key={idx}
+                            key={item.title}
                             className="bg-white/40 backdrop-blur-sm p-4 rounded-2xl border border-slate-50 flex items-center gap-4"
                         >
                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
@@ -173,7 +173,7 @@ const HomePage = () => {
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <a href="#" className="text-[10px] font-black text-slate-400 hover:text-brand-indigo uppercase tracking-widest transition-colors">Privacy</a>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Privacy</span>
                         <div className="px-4 py-1.5 bg-slate-50 rounded-full">
                             <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Global PWA</span>
                         </div>
