@@ -27,11 +27,12 @@ export class AiService {
     /**
      * Constructs the prompt for a word translation.
      */
-    static translateToMe(context, words) {
+    static translateToMe(context, word, index) {
         let prompt = TRANSLATE_PROMPT;
 
-        prompt = prompt.replace('%context', context);
-        prompt = prompt.replace('%words', words.join(', '));
+        prompt = prompt.replace('%text', context);
+        prompt = prompt.replace('%word', word);
+        prompt = prompt.replace('%index', index);
 
         return prompt;
     }

@@ -10,26 +10,26 @@ export class TranslateController {
     static cache = new Map();
 
     /**
-     * Translates a specific word within a given text context.
-     * Uses cache to prevent redundant API requests for the same word in the same context.
+     * Translates a specific word within a given text context at a specific index.
      */
-    static async translateWord(text, word) {
+    static async translateWord(text, word, index) {
         const cleanContext = text.trim();
         const cleanWord = word.toLowerCase().trim();
-        const cacheKey = `${cleanContext}:${cleanWord}`;
+        // Index is crucial for polysemy (same word, different position/meaning)
+        const cacheKey = `${cleanContext}:${index}:${cleanWord}`;
 
         // CHECK CACHE
         if (this.cache.has(cacheKey)) {
-            console.log(`TranslateController: Cache hit for "${cleanWord}"`);
+            console.log(`TranslateController: Cache hit for "${cleanWord}" at index ${index}`);
             return this.cache.get(cacheKey);
         }
 
         try {
-            const prompt = AiService.translateToMe(cleanContext, [cleanWord]);
+            const prompt = AiService.translateToMe(cleanContext, cleanWord, index);
             const response = await ApiClient.fetchGroq(prompt);
 
-            // Response is expected to be { "word": "translation" }
-            const translation = response[word] || response[cleanWord] || Object.values(response)[0];
+            // New Response format is { "translation": "..." }
+            const translation = response.translation || Object.values(response)[0];
 
             // SAVE TO CACHE
             if (translation) {

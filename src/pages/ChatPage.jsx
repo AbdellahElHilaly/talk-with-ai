@@ -26,8 +26,11 @@ const ChatPage = () => {
     const [ignoredWords, setIgnoredWords] = useState(() => VocabService.getIgnoredWords());
     const [isMuted, setIsMuted] = useState(() => localStorage.getItem('chat_muted') === 'true');
 
-    // Global map for on-demand translations: { "messageId-word": "translation" }
-    const [translationsMap, setTranslationsMap] = useState({});
+    // Global map for on-demand translations: { "messageId-index": "translation" }
+    const [translationsMap, setTranslationsMap] = useState(() => {
+        const saved = sessionStorage.getItem('chat_translations_map');
+        return saved ? JSON.parse(saved) : {};
+    });
 
     const getGroqKeys = () => {
         const saved = localStorage.getItem('groq_api_keys');
@@ -89,10 +92,16 @@ const ChatPage = () => {
         localStorage.setItem('chat_muted', isMuted);
     }, [isMuted]);
 
+    React.useEffect(() => {
+        sessionStorage.setItem('chat_translations_map', JSON.stringify(translationsMap));
+    }, [translationsMap]);
+
     const handleClearChat = () => {
         if (window.confirm(lang === 'ar' ? 'هل تريد حذف المحادثة؟' : 'Clear this conversation?')) {
             setMessages([]);
+            setTranslationsMap({});
             sessionStorage.removeItem('chat_session_messages');
+            sessionStorage.removeItem('chat_translations_map');
         }
     };
 
@@ -118,9 +127,9 @@ const ChatPage = () => {
         setLearnedWords(prev => prev.filter(w => w !== cleanWord));
     };
 
-    const handleWordSelect = async (en, messageId, fullText) => {
+    const handleWordSelect = async (en, messageId, fullText, index) => {
         const cleanWord = en.toLowerCase().replace(/[.,!?;:]/g, '');
-        const cacheKey = `${messageId}-${cleanWord}`;
+        const cacheKey = `${messageId}-${index}`;
 
         // Hearing is instant (if not muted)
         if (!isMuted) {
@@ -128,21 +137,21 @@ const ChatPage = () => {
         }
 
         if (translationsMap[cacheKey]) {
-            setSelectedWord({ en, ar: translationsMap[cacheKey] });
+            setSelectedWord({ en, ar: translationsMap[cacheKey], index, messageId });
             return;
         }
 
         if (staticMode) {
-            setSelectedWord({ en, ar: "..." }); // Or default
+            setSelectedWord({ en, ar: "...", index, messageId }); // Or default
             return;
         }
 
         // Fetch on-demand
         try {
-            setSelectedWord({ en, ar: "..." }); // Loading state
-            const ar = await TranslateController.translateWord(fullText, cleanWord);
+            setSelectedWord({ en, ar: "...", index, messageId }); // Loading state
+            const ar = await TranslateController.translateWord(fullText, cleanWord, index);
             setTranslationsMap(prev => ({ ...prev, [cacheKey]: ar }));
-            setSelectedWord({ en, ar });
+            setSelectedWord({ en, ar, index, messageId });
         } catch (error) {
             console.error("Translation failed", error);
         }
@@ -327,15 +336,14 @@ const ChatPage = () => {
                                 <div className="flex flex-col gap-5">
                                     <div className="text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-950 text-left" dir="ltr">
                                         {words.map((word, i) => {
-                                            const cleanedKey = word.toLowerCase().replace(/[.,!?;:]/g, '');
-                                            const translation = translationsMap[`${item.id}-${cleanedKey}`];
+                                            const translation = translationsMap[`${item.id}-${i}`];
                                             return (
                                                 <Word
                                                     key={i}
                                                     en={word}
                                                     ar={translation}
-                                                    onSelect={(en) => handleWordSelect(en, item.id, item.text)}
-                                                    isActive={selectedWord?.en === word}
+                                                    onSelect={(en) => handleWordSelect(en, item.id, item.text, i)}
+                                                    isActive={selectedWord?.messageId === item.id && selectedWord?.index === i}
                                                 />
                                             );
                                         })}
