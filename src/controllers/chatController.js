@@ -3,14 +3,14 @@ import { AiService } from '../prompts/aiService';
 
 /**
  * ChatController Class
- * Manages chat interactions.
+ * Manages chat interactions with character personas.
  */
 export class ChatController {
     /**
-     * Sends a message to the AI and returns the response.
+     * Sends a message to the AI and returns the response with character persona.
      */
-    static async sendMessage(chatHistory, newMessage, favorites, ignored) {
-        const prompt = AiService.replyMe(chatHistory, newMessage, favorites, ignored);
+    static async sendMessage(chatHistory, newMessage, favorites, ignored, characterId = 'girlfriend') {
+        const prompt = AiService.replyMe(chatHistory, newMessage, favorites, ignored, characterId);
         return await ApiClient.fetchGroq(prompt);
     }
 }

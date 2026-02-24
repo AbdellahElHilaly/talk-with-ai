@@ -7,6 +7,7 @@ import { translations } from '../utils/translations';
 import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
 import { voiceEngine } from '../utils/voice';
 import { VocabService } from '../utils/vocabulary';
+import { CHARACTERS } from '../prompts/characters';
 
 const Sidebar = ({ isOpen, onClose }) => {
     const [lang, setLang] = useState(getCurrentLang());
@@ -24,6 +25,9 @@ const Sidebar = ({ isOpen, onClose }) => {
         if (saved === '21m00Tcm4TlvDq8ikWAM') return 'Female 1';
         if (saved === 'pNInz6obpgDQGcFmaJgB') return 'Male 1';
         return saved || 'Female 1';
+    });
+    const [selectedCharacter, setSelectedCharacter] = useState(() => {
+        return localStorage.getItem('selected_character') || 'girlfriend';
     });
     const [isSaving, setIsSaving] = useState(false);
 
@@ -46,10 +50,17 @@ const Sidebar = ({ isOpen, onClose }) => {
         voiceEngine.speakPreview(vId, lang);
     };
 
+    const handleCharacterSelect = (characterId) => {
+        setSelectedCharacter(characterId);
+        localStorage.setItem('selected_character', characterId);
+        window.dispatchEvent(new CustomEvent('characterChanged', { detail: characterId }));
+    };
+
     const handleSave = async () => {
         setIsSaving(true);
         localStorage.setItem('voice_speed', speed);
         localStorage.setItem('selected_voice', selectedVoice);
+        localStorage.setItem('selected_character', selectedCharacter);
         await new Promise(r => setTimeout(r, 800));
         setIsSaving(false);
         onClose();
@@ -92,6 +103,43 @@ const Sidebar = ({ isOpen, onClose }) => {
                                 <div className="flex gap-2">
                                     <button onClick={() => toggleLang('en')} className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] transition-all ${lang === 'en' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400'}`}>ENGLISH</button>
                                     <button onClick={() => toggleLang('ar')} className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] transition-all ${lang === 'ar' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400'}`}>العربية</button>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-4 text-left">
+                                <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'شخصية الذكي' : 'AI PERSONALITY'}</label>
+                                <div className="overflow-x-auto scrollbar-none">
+                                    <div className="flex gap-4 pb-2 min-w-max" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+                                        {Object.values(CHARACTERS).map((character) => (
+                                            <button 
+                                                key={character.id} 
+                                                onClick={() => handleCharacterSelect(character.id)}
+                                                className={`flex flex-col items-center gap-2 min-w-[70px] transition-all ${
+                                                    selectedCharacter === character.id 
+                                                        ? 'transform scale-105' 
+                                                        : 'hover:scale-105'
+                                                }`}
+                                            >
+                                                <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                                                    selectedCharacter === character.id 
+                                                        ? 'bg-gradient-to-br from-brand-indigo to-purple-600 shadow-lg shadow-indigo-200' 
+                                                        : 'bg-gradient-to-br from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300'
+                                                }`}>
+                                                    <span className="text-xl">{character.icon}</span>
+                                                    {selectedCharacter === character.id && (
+                                                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center">
+                                                            <span className="text-[8px] text-white">✓</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <span className={`text-[8px] font-black uppercase tracking-tight text-center leading-tight max-w-[60px] ${
+                                                    selectedCharacter === character.id ? 'text-brand-indigo' : 'text-slate-500'
+                                                }`}>
+                                                    {lang === 'ar' ? character.nameAr : character.name}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 

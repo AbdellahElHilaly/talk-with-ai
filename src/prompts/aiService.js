@@ -1,6 +1,7 @@
 import { CHAT_PROMPT } from './chat';
 import { TRANSLATE_PROMPT } from './translate';
 import { VOCAB_TRANSLATE_PROMPT } from './vocabulary';
+import { CHARACTERS, DEFAULT_CHARACTER } from './characters';
 
 /**
  * AiService Class
@@ -8,17 +9,24 @@ import { VOCAB_TRANSLATE_PROMPT } from './vocabulary';
  */
 export class AiService {
     /**
-     * Constructs the prompt for a chat response.
+     * Constructs the prompt for a chat response with character persona.
      */
-    static replyMe(chatHistory, newMessage, favorites, ignored) {
+    static replyMe(chatHistory, newMessage, favorites, ignored, characterId = 'girlfriend') {
         let prompt = CHAT_PROMPT;
+
+        const character = CHARACTERS[characterId] || DEFAULT_CHARACTER;
+        const characterPrompt = `Name: ${character.name}
+Personality: ${character.personality}
+Speaking Style: ${character.speakingStyle}
+Key Traits: ${character.traits.join(', ')}`;
 
         const historyStr = chatHistory
             .map(m => `${m.role.toUpperCase()}: ${m.content}`)
             .join('\n');
 
+        prompt = prompt.replace('%character', characterPrompt);
         prompt = prompt.replace('%history', historyStr);
-        prompt = prompt.replace('%input', newMessage);
+        prompt = prompt.replace('%message', newMessage);
         prompt = prompt.replace('%favorites', JSON.stringify(favorites));
         prompt = prompt.replace('%ignoring', JSON.stringify(ignored));
 

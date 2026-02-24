@@ -10,6 +10,7 @@ import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 import { voiceEngine } from '../utils/voice';
 import { VocabService } from '../utils/vocabulary';
+import { CHARACTERS } from '../prompts/characters';
 
 const ChatPage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -25,6 +26,9 @@ const ChatPage = () => {
     const [learnedWords, setLearnedWords] = useState(() => VocabService.getLearnedWords());
     const [ignoredWords, setIgnoredWords] = useState(() => VocabService.getIgnoredWords());
     const [isMuted, setIsMuted] = useState(() => localStorage.getItem('chat_muted') === 'true');
+    const [selectedCharacter, setSelectedCharacter] = useState(() => {
+        return localStorage.getItem('selected_character') || 'girlfriend';
+    });
 
     // Global map for on-demand translations: { "messageId-index": "translation" }
     const [translationsMap, setTranslationsMap] = useState(() => {
@@ -38,6 +42,19 @@ const ChatPage = () => {
     };
     const [learnedCount, setLearnedCount] = useState(VocabService.getLearnedWords().length);
     const staticMode = getGroqKeys().length === 0;
+
+    React.useEffect(() => {
+        const handleCharacterChange = (event) => {
+            setSelectedCharacter(event.detail);
+            // Clear chat history when character changes
+            setMessages([]);
+            setTranslationsMap({});
+            sessionStorage.removeItem('chat_session_messages');
+            sessionStorage.removeItem('chat_translations_map');
+        };
+        window.addEventListener('characterChanged', handleCharacterChange);
+        return () => window.removeEventListener('characterChanged', handleCharacterChange);
+    }, []);
 
     React.useEffect(() => {
         const handleUpdate = () => setLearnedCount(VocabService.getLearnedWords().length);
@@ -247,12 +264,19 @@ const ChatPage = () => {
             }));
             context.push({ role: 'user', content: userMsg.text });
 
-            const aiResponse = await ChatController.sendMessage(context, userMsg.text, learnedWords, ignoredWords);
+            const aiResponse = await ChatController.sendMessage(context, userMsg.text, learnedWords, ignoredWords, selectedCharacter);
+            const currentCharacter = CHARACTERS[selectedCharacter] || CHARACTERS.girlfriend;
 
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'ai',
-                text: aiResponse.text
+                text: aiResponse.text,
+                character: {
+                    id: selectedCharacter,
+                    name: currentCharacter.name,
+                    nameAr: currentCharacter.nameAr,
+                    icon: currentCharacter.icon
+                }
             }]);
         } catch (error) {
             alert("Error: " + error.message);
@@ -391,6 +415,8 @@ const ChatPage = () => {
                         }
 
                         const words = item.text.split(' ');
+                        const currentCharacter = item.character || CHARACTERS[selectedCharacter] || CHARACTERS.girlfriend;
+                        
                         return (
                             <motion.div
                                 key={item.id}
@@ -399,6 +425,18 @@ const ChatPage = () => {
                                 className={`${rtl ? 'self-end' : 'self-start'} w-full`}
                             >
                                 <div className="flex flex-col gap-5">
+                                    {/* Character Profile */}
+                                    <div className={`flex items-center gap-3 px-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center border border-indigo-100">
+                                            <span className="text-lg">{currentCharacter.icon}</span>
+                                        </div>
+                                        <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
+                                            <span className="text-[10px] font-black text-brand-indigo uppercase tracking-widest">
+                                                {lang === 'ar' ? currentCharacter.nameAr : currentCharacter.name}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
                                     <div className="text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-950 text-left" dir="ltr">
                                         {words.map((word, i) => {
                                             const translation = translationsMap[`${item.id}-${i}`];
