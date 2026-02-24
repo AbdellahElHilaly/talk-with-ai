@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, Play, Square, Settings, Loader2, Plus, X, Trash2, RefreshCcw, Volume2, VolumeX } from 'lucide-react';
+import { Send, Play, Square, Menu, Loader2, Plus, X, RefreshCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import Word from '../components/Word';
@@ -292,107 +292,97 @@ const ChatPage = () => {
 
     return (
         <div className="max-full flex flex-col bg-slate-50 overflow-hidden pb-safe" dir={rtl ? 'rtl' : 'ltr'}>
-            {/* MAGICAL TOP BAR */}
-            <div className="px-6 py-4 flex justify-between items-center z-20 sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-100">
-                <div className="flex items-center gap-4 flex-1">
-                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-brand-indigo transition-colors shrink-0">
-                        <Settings size={20} strokeWidth={2} />
+            {/* PREMIUM TOP BAR */}
+            <div className="px-6 h-16 flex justify-between items-center z-30 sticky top-0 bg-white/80 backdrop-blur-2xl border-b border-slate-100/80 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.04)]">
+                {/* START SECTION: MENU */}
+                <div className="flex items-center shrink-0">
+                    <button
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="text-slate-400 hover:text-brand-indigo transition-all active:scale-90 outline-none cursor-pointer p-2 -ml-2"
+                    >
+                        <Menu size={22} strokeWidth={1.5} />
                     </button>
+                </div>
 
-                    <div className={`relative h-10 flex-1 flex items-center overflow-hidden border-slate-50 ${rtl ? 'border-r pr-4 mr-2' : 'border-l pl-4 ml-2'}`}>
-                        <AnimatePresence mode="wait">
-                            {!selectedWord ? (
-                                <motion.div
-                                    key="status-logo"
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    exit={{ y: -20, opacity: 0 }}
-                                    className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <span className={`logo-font text-2xl text-brand-indigo leading-none ${rtl ? '-mr-0.5' : '-ml-0.5'}`}>S-L</span>
-                                        {staticMode && (
-                                            <span className="text-[6px] px-1.5 py-0.5 bg-indigo-50 text-brand-indigo border border-indigo-100 rounded-full font-black uppercase tracking-tighter">{t.exploreMode}</span>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <div className={`w-1 h-1 rounded-full ${staticMode ? 'bg-amber-400' : 'bg-emerald-400'} animate-pulse`} />
-                                        <span className="text-[7px] font-black text-slate-300 uppercase tracking-widest">
+                {/* END SECTION: TRANSLATION / LOGO */}
+                <div className="flex items-center px-2">
+                    <AnimatePresence mode="wait">
+                        {!selectedWord ? (
+                            <motion.div
+                                key="status-logo"
+                                initial={{ opacity: 0, x: rtl ? -10 : 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: rtl ? -10 : 10 }}
+                                className="flex items-center gap-4"
+                            >
+                                <div className={`flex flex-col ${rtl ? 'items-start' : 'items-end'}`}>
+                                    <span className="logo-font text-xl text-brand-indigo leading-none mb-1 tracking-tight">S-L</span>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className={`w-1.5 h-1.5 rounded-full ${staticMode ? 'bg-amber-400' : 'bg-emerald-400'} shadow-sm animate-pulse`} />
+                                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">
                                             {staticMode ? t.localEngine : t.connected}
                                         </span>
                                     </div>
-                                </motion.div>
-                            ) : (
-                                <motion.div
-                                    key={`translation-${selectedWord.en}`}
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    exit={{ y: -20, opacity: 0 }}
-                                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                                    className={`flex items-center gap-4 ${rtl ? 'flex-row-reverse' : ''}`}
-                                >
-                                    <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
-                                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">{selectedWord.en}</span>
-                                        <span className="text-base font-black text-brand-indigo arabic-text leading-none">{selectedWord.ar}</span>
-                                    </div>
-
-                                    <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-full border border-slate-100">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                toggleLearned(selectedWord.en);
-                                            }}
-                                            className={`p-1.5 rounded-full transition-all active:scale-90 ${learnedWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, ''))
-                                                ? 'bg-emerald-500 text-white shadow-sm'
-                                                : 'text-slate-400 hover:bg-white hover:text-emerald-500'
-                                                }`}
-                                            title="Add to learning"
-                                        >
-                                            <Plus size={12} strokeWidth={3} />
-                                        </button>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                toggleIgnored(selectedWord.en);
-                                            }}
-                                            className={`p-1.5 rounded-full transition-all active:scale-90 ${ignoredWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, ''))
-                                                ? 'bg-rose-500 text-white shadow-sm'
-                                                : 'text-slate-400 hover:bg-white hover:text-rose-500'
-                                                }`}
-                                            title="Remove/Ignore"
-                                        >
-                                            <X size={12} strokeWidth={3} />
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                    <button
-                        onClick={() => setIsMuted(!isMuted)}
-                        className={`p-2 transition-colors ${isMuted ? 'text-amber-500 bg-amber-50 rounded-full' : 'text-slate-300 hover:text-brand-indigo'}`}
-                        title={isMuted ? 'Unmute word clicks' : 'Mute word clicks'}
-                    >
-                        {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                    </button>
-                    {messages.length > 0 && (
-                        <button
-                            onClick={handleClearChat}
-                            className="p-2 text-slate-300 hover:text-rose-500 transition-colors"
-                            title={t.clearChat}
-                        >
-                            <Trash2 size={18} />
-                        </button>
-                    )}
-                    <button
-                        onClick={() => navigate('/')}
-                        className="text-[9px] font-black text-white   tracking-widest active:scale-95 transition-all "
-                    >
-                        <span className="bg-black px-4 py-1.5 rounded-full">{t.exit}</span>
-                    </button>
+                                </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key={`translation-${selectedWord.en}`}
+                                initial={{ opacity: 0, x: rtl ? -10 : 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: rtl ? -10 : 10 }}
+                                transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                                className="flex items-center gap-5"
+                                dir="ltr" // Ensure buttons and words keep their specific screen-order regardless of global dir
+                            >
+                                {rtl ? (
+                                    <>
+                                        {/* ARABIC: [Column] [Word] (Buttons on the far left) */}
+                                        <div className="flex flex-col gap-1 shrink-0">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); toggleLearned(selectedWord.en); }}
+                                                className={`force-action-btn rounded-full flex items-center justify-center transition-all active:scale-95 outline-none cursor-pointer text-white shadow-sm ${learnedWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, '')) ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                                            >
+                                                <Plus size={11} strokeWidth={4} />
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); toggleIgnored(selectedWord.en); }}
+                                                className={`force-action-btn rounded-full flex items-center justify-center transition-all active:scale-95 outline-none cursor-pointer text-white shadow-sm ${ignoredWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, '')) ? 'bg-rose-500' : 'bg-slate-200'}`}
+                                            >
+                                                <X size={11} strokeWidth={4} />
+                                            </button>
+                                        </div>
+                                        <div className="flex flex-col items-start max-w-[140px] sm:max-w-[200px]">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.20em] mb-1 truncate w-full text-left">{selectedWord.en}</span>
+                                            <span className="text-base font-black text-slate-900 arabic-text leading-none truncate w-full text-left">{selectedWord.ar}</span>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        {/* ENGLISH: [Word] [Column] (Buttons on the far right) */}
+                                        <div className="flex flex-col items-end max-w-[140px] sm:max-w-[200px]">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.20em] mb-1 truncate w-full text-right">{selectedWord.en}</span>
+                                            <span className="text-base font-black text-slate-900 arabic-text leading-none truncate w-full text-right">{selectedWord.ar}</span>
+                                        </div>
+                                        <div className="flex flex-col gap-1 shrink-0">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); toggleLearned(selectedWord.en); }}
+                                                className={`force-action-btn rounded-full flex items-center justify-center transition-all active:scale-95 outline-none cursor-pointer text-white shadow-sm ${learnedWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, '')) ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                                            >
+                                                <Plus size={11} strokeWidth={4} />
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); toggleIgnored(selectedWord.en); }}
+                                                className={`force-action-btn rounded-full flex items-center justify-center transition-all active:scale-95 outline-none cursor-pointer text-white shadow-sm ${ignoredWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, '')) ? 'bg-rose-500' : 'bg-slate-200'}`}
+                                            >
+                                                <X size={11} strokeWidth={4} />
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
 
@@ -552,8 +542,14 @@ const ChatPage = () => {
                 </motion.div>
             </div>
 
-            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-        </div>
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+                isMuted={isMuted}
+                setIsMuted={setIsMuted}
+                onClearChat={handleClearChat}
+            />
+        </div >
     );
 };
 

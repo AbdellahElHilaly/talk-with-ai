@@ -9,7 +9,7 @@ import { voiceEngine } from '../utils/voice';
 import { VocabService } from '../utils/vocabulary';
 import { CHARACTERS } from '../prompts/characters';
 
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
     const [lang, setLang] = useState(getCurrentLang());
     const [speed, setSpeed] = useState(parseFloat(localStorage.getItem('voice_speed')) || 1);
     const [learnedCount, setLearnedCount] = useState(VocabService.getLearnedWords().length);
@@ -116,9 +116,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-1.5 rounded-xl bg-slate-50 text-slate-400 hover:text-rose-500 transition-all active:scale-90 hover:scale-105"
+                                className="p-2 text-slate-400 transition-all active:scale-90 outline-none cursor-pointer"
                             >
-                                <X size={14} strokeWidth={2.5} />
+                                <X size={24} strokeWidth={2} />
                             </button>
                         </div>
 
@@ -139,26 +139,24 @@ const Sidebar = ({ isOpen, onClose }) => {
 
                             <div className="flex flex-col gap-4 text-left">
                                 <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'شخصية الذكي' : 'AI PERSONALITY'}</label>
-                                <div className="overflow-x-auto scrollbar-none">
-                                    <div className="flex gap-4 pb-2 min-w-max" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+                                <div className="overflow-x-auto hide-scrollbar -mx-2">
+                                    <div className="flex gap-4 py-4 px-2 min-w-max">
                                         {Object.values(CHARACTERS).map((character) => (
-                                            <button 
-                                                key={character.id} 
+                                            <button
+                                                key={character.id}
                                                 onClick={() => handleCharacterSelect(character.id)}
-                                                className={`flex flex-col items-center gap-2 min-w-[70px] transition-all touch-manipulation ${
-                                                    selectedCharacter === character.id 
-                                                        ? 'transform scale-105' 
-                                                        : 'hover:scale-105'
-                                                }`}
+                                                className={`flex flex-col items-center gap-2 min-w-[70px] transition-all touch-manipulation ${selectedCharacter === character.id
+                                                    ? 'transform scale-105'
+                                                    : 'hover:scale-105'
+                                                    }`}
                                                 aria-label={`Select ${lang === 'ar' ? character.nameAr : character.name} character`}
                                                 role="radio"
                                                 aria-checked={selectedCharacter === character.id}
                                             >
-                                                <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                                                    selectedCharacter === character.id 
-                                                        ? 'bg-gradient-to-br from-brand-indigo to-purple-600 shadow-lg shadow-indigo-200' 
-                                                        : 'bg-gradient-to-br from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300'
-                                                }`}>
+                                                <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all ${selectedCharacter === character.id
+                                                    ? 'bg-gradient-to-br from-brand-indigo to-purple-600 shadow-lg shadow-indigo-200'
+                                                    : 'bg-gradient-to-br from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300'
+                                                    }`}>
                                                     <span className="text-xl">{character.icon}</span>
                                                     {selectedCharacter === character.id && (
                                                         <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center">
@@ -166,9 +164,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                                                         </div>
                                                     )}
                                                 </div>
-                                                <span className={`text-[8px] font-black uppercase tracking-tight text-center leading-tight max-w-[60px] ${
-                                                    selectedCharacter === character.id ? 'text-brand-indigo' : 'text-slate-500'
-                                                }`}>
+                                                <span className={`text-[8px] font-black uppercase tracking-tight text-center leading-tight max-w-[60px] ${selectedCharacter === character.id ? 'text-brand-indigo' : 'text-slate-500'
+                                                    }`}>
                                                     {lang === 'ar' ? character.nameAr : character.name}
                                                 </span>
                                             </button>
@@ -228,17 +225,16 @@ const Sidebar = ({ isOpen, onClose }) => {
                                     <button
                                         onClick={handleClearCache}
                                         disabled={isCleaningCache || cacheStats.size === 0}
-                                        className={`p-2 rounded-xl transition-all disabled:opacity-50 ${
-                                            cacheStats.size > 0 
-                                                ? 'bg-rose-50 text-rose-500 hover:bg-rose-100 active:scale-90' 
-                                                : 'bg-slate-50 text-slate-300'
-                                        }`}
+                                        className={`p-2 transition-all outline-none cursor-pointer disabled:opacity-30 ${cacheStats.size > 0
+                                            ? 'text-rose-500 active:scale-90'
+                                            : 'text-slate-300'
+                                            }`}
                                         title={lang === 'ar' ? 'تنظيف ذاكرة الصوت' : 'Clear voice cache'}
                                     >
                                         {isCleaningCache ? (
-                                            <Loader2 size={16} className="animate-spin" />
+                                            <Loader2 size={24} className="animate-spin" />
                                         ) : (
-                                            <Trash2 size={16} strokeWidth={2.5} />
+                                            <Trash2 size={24} strokeWidth={2} />
                                         )}
                                     </button>
                                 </div>
@@ -271,6 +267,27 @@ const Sidebar = ({ isOpen, onClose }) => {
                                     <div className={`flex justify-between mt-1 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
                                         <span className="text-[8px] font-bold text-slate-300">{t.slow}</span>
                                         <span className="text-[8px] font-bold text-slate-300">{t.fast}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-5 pt-4 border-t border-slate-50">
+                                <div className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{lang === 'ar' ? 'أوامر سريعة' : 'QUICK ACTIONS'}</label>
+                                    <div className="flex items-center gap-1">
+                                        <button
+                                            onClick={() => setIsMuted(!isMuted)}
+                                            className={`p-2 transition-all outline-none cursor-pointer ${isMuted ? 'text-amber-500' : 'text-slate-400'}`}
+                                            title={isMuted ? 'Unmute' : 'Mute'}
+                                        >
+                                            <Speaker size={24} strokeWidth={2} />
+                                        </button>
+                                        <button
+                                            onClick={onClearChat}
+                                            className="p-2 text-slate-400 transition-all outline-none cursor-pointer"
+                                            title={t.clearChat}
+                                        >
+                                            <Trash2 size={24} strokeWidth={2} />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
