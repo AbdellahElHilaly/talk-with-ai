@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, Play, Square, Settings, Loader2, Plus, X, Trash2, RefreshCcw } from 'lucide-react';
+import { Send, Play, Square, Settings, Loader2, Plus, X, Trash2, RefreshCcw, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import Word from '../components/Word';
@@ -24,6 +24,7 @@ const ChatPage = () => {
     const [voiceStatus, setVoiceStatus] = useState('idle'); // idle, loading, playing
     const [learnedWords, setLearnedWords] = useState(() => VocabService.getLearnedWords());
     const [ignoredWords, setIgnoredWords] = useState(() => VocabService.getIgnoredWords());
+    const [isMuted, setIsMuted] = useState(() => localStorage.getItem('chat_muted') === 'true');
 
     // Global map for on-demand translations: { "messageId-word": "translation" }
     const [translationsMap, setTranslationsMap] = useState({});
@@ -84,6 +85,10 @@ const ChatPage = () => {
         sessionStorage.setItem('chat_session_messages', JSON.stringify(messages));
     }, [messages]);
 
+    React.useEffect(() => {
+        localStorage.setItem('chat_muted', isMuted);
+    }, [isMuted]);
+
     const handleClearChat = () => {
         if (window.confirm(lang === 'ar' ? 'هل تريد حذف المحادثة؟' : 'Clear this conversation?')) {
             setMessages([]);
@@ -117,8 +122,10 @@ const ChatPage = () => {
         const cleanWord = en.toLowerCase().replace(/[.,!?;:]/g, '');
         const cacheKey = `${messageId}-${cleanWord}`;
 
-        // Hearing is instant
-        voiceEngine.speak(cleanWord, 'en');
+        // Hearing is instant (if not muted)
+        if (!isMuted) {
+            voiceEngine.speak(cleanWord, 'en');
+        }
 
         if (translationsMap[cacheKey]) {
             setSelectedWord({ en, ar: translationsMap[cacheKey] });
@@ -264,6 +271,13 @@ const ChatPage = () => {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
+                    <button
+                        onClick={() => setIsMuted(!isMuted)}
+                        className={`p-2 transition-colors ${isMuted ? 'text-amber-500 bg-amber-50 rounded-full' : 'text-slate-300 hover:text-brand-indigo'}`}
+                        title={isMuted ? 'Unmute word clicks' : 'Mute word clicks'}
+                    >
+                        {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                    </button>
                     {messages.length > 0 && (
                         <button
                             onClick={handleClearChat}
