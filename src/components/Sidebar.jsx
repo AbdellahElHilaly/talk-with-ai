@@ -116,9 +116,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 rounded-2xl bg-slate-50 text-slate-400 hover:text-rose-500 transition-all active:scale-90"
+                                className="p-1.5 rounded-xl bg-slate-50 text-slate-400 hover:text-rose-500 transition-all active:scale-90 hover:scale-105"
                             >
-                                <X size={18} strokeWidth={3} />
+                                <X size={14} strokeWidth={2.5} />
                             </button>
                         </div>
 
@@ -126,13 +126,13 @@ const Sidebar = ({ isOpen, onClose }) => {
                             <div className="flex flex-col gap-4 text-left">
                                 <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{t.language}</label>
                                 <div className="flex gap-2">
-                                    <button onClick={() => toggleLang('en')} className={`flex-1 py-3 px-4 rounded-xl border-2 font-black text-sm transition-all flex items-center justify-center gap-2 ${lang === 'en' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400 hover:border-slate-200'}`}>
-                                        <span className="text-base">🇺🇸</span>
-                                        <span className="text-[10px] tracking-wider">EN</span>
+                                    <button onClick={() => toggleLang('en')} className={`flex-1 py-2.5 px-3 rounded-xl border-2 font-black text-xs transition-all flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95 ${lang === 'en' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400 hover:border-slate-200'}`}>
+                                        <span className="text-sm">🇺🇸</span>
+                                        <span className="text-[9px] tracking-wider">EN</span>
                                     </button>
-                                    <button onClick={() => toggleLang('ar')} className={`flex-1 py-3 px-4 rounded-xl border-2 font-black text-sm transition-all flex items-center justify-center gap-2 ${lang === 'ar' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400 hover:border-slate-200'}`}>
-                                        <span className="text-base">🇸🇦</span>
-                                        <span className="text-[10px] tracking-wider">AR</span>
+                                    <button onClick={() => toggleLang('ar')} className={`flex-1 py-2.5 px-3 rounded-xl border-2 font-black text-xs transition-all flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95 ${lang === 'ar' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400 hover:border-slate-200'}`}>
+                                        <span className="text-sm">🇸🇦</span>
+                                        <span className="text-[9px] tracking-wider">AR</span>
                                     </button>
                                 </div>
                             </div>

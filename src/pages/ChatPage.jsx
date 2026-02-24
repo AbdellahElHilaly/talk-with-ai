@@ -295,8 +295,11 @@ const ChatPage = () => {
             {/* MAGICAL TOP BAR */}
             <div className="px-6 py-4 flex justify-between items-center z-20 sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-100">
                 <div className="flex items-center gap-4 flex-1">
-                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-brand-indigo transition-colors shrink-0">
-                        <Settings size={20} strokeWidth={2} />
+                    <button 
+                        onClick={() => setIsSidebarOpen(true)} 
+                        className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-brand-indigo text-slate-500 hover:text-white transition-all shadow-sm border border-slate-200 hover:border-brand-indigo flex items-center justify-center shrink-0 active:scale-95"
+                    >
+                        <Settings size={16} strokeWidth={2.5} />
                     </button>
 
                     <div className={`relative h-10 flex-1 flex items-center overflow-hidden border-slate-50 ${rtl ? 'border-r pr-4 mr-2' : 'border-l pl-4 ml-2'}`}>
@@ -370,7 +373,7 @@ const ChatPage = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2  shrink-0">
                     <button
                         onClick={() => setIsMuted(!isMuted)}
                         className={`p-2 transition-colors ${isMuted ? 'text-amber-500 bg-amber-50 rounded-full' : 'text-slate-300 hover:text-brand-indigo'}`}
@@ -389,7 +392,7 @@ const ChatPage = () => {
                     )}
                     <button
                         onClick={() => navigate('/')}
-                        className="text-[9px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
+                        className=" font-black text-white bg-slate-900 px-6 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
                     >
                         {t.exit}
                     </button>

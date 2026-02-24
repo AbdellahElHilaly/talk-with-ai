@@ -74,12 +74,12 @@ const HomePage = () => {
                     <button
                         onClick={toggleLang}
                         title={lang === 'en' ? 'Switch to Arabic' : 'التبديل للإنجليزية'}
-                        className="w-10 h-6 bg-slate-100 rounded-sm flex items-center justify-center hover:opacity-80 transition-all border border-slate-200 overflow-hidden shadow-sm"
+                        className="w-9 h-4  flex items-center justify-center  overflow-hidden"
                     >
                         {lang === 'en' ? (
-                            <img src="https://flagcdn.com/w80/sa.png" className="w-full h-full object-cover" alt="Arabic" />
+                            <img src="https://flagcdn.com/w80/sa.png" className="w-full h-7 object-cover" alt="Arabic" />
                         ) : (
-                            <img src="https://flagcdn.com/w80/gb.png" className="w-full h-full object-cover" alt="English" />
+                            <img src="https://flagcdn.com/w80/gb.png" className="w-full h-7 object-cover" alt="English" />
                         )}
                     </button>
                 </div>
