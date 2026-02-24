@@ -132,7 +132,7 @@ const ChatPage = () => {
         const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
         const isCurrentlyLearned = learnedWords.includes(cleanWord);
         const isCurrentlyIgnored = ignoredWords.includes(cleanWord);
-        
+
         if (isCurrentlyLearned) {
             // Remove from learned
             VocabService.deleteWord(cleanWord);
@@ -174,7 +174,7 @@ const ChatPage = () => {
         const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
         const isCurrentlyIgnored = ignoredWords.includes(cleanWord);
         const isCurrentlyLearned = learnedWords.includes(cleanWord);
-        
+
         if (isCurrentlyIgnored) {
             // Remove from ignored
             VocabService.deleteWord(cleanWord);
@@ -291,15 +291,12 @@ const ChatPage = () => {
 
 
     return (
-        <div className="h-full flex flex-col bg-slate-50 overflow-hidden pb-safe touch-manipulation" dir={rtl ? 'rtl' : 'ltr'} role="main">
+        <div className="h-full flex flex-col bg-slate-50 overflow-hidden pb-safe" dir={rtl ? 'rtl' : 'ltr'}>
             {/* MAGICAL TOP BAR */}
             <div className="px-6 py-4 flex justify-between items-center z-20 sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-100">
                 <div className="flex items-center gap-4 flex-1">
-                    <button 
-                        onClick={() => setIsSidebarOpen(true)} 
-                        className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-brand-indigo text-slate-500 hover:text-white transition-all shadow-sm border border-slate-200 hover:border-brand-indigo flex items-center justify-center shrink-0 active:scale-95"
-                    >
-                        <Settings size={16} strokeWidth={2.5} />
+                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-brand-indigo transition-colors shrink-0">
+                        <Settings size={20} strokeWidth={2} />
                     </button>
 
                     <div className={`relative h-10 flex-1 flex items-center overflow-hidden border-slate-50 ${rtl ? 'border-r pr-4 mr-2' : 'border-l pl-4 ml-2'}`}>
@@ -348,7 +345,7 @@ const ChatPage = () => {
                                             className={`p-1.5 rounded-full transition-all active:scale-90 ${learnedWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, ''))
                                                 ? 'bg-emerald-500 text-white shadow-sm'
                                                 : 'text-slate-400 hover:bg-white hover:text-emerald-500'
-                                                }`}
+                                            }`}
                                             title="Add to learning"
                                         >
                                             <Plus size={12} strokeWidth={3} />
@@ -361,7 +358,7 @@ const ChatPage = () => {
                                             className={`p-1.5 rounded-full transition-all active:scale-90 ${ignoredWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, ''))
                                                 ? 'bg-rose-500 text-white shadow-sm'
                                                 : 'text-slate-400 hover:bg-white hover:text-rose-500'
-                                                }`}
+                                            }`}
                                             title="Remove/Ignore"
                                         >
                                             <X size={12} strokeWidth={3} />
@@ -373,7 +370,7 @@ const ChatPage = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2  shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                     <button
                         onClick={() => setIsMuted(!isMuted)}
                         className={`p-2 transition-colors ${isMuted ? 'text-amber-500 bg-amber-50 rounded-full' : 'text-slate-300 hover:text-brand-indigo'}`}
@@ -392,7 +389,7 @@ const ChatPage = () => {
                     )}
                     <button
                         onClick={() => navigate('/')}
-                        className=" font-black text-white bg-slate-900 px-6 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
+                        className="text-[9px] font-black text-white bg-slate-900 px-4 py-1.5 rounded-full tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200"
                     >
                         {t.exit}
                     </button>
@@ -421,7 +418,7 @@ const ChatPage = () => {
 
                         const words = item.text.split(' ');
                         const currentCharacter = item.character || CHARACTERS[selectedCharacter] || CHARACTERS.girlfriend;
-                        
+
                         return (
                             <motion.div
                                 key={item.id}
@@ -441,7 +438,7 @@ const ChatPage = () => {
                                             </span>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight flex flex-wrap gap-x-1.5 gap-y-2 text-slate-950 text-left" dir="ltr">
                                         {words.map((word, i) => {
                                             const translation = translationsMap[`${item.id}-${i}`];
@@ -532,7 +529,7 @@ const ChatPage = () => {
             </main>
 
             {/* BOTTOM SEND BAR */}
-            <div className="px-6 pb-safe pt-4 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent">
+            <div className="px-6 pb-12 pt-4 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent">
                 <motion.div className="max-w-md mx-auto relative group">
                     <div className="absolute -inset-1 bg-brand-indigo/5 rounded-[2.5rem] blur-lg opacity-0 group-within:opacity-100 transition-opacity" />
                     <div className="relative bg-white p-2 rounded-[2.5rem] flex items-center border border-slate-200 shadow-soft focus-within:border-brand-indigo/30 transition-all">
@@ -541,16 +538,13 @@ const ChatPage = () => {
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder={t.typeReply}
-                            className="flex-1 bg-transparent py-4 px-6 outline-none text-slate-900 placeholder:text-slate-300 font-medium text-left min-h-[44px]"
+                            className="flex-1 bg-transparent py-4 px-6 outline-none text-slate-900 placeholder:text-slate-300 font-medium text-left"
                             dir="ltr"
                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                            aria-label="Type your message"
                         />
                         <button
                             onClick={handleSend}
-                            disabled={!message.trim() || isAITyping}
-                            className="bg-brand-indigo text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg shadow-indigo-100 active:scale-90 transition-transform shrink-0 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px]"
-                            aria-label="Send message"
+                            className="bg-brand-indigo text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg shadow-indigo-100 active:scale-90 transition-transform shrink-0"
                         >
                             <Send size={18} strokeWidth={2.5} className={rtl ? '-scale-x-100' : ''} />
                         </button>
