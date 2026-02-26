@@ -36,7 +36,6 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
         if (saved) return JSON.parse(saved);
         return ['teacher', 'police', 'father', 'mother', 'girlfriend'];
     });
-    const [isSaving, setIsSaving] = useState(false);
     const [isCleaningCache, setIsCleaningCache] = useState(false);
     const [cacheStats, setCacheStats] = useState(() => voiceEngine.getCacheStats());
 
@@ -56,7 +55,14 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
 
     const handleVoiceSelect = (vId) => {
         setSelectedVoice(vId);
+        localStorage.setItem('selected_voice', vId);
         voiceEngine.speakPreview(vId, lang);
+    };
+
+    const handleSpeedChange = (e) => {
+        const val = e.target.value;
+        setSpeed(val);
+        localStorage.setItem('voice_speed', val);
     };
 
     const navigate = useNavigate();
@@ -121,15 +127,7 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
         return () => clearInterval(interval);
     }, []);
 
-    const handleSave = async () => {
-        setIsSaving(true);
-        localStorage.setItem('voice_speed', speed);
-        localStorage.setItem('selected_voice', selectedVoice);
-        localStorage.setItem('selected_character', selectedCharacter);
-        await new Promise(r => setTimeout(r, 800));
-        setIsSaving(false);
-        onClose();
-    };
+    // Settings autosave, removed manual handleSave
 
     return (
         <AnimatePresence>
@@ -146,7 +144,7 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
                         initial={{ x: rtl ? '100%' : '-100%' }}
                         animate={{ x: 0 }}
                         exit={{ x: rtl ? '100%' : '-100%' }}
-                        className={`fixed ${rtl ? 'right-0' : 'left-0'} top-0 h-full w-full max-w-xs bg-white z-50 p-6 flex flex-col shadow-2xl ${rtl ? 'rounded-l-[2rem]' : 'rounded-r-[2rem]'} overflow-y-auto hide-scrollbar`}
+                        className={`fixed ${rtl ? 'right-0' : 'left-0'} top-0 h-full w-full max-w-[340px] sm:max-w-[380px] bg-white z-50 p-5 sm:p-6 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.15)] ${rtl ? 'rounded-l-[2.5rem]' : 'rounded-r-[2.5rem]'} overflow-y-auto hide-scrollbar`}
                         dir={rtl ? 'rtl' : 'ltr'}
                     >
                         <Alert
@@ -156,228 +154,203 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
                             onClose={() => setAlertConfig(prev => ({ ...prev, show: false }))}
                         />
 
-                        <div className={`flex justify-between items-center mb-6 ${rtl ? 'flex-row-reverse' : ''}`}>
+                        <div className={`flex justify-between items-center mb-6 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
                             <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
-                                <span className={`logo-font text-3xl text-brand-indigo ${rtl ? 'rotate-3' : '-rotate-3'}`}>Smart-Lern</span>
+                                <h2 className={`logo-font text-3xl text-brand-indigo ${rtl ? 'rotate-3' : '-rotate-3'}`}>Smart-Lern</h2>
                                 <span className={`text-[9px] font-black text-slate-300 uppercase tracking-[0.4em] mt-1 ${rtl ? 'mr-1' : 'ml-1'}`}>{t.settingsPanel}</span>
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 text-slate-400 transition-all active:scale-90 outline-none cursor-pointer"
+                                className="p-2 sm:p-2.5 bg-slate-50 text-slate-400 hover:text-brand-indigo hover:bg-indigo-50 rounded-full transition-all active:scale-90 outline-none cursor-pointer"
                             >
-                                <X size={24} strokeWidth={2} />
+                                <X size={20} strokeWidth={2.5} />
                             </button>
                         </div>
 
-                        <div className="flex flex-col gap-6">
-                            <div className="flex flex-col gap-4 text-left">
-                                <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{t.language}</label>
-                                <div className="flex gap-2">
-                                    <button onClick={() => toggleLang('en')} className={`flex-1 py-2.5 px-3 rounded-xl border-2 font-black text-xs transition-all flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95 ${lang === 'en' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400 hover:border-slate-200'}`}>
-                                        <span className="text-sm">🇺🇸</span>
-                                        <span className="text-[9px] tracking-wider">EN</span>
-                                    </button>
-                                    <button onClick={() => toggleLang('ar')} className={`flex-1 py-2.5 px-3 rounded-xl border-2 font-black text-xs transition-all flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95 ${lang === 'ar' ? 'border-brand-indigo bg-indigo-50/30 text-brand-indigo' : 'border-slate-50 text-slate-400 hover:border-slate-200'}`}>
-                                        <span className="text-sm">🇸🇦</span>
-                                        <span className="text-[9px] tracking-wider">AR</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-4 text-left">
-                                <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'شخصية الذكي' : 'AI PERSONALITY'}</label>
-                                <div className="overflow-x-auto hide-scrollbar -mx-2">
-                                    <div className="flex gap-4 py-4 px-2 min-w-max">
-                                        <button
-                                            onClick={() => {
-                                                onClose();
-                                                setTimeout(() => navigate('/characters'), 150);
-                                            }}
-                                            className="flex flex-col items-center gap-2 min-w-[70px] transition-all touch-manipulation hover:scale-105"
-                                        >
-                                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-indigo-50 text-brand-indigo border border-indigo-100 border-dashed hover:border-brand-indigo transition-colors hover:bg-brand-indigo hover:text-white">
-                                                <User size={20} />
-                                            </div>
-                                            <span className="text-[8px] font-black uppercase tracking-tight text-center leading-tight text-brand-indigo">
-                                                {lang === 'ar' ? 'الكل' : 'ALL'}
-                                            </span>
+                        <div className="flex flex-col gap-5 pb-8">
+                            {/* General & Preferences */}
+                            <div className="bg-slate-50/70 border border-slate-100/80 rounded-[2rem] p-5 flex flex-col gap-6 shadow-sm">
+                                <div className="flex flex-col gap-3 text-left">
+                                    <label className={`text-[9px] font-black text-slate-400 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{t.language}</label>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => toggleLang('en')} className={`flex-1 py-2.5 px-3 rounded-2xl border-2 font-black text-xs transition-all flex items-center justify-center gap-2 hover:scale-105 active:scale-95 ${lang === 'en' ? 'border-brand-indigo bg-indigo-50/50 text-brand-indigo shadow-sm' : 'border-white bg-white text-slate-400 hover:border-slate-200 shadow-sm'}`}>
+                                            <span className="text-sm">🇺🇸</span>
+                                            <span className="text-[9px] tracking-wider">EN</span>
                                         </button>
+                                        <button onClick={() => toggleLang('ar')} className={`flex-1 py-2.5 px-3 rounded-2xl border-2 font-black text-xs transition-all flex items-center justify-center gap-2 hover:scale-105 active:scale-95 ${lang === 'ar' ? 'border-brand-indigo bg-indigo-50/50 text-brand-indigo shadow-sm' : 'border-white bg-white text-slate-400 hover:border-slate-200 shadow-sm'}`}>
+                                            <span className="text-sm">🇸🇦</span>
+                                            <span className="text-[9px] tracking-wider">AR</span>
+                                        </button>
+                                    </div>
+                                </div>
 
-                                        {recentCharacters.map((charId) => {
-                                            const character = CHARACTERS[charId];
-                                            if (!character) return null;
-                                            return (
-                                                <button
-                                                    key={character.id}
-                                                    onClick={() => handleCharacterSelect(character.id)}
-                                                    className={`flex flex-col items-center gap-2 min-w-[70px] transition-all touch-manipulation ${selectedCharacter === character.id
-                                                        ? 'transform scale-105'
-                                                        : 'hover:scale-105'
-                                                        }`}
-                                                    aria-label={`Select ${lang === 'ar' ? character.nameAr : character.name} character`}
-                                                    role="radio"
-                                                    aria-checked={selectedCharacter === character.id}
-                                                >
-                                                    <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all ${selectedCharacter === character.id
-                                                        ? 'bg-gradient-to-br from-brand-indigo to-purple-600 shadow-lg shadow-indigo-200'
-                                                        : 'bg-gradient-to-br from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300'
-                                                        }`}>
-                                                        <span className="text-xl">{character.icon}</span>
-                                                        {selectedCharacter === character.id && (
-                                                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center">
-                                                                <span className="text-[8px] text-white">✓</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <span className={`text-[8px] font-black uppercase tracking-tight text-center leading-tight max-w-[60px] ${selectedCharacter === character.id ? 'text-brand-indigo' : 'text-slate-500'
-                                                        }`}>
-                                                        {lang === 'ar' ? character.nameAr : character.name}
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
+                                <div className="flex flex-col gap-3 text-left">
+                                    <label className={`text-[9px] font-black text-slate-400 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'شخصية الذكي' : 'AI PERSONALITY'}</label>
+                                    <div className="overflow-x-auto hide-scrollbar -mx-2 px-2 pb-2">
+                                        <div className="flex gap-3 min-w-max">
+                                            <button
+                                                onClick={() => {
+                                                    onClose();
+                                                    setTimeout(() => navigate('/characters'), 150);
+                                                }}
+                                                className="flex flex-col items-center gap-1.5 min-w-[64px] transition-all touch-manipulation hover:-translate-y-1"
+                                            >
+                                                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-indigo-50 text-brand-indigo border-2 border-indigo-100 border-dashed hover:border-brand-indigo hover:bg-brand-indigo hover:shadow-lg hover:shadow-indigo-200 hover:text-white transition-all">
+                                                    <User size={18} strokeWidth={2.5} />
+                                                </div>
+                                                <span className="text-[8px] font-black uppercase tracking-tight text-brand-indigo">
+                                                    {lang === 'ar' ? 'الكل' : 'ALL'}
+                                                </span>
+                                            </button>
+
+                                            {recentCharacters.map((charId) => {
+                                                const character = CHARACTERS[charId];
+                                                if (!character) return null;
+                                                return (
+                                                    <button
+                                                        key={character.id}
+                                                        onClick={() => handleCharacterSelect(character.id)}
+                                                        className={`flex flex-col items-center gap-1.5 min-w-[64px] transition-all touch-manipulation ${selectedCharacter === character.id ? 'transform -translate-y-1 scale-105' : 'hover:-translate-y-1'}`}
+                                                    >
+                                                        <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all ${selectedCharacter === character.id ? 'bg-gradient-to-br from-brand-indigo to-purple-500 shadow-lg shadow-indigo-200 ring-2 ring-white' : 'bg-white shadow-sm border border-slate-100 hover:border-slate-300'}`}>
+                                                            <span className="text-xl drop-shadow-sm">{character.icon}</span>
+                                                            {selectedCharacter === character.id && (
+                                                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center">
+                                                                    <span className="text-[8px] text-white">✓</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <span className={`text-[8px] font-black uppercase tracking-tight line-clamp-1 max-w-[55px] ${selectedCharacter === character.id ? 'text-brand-indigo' : 'text-slate-500'}`}>
+                                                            {lang === 'ar' ? character.nameAr : character.name}
+                                                        </span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-5">
-                                <div className={`flex items-center justify-between pb-2 border-b border-slate-50 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none pt-1">API KEYS</label>
-                                    {(getGroqKeys().length > 0 || getElevenKeys().length > 0) && (
-                                        <button
-                                            onClick={handleShareAll}
-                                            className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-brand-indigo rounded-lg hover:bg-brand-indigo hover:text-white transition-all group/share"
-                                        >
-                                            <Share2 size={12} strokeWidth={3} />
-                                            <span className="text-[9px] font-black uppercase tracking-widest">{lang === 'ar' ? 'مشاركة' : 'SHARE'}</span>
-                                        </button>
-                                    )}
+                            {/* Voice engine */}
+                            <div className="bg-slate-50/70 border border-slate-100/80 rounded-[2rem] p-5 flex flex-col gap-6 shadow-sm">
+                                <div className="flex flex-col gap-3 text-left">
+                                    <label className={`text-[9px] font-black text-slate-400 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{t.voiceEngine}</label>
+                                    <div className="flex flex-col gap-2">
+                                        {voices.map((v) => (
+                                            <button key={v.id} onClick={() => handleVoiceSelect(v.id)} className={`flex items-center justify-between p-3 rounded-2xl transition-all border ${selectedVoice === v.id ? 'bg-white border-brand-indigo shadow-sm' : 'bg-white border-transparent hover:border-slate-200 hover:shadow-sm'} ${rtl ? 'flex-row-reverse' : ''}`}>
+                                                <div className={`flex items-center gap-3 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                                    <div className={`p-1.5 rounded-lg transition-colors ${selectedVoice === v.id ? 'bg-indigo-50 text-brand-indigo' : 'bg-slate-50 text-slate-400'}`}>
+                                                        <v.icon size={14} />
+                                                    </div>
+                                                    <span className={`text-[10px] font-black uppercase tracking-tight transition-colors ${selectedVoice === v.id ? 'text-brand-indigo' : 'text-slate-600'}`}>{v.label}</span>
+                                                </div>
+                                                {selectedVoice === v.id && <div className="w-1.5 h-1.5 rounded-full bg-brand-indigo shadow-[0_0_8px_rgba(79,70,229,0.8)]" />}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
+                                <div className="flex flex-col gap-3 text-left">
+                                    <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t.speechVelocity}</label>
+                                        <span className="text-sm font-black text-brand-indigo font-mono italic">{speed}x</span>
+                                    </div>
+                                    <div className="relative px-1 pt-1 opacity-80 hover:opacity-100 transition-opacity">
+                                        <input type="range" min="0.5" max="2.0" step="0.1" value={speed} onChange={handleSpeedChange} className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-indigo outline-none" />
+                                        <div className={`flex justify-between mt-1.5 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                            <span className="text-[8px] font-bold text-slate-300 uppercase">{t.slow}</span>
+                                            <span className="text-[8px] font-bold text-slate-300 uppercase">{t.fast}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
+                            {/* Data & Integrations */}
+                            <div className="bg-slate-50/70 border border-slate-100/80 rounded-[2rem] p-5 flex flex-col gap-4 shadow-sm">
                                 <div className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>
                                     <Link to="/settings/groq-keys" className={`flex items-center gap-3 flex-1 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <label className="text-[11px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover:text-brand-indigo transition-colors">{lang === 'ar' ? 'دردشة ذكية' : 'CHAT API'}</label>
-                                        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
-                                            <span className="text-[8px] font-black text-slate-500">{getGroqKeys().length}</span>
+                                        <div className="w-8 h-8 bg-white rounded-xl border border-slate-100 flex items-center justify-center shadow-sm">
+                                            <CheckCircle2 size={14} className={getGroqKeys().length > 0 ? 'text-emerald-500' : 'text-slate-300'} strokeWidth={3} />
+                                        </div>
+                                        <div className={`flex flex-col text-left ${rtl ? 'items-end' : 'items-start'}`}>
+                                            <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest group-hover:text-brand-indigo transition-colors">{lang === 'ar' ? 'دردشة ذكية' : 'Chat API'}</span>
+                                            <span className="text-[8px] text-slate-400 font-medium">{getGroqKeys().length} {lang === 'ar' ? 'مفاتيح' : 'keys'}</span>
                                         </div>
                                     </Link>
-                                    <div className={`flex items-center gap-4 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <Link to="/guide/groq" className="text-slate-300 hover:text-brand-indigo transition-colors"><HelpCircle size={16} strokeWidth={2.5} /></Link>
-                                        <div className={getGroqKeys().length > 0 ? 'text-emerald-500' : 'text-slate-200'}><CheckCircle2 size={16} strokeWidth={2.5} /></div>
-                                    </div>
+                                    <Link to="/guide/groq" className="p-2 text-slate-300 hover:text-brand-indigo transition-colors bg-white rounded-full shadow-sm border border-slate-100"><HelpCircle size={14} strokeWidth={2.5} /></Link>
                                 </div>
 
                                 <div className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>
                                     <Link to="/settings/eleven-keys" className={`flex items-center gap-3 flex-1 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <label className="text-[11px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover:text-brand-indigo transition-colors">{lang === 'ar' ? 'صوت ذكي' : 'VOICE API'}</label>
-                                        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
-                                            <span className="text-[8px] font-black text-slate-500">{getElevenKeys().length}</span>
+                                        <div className="w-8 h-8 bg-white rounded-xl border border-slate-100 flex items-center justify-center shadow-sm">
+                                            <CheckCircle2 size={14} className={getElevenKeys().length > 0 ? 'text-emerald-500' : 'text-slate-300'} strokeWidth={3} />
+                                        </div>
+                                        <div className={`flex flex-col text-left ${rtl ? 'items-end' : 'items-start'}`}>
+                                            <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest group-hover:text-brand-indigo transition-colors">{lang === 'ar' ? 'صوت ذكي' : 'Voice API'}</span>
+                                            <span className="text-[8px] text-slate-400 font-medium">{getElevenKeys().length} {lang === 'ar' ? 'مفاتيح' : 'keys'}</span>
                                         </div>
                                     </Link>
-                                    <div className={`flex items-center gap-4 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <Link to="/guide/eleven" className="text-slate-300 hover:text-brand-indigo transition-colors"><HelpCircle size={16} strokeWidth={2.5} /></Link>
-                                        <div className={getElevenKeys().length > 0 ? 'text-emerald-500' : 'text-slate-200'}><CheckCircle2 size={16} strokeWidth={2.5} /></div>
-                                    </div>
+                                    <Link to="/guide/eleven" className="p-2 text-slate-300 hover:text-brand-indigo transition-colors bg-white rounded-full shadow-sm border border-slate-100"><HelpCircle size={14} strokeWidth={2.5} /></Link>
                                 </div>
-                            </div>
 
-                            <div className="flex flex-col gap-5 pt-2 border-t border-slate-50">
-                                <div className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <Link to="/settings/vocabulary" className={`flex items-center gap-3 flex-1 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <label className="text-[11px] font-black text-slate-900 uppercase tracking-widest cursor-pointer group-hover:text-brand-indigo transition-colors">{lang === 'ar' ? 'كلماتي المميزة' : 'MY WORDS'}</label>
-                                        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
-                                            <span className="text-[8px] font-black text-slate-500">{learnedCount}</span>
+                                {(getGroqKeys().length > 0 || getElevenKeys().length > 0) && (
+                                    <button onClick={handleShareAll} className="w-full mt-1 py-3 bg-indigo-50 border border-indigo-100 text-brand-indigo rounded-2xl hover:bg-brand-indigo hover:shadow-lg hover:shadow-indigo-200 hover:text-white transition-all group flex items-center justify-center gap-2">
+                                        <Share2 size={12} strokeWidth={3} />
+                                        <span className="text-[9px] font-black uppercase tracking-widest">{lang === 'ar' ? 'مشاركة المفاتيح' : 'Share APIs'}</span>
+                                    </button>
+                                )}
+
+                                <div className="h-px bg-slate-200/60 w-full my-2 rounded-full" />
+
+                                <Link to="/settings/vocabulary" className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <div className={`flex items-center gap-3 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <div className="w-8 h-8 bg-white rounded-xl border border-slate-100 flex items-center justify-center shadow-sm text-amber-500">
+                                            <Bookmark size={14} strokeWidth={3} />
                                         </div>
-                                    </Link>
-                                    <Bookmark size={16} className="text-slate-200" strokeWidth={2.5} />
-                                </div>
+                                        <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest group-hover:text-amber-500 transition-colors">{lang === 'ar' ? 'كلماتي المميزة' : 'My Words'}</span>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-500 font-mono bg-white px-2.5 py-1 rounded-full border border-slate-200 shadow-sm">{learnedCount}</span>
+                                </Link>
 
                                 <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
-                                        <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">
-                                            {lang === 'ar' ? 'ذاكرة الصوت' : 'VOICE MEMORY'}
-                                        </label>
-                                        <span className="text-[8px] text-slate-400 mt-0.5">
-                                            {lang === 'ar' ? `محفوظ: ${cacheStats.memoryUsage}` : `Cached: ${cacheStats.memoryUsage}`}
-                                        </span>
+                                    <div className={`flex items-center gap-3 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <div className={`w-8 h-8 bg-white rounded-xl border flex items-center justify-center shadow-sm ${cacheStats.size > 0 ? 'border-rose-100 text-rose-500' : 'border-slate-100 text-slate-300'}`}>
+                                            <Trash2 size={14} strokeWidth={3} />
+                                        </div>
+                                        <div className={`flex flex-col text-left ${rtl ? 'items-end' : 'items-start'}`}>
+                                            <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest mt-1 group-hover:text-rose-500 transition-colors">{lang === 'ar' ? 'ذاكرة الصوت' : 'Voice Cache'}</span>
+                                            <span className="text-[8px] text-slate-400 font-medium">{cacheStats.memoryUsage}</span>
+                                        </div>
                                     </div>
                                     <button
                                         onClick={handleClearCache}
                                         disabled={isCleaningCache || cacheStats.size === 0}
-                                        className={`p-2 transition-all outline-none cursor-pointer disabled:opacity-30 ${cacheStats.size > 0
-                                            ? 'text-rose-500 active:scale-90'
-                                            : 'text-slate-300'
-                                            }`}
-                                        title={lang === 'ar' ? 'تنظيف ذاكرة الصوت' : 'Clear voice cache'}
+                                        className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${cacheStats.size > 0 ? 'bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white shadow-sm' : 'bg-slate-50 border border-slate-100 text-slate-300 opacity-60'}`}
                                     >
-                                        {isCleaningCache ? (
-                                            <Loader2 size={24} className="animate-spin" />
-                                        ) : (
-                                            <Trash2 size={24} strokeWidth={2} />
-                                        )}
+                                        {isCleaningCache ? '...' : (lang === 'ar' ? 'تنظيف' : 'Clear')}
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-4 text-left">
-                                <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{t.voiceEngine}</label>
-                                <div className="flex flex-col gap-2">
-                                    {voices.map((v) => (
-                                        <button key={v.id} onClick={() => handleVoiceSelect(v.id)} className={`flex items-center justify-between py-2 transition-all group ${rtl ? 'flex-row-reverse' : ''}`}>
-                                            <div className={`flex items-center gap-3 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                                <div className={`p-2 rounded-xl transition-colors ${selectedVoice === v.id ? 'bg-indigo-50' : 'bg-slate-50 group-hover:bg-slate-100'}`}>
-                                                    <v.icon size={16} className={`${selectedVoice === v.id ? v.color : 'text-slate-400'}`} />
-                                                </div>
-                                                <span className={`text-[11px] font-black uppercase tracking-tight transition-colors ${selectedVoice === v.id ? 'text-brand-indigo' : 'text-slate-500 hover:text-slate-900'}`}>{v.label}</span>
-                                            </div>
-                                            {selectedVoice === v.id && <motion.div layoutId="activeVoice" className="w-1.5 h-1.5 rounded-full bg-brand-indigo" />}
-                                        </button>
-                                    ))}
-                                </div>
+                            {/* Actions */}
+                            <div className="flex flex-col sm:flex-row items-center gap-3 mt-2">
+                                <button
+                                    onClick={() => setIsMuted(!isMuted)}
+                                    className={`flex-1 w-full py-4 px-4 rounded-[1.5rem] flex items-center justify-center gap-2 border font-black text-[10px] uppercase tracking-widest transition-all shadow-sm ${isMuted ? 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-800'}`}
+                                >
+                                    <Speaker size={16} className={isMuted ? '' : 'text-slate-400'} strokeWidth={2.5} />
+                                    {isMuted ? (lang === 'ar' ? 'إلغاء الكتم' : 'Unmute') : (lang === 'ar' ? 'كتم الصوت' : 'Mute Voice')}
+                                </button>
+                                <button
+                                    onClick={onClearChat}
+                                    className="flex-1 w-full py-4 px-4 rounded-[1.5rem] flex items-center justify-center gap-2 border border-slate-200 bg-white text-slate-500 font-black text-[10px] uppercase tracking-widest transition-all shadow-sm hover:bg-rose-50 hover:border-rose-200 hover:text-rose-500"
+                                >
+                                    <Trash2 size={16} strokeWidth={2.5} />
+                                    {t.clearChat}
+                                </button>
                             </div>
 
-                            <div className="flex flex-col gap-3 text-left">
-                                <div className={`flex justify-between items-center ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{t.speechVelocity}</label>
-                                    <span className="text-xl font-black text-brand-indigo font-mono italic">{speed}x</span>
-                                </div>
-                                <div className="relative px-2">
-                                    <input type="range" min="0.5" max="2.0" step="0.1" value={speed} onChange={(e) => setSpeed(e.target.value)} className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-brand-indigo" />
-                                    <div className={`flex justify-between mt-1 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <span className="text-[8px] font-bold text-slate-300">{t.slow}</span>
-                                        <span className="text-[8px] font-bold text-slate-300">{t.fast}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-5 pt-4 border-t border-slate-50">
-                                <div className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{lang === 'ar' ? 'أوامر سريعة' : 'QUICK ACTIONS'}</label>
-                                    <div className="flex items-center gap-1">
-                                        <button
-                                            onClick={() => setIsMuted(!isMuted)}
-                                            className={`p-2 transition-all outline-none cursor-pointer ${isMuted ? 'text-amber-500' : 'text-slate-400'}`}
-                                            title={isMuted ? 'Unmute' : 'Mute'}
-                                        >
-                                            <Speaker size={24} strokeWidth={2} />
-                                        </button>
-                                        <button
-                                            onClick={onClearChat}
-                                            className="p-2 text-slate-400 transition-all outline-none cursor-pointer"
-                                            title={t.clearChat}
-                                        >
-                                            <Trash2 size={24} strokeWidth={2} />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-
-                        <div className="mt-8">
-                            <motion.button whileTap={{ scale: 0.98 }} onClick={handleSave} disabled={isSaving} className="w-full py-4 bg-brand-indigo text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-100 flex items-center justify-center gap-3 disabled:opacity-80">
-                                {isSaving ? <Loader2 size={18} className="animate-spin" /> : t.applyChanges}
-                            </motion.button>
-                            <p className="text-center mt-4 text-[8px] font-bold text-slate-300 uppercase tracking-widest">Smart-Lern Core v2.4.0</p>
-                        </div>
+                        <p className="text-center mt-auto text-[8px] font-bold text-slate-300 uppercase tracking-widest opacity-80 pb-2">Smart-Lern Core v2.4.0</p>
                     </motion.div>
                 </>
             )}
