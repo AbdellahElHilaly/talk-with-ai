@@ -269,6 +269,8 @@ const ChatPage = () => {
             const aiResponse = await ChatController.sendMessage(context, userMsg.text, learnedWords, ignoredWords, selectedCharacter);
             const currentCharacter = CHARACTERS[selectedCharacter] || CHARACTERS.girlfriend;
 
+            const aiEmoji = aiResponse.emoji?.trim() ? aiResponse.emoji.trim() : null;
+
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'ai',
@@ -277,7 +279,7 @@ const ChatPage = () => {
                     id: selectedCharacter,
                     name: currentCharacter.name,
                     nameAr: currentCharacter.nameAr,
-                    icon: currentCharacter.icon
+                    icon: aiEmoji || currentCharacter.icon
                 }
             }]);
         } catch (error) {

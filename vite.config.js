@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/talk-with-ai/',
+  base: process.env.GITHUB_PAGES ? '/talk-with-ai/' : '/',
   plugins: [
     react(),
     VitePWA({
@@ -18,9 +18,9 @@ export default defineConfig({
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'Minimerce App',
-        short_name: 'Minimerce',
-        description: 'Minimerce PWA Application',
+        name: 'Smart-Lern AI',
+        short_name: 'Smart-Lern',
+        description: 'Advanced AI Language Learning Partner',
         theme_color: '#4F46E5',
         icons: [
           {

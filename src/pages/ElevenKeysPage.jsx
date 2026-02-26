@@ -88,7 +88,7 @@ const ElevenKeysPage = () => {
     };
 
     const handleShare = async (sharedKeys) => {
-        const baseUrl = window.location.origin + "/talk-with-ai/import-keys";
+        const baseUrl = window.location.origin + import.meta.env.BASE_URL + "import-keys";
         const url = `${baseUrl}?eleven=${sharedKeys.join(',')}`;
 
         if (navigator.share) {

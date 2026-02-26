@@ -40,5 +40,6 @@ CONSTRAINTS:
 
 [JSON_FORMAT]
 {
-  "text": "Your character-based English response here"
+  "text": "Your character-based English response here",
+  "emoji": "Single emoji symbol ONLY. E.g., 😊 or 😠. DO NOT write words."
 }`;

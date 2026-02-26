@@ -72,7 +72,7 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
 
         if (groqKeys.length === 0 && elevenKeys.length === 0) return;
 
-        const baseUrl = window.location.origin + "/talk-with-ai/import-keys";
+        const baseUrl = window.location.origin + import.meta.env.BASE_URL + "import-keys";
         let url = baseUrl + "?";
         if (groqKeys.length > 0) url += `groq=${groqKeys.join(',')}`;
         if (elevenKeys.length > 0) {
