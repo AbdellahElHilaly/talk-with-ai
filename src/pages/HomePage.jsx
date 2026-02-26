@@ -59,13 +59,13 @@ const HomePage = () => {
     ];
 
     return (
-        <div className="h-screen w-full relative flex flex-col bg-white overflow-hidden font-sans" dir={rtl ? 'rtl' : 'ltr'}>
+        <div className="min-h-[100dvh] w-full relative flex flex-col bg-white overflow-x-hidden font-sans" dir={rtl ? 'rtl' : 'ltr'}>
             {/* Background Decorations */}
             <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-indigo-50/50 rounded-full blur-[100px]" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-50/30 rounded-full blur-[100px]" />
 
             {/* Nav / Logo */}
-            <nav className="relative z-10 px-8 py-8 flex justify-between items-center w-full max-w-6xl mx-auto shrink-0">
+            <nav className="relative z-10 px-6 md:px-8 py-6 md:py-8 flex justify-between items-center w-full max-w-6xl mx-auto shrink-0">
                 <div className="flex flex-col">
                     <span className="logo-font text-2xl text-brand-indigo -rotate-3">Smart-Lern</span>
                 </div>
@@ -86,85 +86,89 @@ const HomePage = () => {
             </nav>
 
             {/* Main Content - Structured for Full Screen Space */}
-            <main className="relative z-10 flex-1 flex flex-col justify-between items-center px-8 py-10 max-w-4xl mx-auto w-full text-center">
-                {/* Top Section: Hero */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="space-y-4"
-                >
-                    <h1 className="text-6xl md:text-7xl font-black text-slate-950 tracking-tighter leading-[0.95]">
-                        {lang === 'ar' ? 'تحدث مع' : 'Talk With'} <br />
-                        <span className="text-brand-indigo italic text-7xl md:text-8xl">AI</span>
-                        <span className="block text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] text-slate-400 mt-6">
-                            {lang === 'ar' ? 'رحلتك لإتقان الإنجليزية تبدأ هنا' : 'Your English Journey Starts Here'}
-                        </span>
-                    </h1>
-
-                    <p className="text-slate-500 text-sm md:text-base font-medium max-w-sm mx-auto leading-relaxed pt-3">
-                        {lang === 'ar' ? 'تطبيق تفاعلي يتيح لك الدردشة صوتياً ونصياً مع شخصيات ذكاء اصطناعي لتعلم وتطوير لغتك الإنجليزية بشكل طبيعي.' : 'An interactive app that lets you chat with diverse AI personas to learn and master English effortlessly.'}
-                    </p>
-                </motion.div>
-
-                {/* Middle Section: CTA & Install */}
-                <div className="flex flex-col items-center gap-6">
+            <main className="relative z-10 flex-1 flex flex-col lg:flex-row justify-center items-center gap-8 lg:gap-12 px-6 md:px-8 py-4 md:py-6 max-w-6xl mx-auto w-full text-center lg:text-start" dir={rtl ? 'rtl' : 'ltr'}>
+                {/* Left Section: Hero + CTA */}
+                <div className="flex flex-col items-center lg:items-start gap-6 lg:gap-8 w-full lg:w-1/2">
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 }}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-3 lg:space-y-4"
                     >
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => navigate('/chat')}
-                            className="group relative px-12 py-5 bg-brand-indigo text-white rounded-[2rem] overflow-hidden shadow-2xl shadow-indigo-100 transition-all font-black flex items-center gap-4 mx-auto"
-                        >
-                            <span className="relative z-10 tracking-[0.3em] uppercase text-sm">
-                                {t.launchBtn}
+                        <h1 className="text-[3.5rem] md:text-[4.5rem] lg:text-[5.5rem] font-black text-slate-950 tracking-tighter leading-[0.95]">
+                            {lang === 'ar' ? 'تحدث مع' : 'Talk With'} <br />
+                            <span className="text-brand-indigo italic text-[4.5rem] md:text-[5.5rem] lg:text-[6.5rem] leading-[0.9]">AI</span>
+                            <span className="block text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mt-4 h-5">
+                                {lang === 'ar' ? 'رحلتك لإتقان الإنجليزية تبدأ هنا' : 'Your English Journey Starts Here'}
                             </span>
-                            <ChevronRight size={20} className="relative z-10 transition-transform group-hover:translate-x-1" />
-                        </motion.button>
+                        </h1>
+
+                        <p className="text-slate-500 text-xs md:text-sm lg:text-base font-medium max-w-xs md:max-w-md mx-auto lg:mx-0 leading-relaxed pt-2">
+                            {lang === 'ar' ? 'تطبيق تفاعلي يتيح لك الدردشة صوتياً ونصياً مع شخصيات ذكاء اصطناعي لتعلم وتطوير لغتك الإنجليزية بشكل طبيعي.' : 'An interactive app that lets you chat with diverse AI personas to learn and master English effortlessly.'}
+                        </p>
                     </motion.div>
 
-                    {deferredPrompt && (
-                        <motion.button
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleInstall}
-                            className="flex flex-col items-center gap-1.5 text-slate-400 hover:text-brand-indigo transition-all group"
+                    <div className="flex flex-col sm:flex-row items-center gap-6">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.2 }}
                         >
-                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-brand-indigo group-hover:text-white transition-all shadow-sm">
-                                <Download size={18} />
-                            </div>
-                            <span className="text-[9px] font-black uppercase tracking-widest">{t.installBtn}</span>
-                        </motion.button>
-                    )}
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => navigate('/chat')}
+                                className="group relative px-10 md:px-12 py-4 md:py-5 bg-brand-indigo text-white rounded-[2rem] overflow-hidden shadow-2xl shadow-indigo-100 transition-all font-black flex items-center gap-4 mx-auto lg:mx-0"
+                            >
+                                <span className="relative z-10 tracking-[0.3em] uppercase text-sm">
+                                    {t.launchBtn}
+                                </span>
+                                <ChevronRight size={20} className={`relative z-10 transition-transform ${rtl ? 'group-hover:-translate-x-1 rotate-180' : 'group-hover:translate-x-1'}`} />
+                            </motion.button>
+                        </motion.div>
+
+                        {deferredPrompt && (
+                            <motion.button
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={handleInstall}
+                                className="flex flex-col items-center gap-1.5 text-slate-400 hover:text-brand-indigo transition-all group"
+                            >
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-brand-indigo group-hover:text-white transition-all shadow-sm">
+                                    <Download size={18} />
+                                </div>
+                                <span className="text-[9px] font-black uppercase tracking-widest">{t.installBtn}</span>
+                            </motion.button>
+                        )}
+                    </div>
                 </div>
 
-                {/* Bottom Section: Features List */}
-                <div className="flex flex-col gap-2 w-full max-w-sm mx-auto">
-                    {features.map((item) => (
-                        <div
+                {/* Right Section: Features List */}
+                <div className="flex flex-col gap-3 md:gap-4 w-full max-w-md lg:w-1/2">
+                    {features.map((item, index) => (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 + index * 0.1 }}
                             key={item.title}
-                            className="bg-white/40 backdrop-blur-sm p-4 rounded-2xl border border-slate-50 flex items-center gap-4"
+                            className="bg-white/60 backdrop-blur-md p-5 rounded-3xl border border-white flex items-center gap-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all"
                         >
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
-                                <item.icon size={18} strokeWidth={2.5} />
+                            <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center shrink-0 ${item.color}`}>
+                                <item.icon size={22} strokeWidth={2} />
                             </div>
                             <div className={`flex flex-col ${rtl ? 'text-right' : 'text-left'}`}>
-                                <h3 className="text-xs font-black text-slate-900 uppercase tracking-tight leading-none">{item.title}</h3>
-                                <p className="text-slate-400 text-[10px] font-medium leading-none mt-1.5">
+                                <h3 className="text-sm md:text-base font-black text-slate-900 uppercase tracking-tight leading-none">{item.title}</h3>
+                                <p className="text-slate-500 text-xs md:text-sm font-medium leading-relaxed mt-1.5">
                                     {item.desc}
                                 </p>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </main>
 
             {/* Footer */}
-            <footer className="relative z-10 px-8 py-8 border-t border-slate-50 shrink-0">
+            <footer className="relative z-10 px-6 md:px-8 py-6 md:py-8 border-t border-slate-50 shrink-0 mt-8 lg:mt-0">
                 <div className="max-w-6xl mx-auto w-full flex justify-between items-center">
                     <div className="flex items-center gap-3">
                         <span className="logo-font text-xl text-brand-indigo opacity-80 italic">Smart-Lern</span>
