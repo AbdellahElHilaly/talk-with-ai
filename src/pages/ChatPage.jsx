@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, Play, Square, Menu, Loader2, Plus, X, RefreshCcw } from 'lucide-react';
+import { Send, Play, Square, Menu, Loader2, Plus, X, Mic, Volume2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import Word from '../components/Word';
@@ -22,12 +22,14 @@ const ChatPage = () => {
     });
     const [isAITyping, setIsAITyping] = useState(false);
     const [nowPlaying, setNowPlaying] = useState(null);
+    const [isListening, setIsListening] = useState(false);
+    const recognitionRef = React.useRef(null);
     const [voiceStatus, setVoiceStatus] = useState('idle'); // idle, loading, playing
     const [learnedWords, setLearnedWords] = useState(() => VocabService.getLearnedWords());
     const [ignoredWords, setIgnoredWords] = useState(() => VocabService.getIgnoredWords());
     const [isMuted, setIsMuted] = useState(() => localStorage.getItem('chat_muted') === 'true');
     const [selectedCharacter, setSelectedCharacter] = useState(() => {
-        return localStorage.getItem('selected_character') || 'girlfriend';
+        return localStorage.getItem('selected_character') || 'teacher';
     });
 
     // Global map for on-demand translations: { "messageId-index": "translation" }
@@ -55,7 +57,46 @@ const ChatPage = () => {
             voiceEngine.clearAudioCache();
         };
         window.addEventListener('characterChanged', handleCharacterChange);
-        return () => window.removeEventListener('characterChanged', handleCharacterChange);
+
+        // Setup Speech Recognition
+        const SpeechRecognition = globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            recognitionRef.current = new SpeechRecognition();
+            recognitionRef.current.continuous = true;
+            recognitionRef.current.interimResults = true;
+            recognitionRef.current.lang = 'en-US'; // Enforce English for dictation practice
+
+            let finalTranscriptBuffer = '';
+
+            recognitionRef.current.onresult = (event) => {
+                let currentInterim = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscriptBuffer += event.results[i][0].transcript + ' ';
+                    } else {
+                        currentInterim += event.results[i][0].transcript;
+                    }
+                }
+                const combined = (finalTranscriptBuffer + currentInterim).trim();
+                setMessage(combined);
+            };
+
+            recognitionRef.current.onerror = (event) => {
+                console.error("Speech Recognition Error:", event.error);
+                setIsListening(false);
+            };
+
+            recognitionRef.current.onend = () => {
+                setIsListening(false);
+            };
+        }
+
+        return () => {
+            window.removeEventListener('characterChanged', handleCharacterChange);
+            if (recognitionRef.current) {
+                recognitionRef.current.stop();
+            }
+        };
     }, []);
 
     React.useEffect(() => {
@@ -121,6 +162,23 @@ const ChatPage = () => {
             setTranslationsMap({});
             sessionStorage.removeItem('chat_session_messages');
             sessionStorage.removeItem('chat_translations_map');
+        }
+    };
+
+    const toggleListening = () => {
+        if (!recognitionRef.current) {
+            alert(lang === 'ar' ? 'عذراً، متصفحك لا يدعم ميزة الإدخال الصوتي.' : 'Sorry, your browser does not support Speech Recognition.');
+            return;
+        }
+
+        if (isListening) {
+            recognitionRef.current.stop();
+            setIsListening(false);
+        } else {
+            // Optional: clear message before starting new dictation
+            // setMessage(''); 
+            recognitionRef.current.start();
+            setIsListening(true);
         }
     };
 
@@ -293,7 +351,7 @@ const ChatPage = () => {
 
 
     return (
-        <div className="max-full flex flex-col bg-slate-50 overflow-hidden pb-safe" dir={rtl ? 'rtl' : 'ltr'}>
+        <div className="h-[100dvh] w-full flex flex-col bg-slate-50 overflow-hidden pb-safe relative" dir={rtl ? 'rtl' : 'ltr'}>
             {/* PREMIUM TOP BAR */}
             <div className="px-6 h-16 flex justify-between items-center z-30 sticky top-0 bg-white/80 backdrop-blur-2xl border-b border-slate-100/80 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.04)]">
                 {/* START SECTION: MENU */}
@@ -399,11 +457,21 @@ const ChatPage = () => {
                                     key={item.id}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className={`${rtl ? 'self-start' : 'self-end'} max-w-[85%]`}
+                                    className={`${rtl ? 'self-start' : 'self-end'} max-w-[85%] flex flex-col gap-1`}
                                 >
-                                    <div className={`bg-white px-5 py-3.5 rounded-[1.5rem] ${rtl ? 'rounded-tl-none' : 'rounded-tr-none'} shadow-sm border border-slate-100 text-slate-600 text-sm font-medium text-left`} dir="ltr">
+                                    <div className={`bg-white px-5 py-3.5 rounded-[1.5rem] ${rtl ? 'rounded-tl-none' : 'rounded-tr-none'} shadow-sm border border-slate-100 text-slate-600 text-sm font-medium text-left break-words`} dir="ltr">
                                         {item.text}
                                     </div>
+                                    <button
+                                        onClick={() => voiceEngine.speakBrowserOnly(item.text, 'en')}
+                                        className={`flex items-center gap-1.5 text-slate-400 hover:text-brand-indigo transition-colors ${rtl ? 'self-start pl-3' : 'self-end pr-3'} py-1`}
+                                        title={lang === 'ar' ? 'استمع للنطق الصحيح' : 'Hear correct pronunciation'}
+                                    >
+                                        <Volume2 size={12} />
+                                        <span className="text-[9px] font-black tracking-widest uppercase">
+                                            {lang === 'ar' ? 'تهجئة بطريقة صحيحة' : 'Hear Pronunciation'}
+                                        </span>
+                                    </button>
                                 </motion.div>
                             );
                         }
@@ -531,17 +599,27 @@ const ChatPage = () => {
                             type="text"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            placeholder={t.typeReply}
-                            className="flex-1 bg-transparent py-4 px-6 outline-none text-slate-900 placeholder:text-slate-300 font-medium text-start"
+                            placeholder={isListening ? (lang === 'ar' ? 'جاري الاستماع...' : 'Listening...') : t.typeReply}
+                            className={`flex-1 bg-transparent py-4 px-4 sm:px-6 outline-none text-slate-900 font-medium text-start ${isListening ? 'placeholder:text-brand-indigo animate-pulse' : 'placeholder:text-slate-300'}`}
                             dir="auto"
                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                         />
-                        <button
-                            onClick={handleSend}
-                            className="bg-brand-indigo text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg shadow-indigo-100 active:scale-90 transition-transform shrink-0"
-                        >
-                            <Send size={18} strokeWidth={2.5} className={rtl ? '-scale-x-100' : ''} />
-                        </button>
+                        <div className="flex items-center gap-1.5 shrink-0 pr-1">
+                            <button
+                                onClick={toggleListening}
+                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isListening ? 'bg-rose-100 text-rose-500 shadow-inner' : 'bg-transparent text-slate-300 hover:text-brand-indigo hover:bg-slate-50'}`}
+                                title={lang === 'ar' ? 'التحدث بدلاً من الكتابة' : 'Voice Typing'}
+                            >
+                                <Mic size={18} strokeWidth={isListening ? 3 : 2.5} className={isListening ? 'animate-pulse' : ''} />
+                            </button>
+                            <button
+                                onClick={handleSend}
+                                disabled={!message.trim() || isAITyping}
+                                className="bg-brand-indigo text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg shadow-indigo-100 active:scale-90 transition-transform disabled:opacity-50 disabled:active:scale-100"
+                            >
+                                <Send size={18} strokeWidth={2.5} className={rtl ? '-scale-x-100' : ''} />
+                            </button>
+                        </div>
                     </div>
                 </motion.div>
             </div>

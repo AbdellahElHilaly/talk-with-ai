@@ -9,6 +9,7 @@ import GroqKeysPage from './pages/GroqKeysPage';
 import ElevenKeysPage from './pages/ElevenKeysPage';
 import InterestingWordsPage from './pages/InterestingWordsPage';
 import ImportKeysPage from './pages/ImportKeysPage';
+import CharactersPage from './pages/CharactersPage';
 
 /**
  * Smart-Lern Core Application Entry Point
@@ -25,6 +26,7 @@ const App = () => {
 
           {/* Main Interface */}
           <Route path="/chat" element={<ErrorBoundary><ChatPage /></ErrorBoundary>} />
+          <Route path="/characters" element={<CharactersPage />} />
 
           {/* Settings & Management */}
           <Route path="/settings/groq-keys" element={<GroqKeysPage />} />

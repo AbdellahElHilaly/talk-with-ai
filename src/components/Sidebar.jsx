@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2, AlertCircle, Bookmark, GraduationCap, Trash2, Share2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getGroqKeys, getElevenKeys } from '../utils/keyStorage';
 import { translations } from '../utils/translations';
 import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
@@ -29,7 +29,12 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
         return saved || 'Female 1';
     });
     const [selectedCharacter, setSelectedCharacter] = useState(() => {
-        return localStorage.getItem('selected_character') || 'girlfriend';
+        return localStorage.getItem('selected_character') || 'teacher';
+    });
+    const [recentCharacters, setRecentCharacters] = useState(() => {
+        const saved = localStorage.getItem('recent_characters');
+        if (saved) return JSON.parse(saved);
+        return ['teacher', 'police', 'father', 'mother', 'girlfriend'];
     });
     const [isSaving, setIsSaving] = useState(false);
     const [isCleaningCache, setIsCleaningCache] = useState(false);
@@ -54,10 +59,18 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
         voiceEngine.speakPreview(vId, lang);
     };
 
+    const navigate = useNavigate();
+
     const handleCharacterSelect = (characterId) => {
         setSelectedCharacter(characterId);
         localStorage.setItem('selected_character', characterId);
         window.dispatchEvent(new CustomEvent('characterChanged', { detail: characterId }));
+
+        setRecentCharacters(prev => {
+            const next = [characterId, ...prev.filter(id => id !== characterId)].slice(0, 5);
+            localStorage.setItem('recent_characters', JSON.stringify(next));
+            return next;
+        });
     };
     const handleClearCache = () => {
         setIsCleaningCache(true);
@@ -175,35 +188,54 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
                                 <label className={`text-[10px] font-black text-slate-900 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'شخصية الذكي' : 'AI PERSONALITY'}</label>
                                 <div className="overflow-x-auto hide-scrollbar -mx-2">
                                     <div className="flex gap-4 py-4 px-2 min-w-max">
-                                        {Object.values(CHARACTERS).map((character) => (
-                                            <button
-                                                key={character.id}
-                                                onClick={() => handleCharacterSelect(character.id)}
-                                                className={`flex flex-col items-center gap-2 min-w-[70px] transition-all touch-manipulation ${selectedCharacter === character.id
-                                                    ? 'transform scale-105'
-                                                    : 'hover:scale-105'
-                                                    }`}
-                                                aria-label={`Select ${lang === 'ar' ? character.nameAr : character.name} character`}
-                                                role="radio"
-                                                aria-checked={selectedCharacter === character.id}
-                                            >
-                                                <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all ${selectedCharacter === character.id
-                                                    ? 'bg-gradient-to-br from-brand-indigo to-purple-600 shadow-lg shadow-indigo-200'
-                                                    : 'bg-gradient-to-br from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300'
-                                                    }`}>
-                                                    <span className="text-xl">{character.icon}</span>
-                                                    {selectedCharacter === character.id && (
-                                                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center">
-                                                            <span className="text-[8px] text-white">✓</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <span className={`text-[8px] font-black uppercase tracking-tight text-center leading-tight max-w-[60px] ${selectedCharacter === character.id ? 'text-brand-indigo' : 'text-slate-500'
-                                                    }`}>
-                                                    {lang === 'ar' ? character.nameAr : character.name}
-                                                </span>
-                                            </button>
-                                        ))}
+                                        <button
+                                            onClick={() => {
+                                                onClose();
+                                                setTimeout(() => navigate('/characters'), 150);
+                                            }}
+                                            className="flex flex-col items-center gap-2 min-w-[70px] transition-all touch-manipulation hover:scale-105"
+                                        >
+                                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-indigo-50 text-brand-indigo border border-indigo-100 border-dashed hover:border-brand-indigo transition-colors hover:bg-brand-indigo hover:text-white">
+                                                <User size={20} />
+                                            </div>
+                                            <span className="text-[8px] font-black uppercase tracking-tight text-center leading-tight text-brand-indigo">
+                                                {lang === 'ar' ? 'الكل' : 'ALL'}
+                                            </span>
+                                        </button>
+
+                                        {recentCharacters.map((charId) => {
+                                            const character = CHARACTERS[charId];
+                                            if (!character) return null;
+                                            return (
+                                                <button
+                                                    key={character.id}
+                                                    onClick={() => handleCharacterSelect(character.id)}
+                                                    className={`flex flex-col items-center gap-2 min-w-[70px] transition-all touch-manipulation ${selectedCharacter === character.id
+                                                        ? 'transform scale-105'
+                                                        : 'hover:scale-105'
+                                                        }`}
+                                                    aria-label={`Select ${lang === 'ar' ? character.nameAr : character.name} character`}
+                                                    role="radio"
+                                                    aria-checked={selectedCharacter === character.id}
+                                                >
+                                                    <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all ${selectedCharacter === character.id
+                                                        ? 'bg-gradient-to-br from-brand-indigo to-purple-600 shadow-lg shadow-indigo-200'
+                                                        : 'bg-gradient-to-br from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300'
+                                                        }`}>
+                                                        <span className="text-xl">{character.icon}</span>
+                                                        {selectedCharacter === character.id && (
+                                                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center">
+                                                                <span className="text-[8px] text-white">✓</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <span className={`text-[8px] font-black uppercase tracking-tight text-center leading-tight max-w-[60px] ${selectedCharacter === character.id ? 'text-brand-indigo' : 'text-slate-500'
+                                                        }`}>
+                                                        {lang === 'ar' ? character.nameAr : character.name}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>
