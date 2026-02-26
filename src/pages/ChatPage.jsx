@@ -431,7 +431,7 @@ const ChatPage = () => {
                                         </div>
                                     </div>
 
-                                    <div className="text-2xl md:text-3xl leading-[1.6] font-bold tracking-tight text-slate-950 text-left overflow-hidden" dir="ltr">
+                                    <div className="text-xl md:text-2xl leading-[1.7] font-medium tracking-tight text-slate-900 text-left overflow-hidden" dir="ltr">
                                         {words.map((word, i) => {
                                             const translation = translationsMap[`${item.id}-${i}`];
                                             return (
@@ -532,8 +532,8 @@ const ChatPage = () => {
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder={t.typeReply}
-                            className="flex-1 bg-transparent py-4 px-6 outline-none text-slate-900 placeholder:text-slate-300 font-medium text-left"
-                            dir="ltr"
+                            className="flex-1 bg-transparent py-4 px-6 outline-none text-slate-900 placeholder:text-slate-300 font-medium text-start"
+                            dir="auto"
                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                         />
                         <button

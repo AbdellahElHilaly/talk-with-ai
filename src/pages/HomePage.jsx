@@ -40,20 +40,20 @@ const HomePage = () => {
     const features = [
         {
             icon: MessageSquare,
-            title: lang === 'ar' ? 'دردشة ذكية' : 'Smart Chat',
-            desc: lang === 'ar' ? 'تحدث مع Llama 3 المتقدم.' : 'Llama 3 advanced intelligence.',
-            color: 'bg-blue-50 text-blue-500'
+            title: lang === 'ar' ? 'شخصيات تفاعلية' : 'Interactive Personas',
+            desc: lang === 'ar' ? 'تحدث مع شخصيات متنوعة تناسب مستواك ومزاجك.' : 'Chat with diverse AI characters tailored to your style.',
+            color: 'bg-indigo-50 text-indigo-500'
         },
         {
             icon: Zap,
-            title: lang === 'ar' ? 'سحر الترجمة' : 'Translation Magic',
-            desc: lang === 'ar' ? 'معنى الكلمة في لمحة.' : 'Word meaning at a glance.',
+            title: lang === 'ar' ? 'ترجمة فورية' : 'Instant Translation',
+            desc: lang === 'ar' ? 'انقر على أي كلمة واسمع نطقها مع ترجمة دقيقة لتنصنيعها.' : 'Tap any word to hear it and see contextual meaning.',
             color: 'bg-amber-50 text-amber-500'
         },
         {
             icon: Bookmark,
-            title: lang === 'ar' ? 'كلماتك المفضلة' : 'Favorite Words',
-            desc: lang === 'ar' ? 'قائمة مخصصة لمراجعتك.' : 'Custom list for your review.',
+            title: lang === 'ar' ? 'قاموسك الذكي' : 'Smart Vocabulary',
+            desc: lang === 'ar' ? 'احفظ الكلمات الجديدة وتدرب عليها بشكل مستمر.' : 'Save new words and practice them continuously.',
             color: 'bg-emerald-50 text-emerald-500'
         }
     ];
@@ -94,15 +94,15 @@ const HomePage = () => {
                     className="space-y-4"
                 >
                     <h1 className="text-6xl md:text-7xl font-black text-slate-950 tracking-tighter leading-[0.95]">
-                        {t.readyToBloom} <br />
-                        <span className="text-brand-indigo italic">{t.bloom}</span>
-                        <span className="block text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] text-slate-400 mt-4">
-                            {lang === 'ar' ? 'مستقبلك يبدأ هنا' : 'Your Future Starts Here'}
+                        {lang === 'ar' ? 'تحدث مع' : 'Talk With'} <br />
+                        <span className="text-brand-indigo italic text-7xl md:text-8xl">AI</span>
+                        <span className="block text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] text-slate-400 mt-6">
+                            {lang === 'ar' ? 'رحلتك لإتقان الإنجليزية تبدأ هنا' : 'Your English Journey Starts Here'}
                         </span>
                     </h1>
 
-                    <p className="text-slate-500 text-sm md:text-base font-medium max-w-sm mx-auto leading-relaxed pt-2">
-                        {t.tagline}
+                    <p className="text-slate-500 text-sm md:text-base font-medium max-w-sm mx-auto leading-relaxed pt-3">
+                        {lang === 'ar' ? 'تطبيق تفاعلي يتيح لك الدردشة صوتياً ونصياً مع شخصيات ذكاء اصطناعي لتعلم وتطوير لغتك الإنجليزية بشكل طبيعي.' : 'An interactive app that lets you chat with diverse AI personas to learn and master English effortlessly.'}
                     </p>
                 </motion.div>
 

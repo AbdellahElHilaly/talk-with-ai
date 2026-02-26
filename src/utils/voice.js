@@ -165,7 +165,7 @@ class VoiceEngine {
     /**
      * Calls ElevenLabs API to get high-quality audio.
      */
-    async speakElevenLabs(text, langCode, sequenceId, forceVoice = null) {
+    async speakElevenLabs(text, langCode, sequenceId, forceVoice = null, attempt = 1) {
         const key = getActiveElevenKey();
         if (!key) {
             return this.speakBrowser(text, langCode, forceVoice, sequenceId);
@@ -190,14 +190,14 @@ class VoiceEngine {
         // CHECK CACHE FIRST
         if (this.audioCache.has(cacheKey)) {
             if (sequenceId !== this.currentSequence) return;
-            
+
             // Update access order for LRU
             const index = this.cacheAccessOrder.indexOf(cacheKey);
             if (index > -1) {
                 this.cacheAccessOrder.splice(index, 1);
             }
             this.cacheAccessOrder.push(cacheKey);
-            
+
             this.audioElement.src = this.audioCache.get(cacheKey);
             await this.audioElement.play();
             return;
@@ -223,14 +223,14 @@ class VoiceEngine {
             if (sequenceId !== this.currentSequence) return;
 
             if (!response.ok) {
-                if (response.status === 401 || response.status === 403 || response.status === 429) {
+                const totalKeys = getElevenKeys().length;
+                if ((response.status === 401 || response.status === 403 || response.status === 429) && attempt < totalKeys) {
                     const nextKey = rotateElevenKey();
                     if (nextKey) {
-                        return this.speakElevenLabs(text, langCode, sequenceId, forceVoice);
+                        return this.speakElevenLabs(text, langCode, sequenceId, forceVoice, attempt + 1);
                     }
-                    return this.speakBrowser(text, langCode, customVoiceId, sequenceId);
                 }
-                throw new Error(`TTS_FAILED_${response.status}`);
+                return this.speakBrowser(text, langCode, customVoiceId, sequenceId);
             }
 
             const audioBlob = await response.blob();
