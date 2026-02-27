@@ -525,10 +525,10 @@ const ChatPage = () => {
                                                                     animate={{
                                                                         height: [4, 11, 4],
                                                                         backgroundColor: [
-                                                                            '#4F46E5', // Indigo
+                                                                            'var(--brand-color)', // Theme base
                                                                             '#EC4899', // Pink
                                                                             '#8B5CF6', // Violet
-                                                                            '#4F46E5'  // Back to Indigo
+                                                                            'var(--brand-color)'  // Back to theme base
                                                                         ]
                                                                     }}
                                                                     transition={{
