@@ -8,6 +8,7 @@ import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
 import { voiceEngine } from '../utils/voice';
 import { VocabService } from '../utils/vocabulary';
 import { CHARACTERS } from '../prompts/characters';
+import { resolveAssetPath } from '../utils/assets';
 import Alert from './shared/Alert';
 
 const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
@@ -221,7 +222,7 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
                                                             <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
                                                                 {character.miniImage ? (
                                                                     <img
-                                                                        src={character.miniImage}
+                                                                        src={resolveAssetPath(character.miniImage)}
                                                                         alt={character.name}
                                                                         className="w-full h-full object-cover"
                                                                     />

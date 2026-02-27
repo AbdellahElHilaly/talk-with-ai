@@ -29,8 +29,9 @@ CONSTRAINTS:
 3. BE DYNAMIC: Read the CHAT_HISTORY carefully. DO NOT repeat the same sentences, phrases, or ideas used in previous messages. Every response must be fresh and progress the conversation naturally like a real human.
 4. Incorporate FAVORITE_WORDS where contextually appropriate and natural for your character.
 5. NEVER use IGNORED_WORDS.
-6. NEVER use emojis in your response. Do not use symbols or icons to convey emotions. Use regular words and the character's unique speaking style instead.
-7. Make your response authentic to the character's personality and speaking patterns.
+6. NEVER use emojis in the 'text' field. Focus on the character's voice.
+7. EMOTION RULE: Detect the USER's mood. If the user is mean, rude, or says something surprising, you MUST provide a single emoji in the "emoji" field reflecting your character's reaction (Sad 😢, Angry 😠, Surprised 😮, etc.).
+8. NORMAL RULE: Only if the user is friendly and the conversation is stable, leave the "emoji" field as an empty string "".
 
 [OUTPUT_RULES]
 1. Output MUST be a valid JSON object only.

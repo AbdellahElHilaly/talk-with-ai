@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 import { CHARACTERS } from '../prompts/characters';
+import { resolveAssetPath } from '../utils/assets';
 
 const CharactersPage = () => {
     const navigate = useNavigate();
@@ -76,7 +77,7 @@ const CharactersPage = () => {
                             {/* Card Image Wrapper */}
                             <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
                                 <img
-                                    src={character.image}
+                                    src={resolveAssetPath(character.image)}
                                     alt={character.name}
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 />
@@ -95,7 +96,7 @@ const CharactersPage = () => {
                                 <div className={`absolute bottom-4 ${rtl ? 'left-4' : 'right-4'} z-20`}>
                                     <div className={`w-14 h-14 rounded-full border-2 shadow-xl flex items-center justify-center overflow-hidden transition-all duration-300 ${character.miniImage ? 'border-emerald-400 bg-white scale-110' : 'border-rose-400 bg-rose-50 border-dashed opacity-80'}`}>
                                         {character.miniImage ? (
-                                            <img src={character.miniImage} alt="mini" className="w-full h-full object-cover" />
+                                            <img src={resolveAssetPath(character.miniImage)} alt="mini" className="w-full h-full object-cover" />
                                         ) : (
                                             <div className="flex flex-col items-center">
                                                 <span className="text-xl opacity-50">{character.icon}</span>

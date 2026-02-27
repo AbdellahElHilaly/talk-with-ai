@@ -11,6 +11,7 @@ import { getCurrentLang, isRTL } from '../utils/lang';
 import { voiceEngine } from '../utils/voice';
 import { VocabService } from '../utils/vocabulary';
 import { CHARACTERS } from '../prompts/characters';
+import { resolveAssetPath } from '../utils/assets';
 
 const ChatPage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -335,7 +336,7 @@ const ChatPage = () => {
                     id: selectedCharacter,
                     name: currentCharacter.name,
                     nameAr: currentCharacter.nameAr,
-                    icon: currentCharacter.icon
+                    icon: aiResponse.emoji || ""
                 }
             }]);
         } catch (error) {
@@ -424,7 +425,7 @@ const ChatPage = () => {
                         title={lang === 'ar' ? 'تغيير الشخصية' : 'Change Character'}
                     >
                         {CHARACTERS[selectedCharacter]?.miniImage ? (
-                            <img src={CHARACTERS[selectedCharacter].miniImage} alt="avatar" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                            <img src={resolveAssetPath(CHARACTERS[selectedCharacter].miniImage)} alt="avatar" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-xl">{CHARACTERS[selectedCharacter]?.icon}</div>
                         )}
@@ -463,7 +464,9 @@ const ChatPage = () => {
                         }
 
                         const words = item.text.split(' ');
-                        const currentCharacter = item.character || CHARACTERS[selectedCharacter] || CHARACTERS.girlfriend;
+                        // Fix: Always get the full character config from our source of truth
+                        const charId = item.character?.id || selectedCharacter;
+                        const charConfig = CHARACTERS[charId] || CHARACTERS.girlfriend;
 
                         return (
                             <motion.div
@@ -481,15 +484,25 @@ const ChatPage = () => {
                                             title={lang === 'ar' ? 'تغيير الشخصية' : 'Change Character'}
                                         >
                                             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm flex-shrink-0 bg-slate-50 group-hover:border-brand-indigo transition-colors ring-offset-2 group-hover:ring-2 ring-brand-indigo/30 flex items-center justify-center">
-                                                {currentCharacter.miniImage ? (
-                                                    <img src={currentCharacter.miniImage} alt={currentCharacter.name} className="w-full h-full object-cover" />
+                                                {item.character?.icon && item.character.icon.trim() !== "" ? (
+                                                    <span className="text-3xl leading-none">{item.character.icon}</span>
+                                                ) : charConfig.miniImage || charConfig.image ? (
+                                                    <img
+                                                        src={resolveAssetPath(charConfig.miniImage || charConfig.image)}
+                                                        alt={charConfig.name}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                            e.target.parentElement.innerHTML = `<span class="text-3xl leading-none">${charConfig.icon}</span>`;
+                                                        }}
+                                                    />
                                                 ) : (
-                                                    <span className="text-3xl leading-none">{currentCharacter.icon}</span>
+                                                    <span className="text-3xl leading-none">{charConfig.icon}</span>
                                                 )}
                                             </div>
                                             <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
                                                 <span className="text-sm font-semibold text-brand-indigo tracking-tight group-hover:text-indigo-600 transition-colors">
-                                                    {lang === 'ar' ? currentCharacter.nameAr : currentCharacter.name}
+                                                    {lang === 'ar' ? charConfig.nameAr : charConfig.name}
                                                 </span>
                                             </div>
                                         </button>
