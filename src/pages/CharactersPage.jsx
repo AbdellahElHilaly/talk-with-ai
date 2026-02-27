@@ -18,6 +18,11 @@ const CharactersPage = () => {
     const handleSelect = (characterId) => {
         setSelectedCharacter(characterId);
         localStorage.setItem('selected_character', characterId);
+
+        // Clear old conversation when switching characters
+        sessionStorage.removeItem('chat_session_messages');
+        sessionStorage.removeItem('chat_translations_map');
+
         window.dispatchEvent(new CustomEvent('characterChanged', { detail: characterId }));
 
         // Update recent_characters array in localStorage
@@ -52,35 +57,90 @@ const CharactersPage = () => {
                 </div>
             </div>
 
-            <main className="flex-1 p-6 max-w-4xl mx-auto w-full flex flex-col gap-6 overflow-y-auto pb-safe">
-                <div className="flex flex-wrap justify-center gap-x-6 gap-y-8 sm:gap-x-10 sm:gap-y-10">
+            <main className="flex-1 p-6 max-w-6xl mx-auto w-full overflow-y-auto pb-safe">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {Object.values(CHARACTERS).map((character, index) => (
                         <motion.button
                             key={character.id}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.03 }}
-                            whileTap={{ scale: 0.9 }}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            whileHover={{ y: -5 }}
+                            whileTap={{ scale: 0.98 }}
                             onClick={() => handleSelect(character.id)}
-                            className={`w-[76px] sm:w-[90px] relative flex flex-col items-center gap-2 transition-all touch-manipulation outline-none group ${selectedCharacter === character.id ? 'scale-105 z-10' : 'hover:scale-105 hover:z-10'}`}
+                            className={`relative flex flex-col bg-white rounded-3xl overflow-hidden shadow-sm border-2 transition-all text-left group ${selectedCharacter === character.id
+                                ? 'border-brand-indigo ring-4 ring-indigo-50 shadow-md'
+                                : 'border-slate-100 hover:border-brand-indigo/30 hover:shadow-md'
+                                }`}
                         >
-                            <div className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-3xl sm:text-4xl shadow-sm transition-all ${selectedCharacter === character.id
-                                ? 'bg-gradient-to-br from-indigo-50 to-purple-50 ring-4 ring-brand-indigo ring-offset-2 ring-offset-slate-50'
-                                : 'bg-white ring-1 ring-slate-200 group-hover:ring-brand-indigo/40 group-hover:shadow-md'
-                                }`}>
-                                <span className="drop-shadow-sm">{character.icon}</span>
+                            {/* Card Image Wrapper */}
+                            <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                                <img
+                                    src={character.image}
+                                    alt={character.name}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
+
+                                {/* Floating Badge for Selection */}
                                 {selectedCharacter === character.id && (
-                                    <div className="absolute -bottom-1 -right-1 sm:bottom-0 sm:right-0 w-5 h-5 sm:w-6 sm:h-6 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center shadow-sm z-10">
-                                        <span className="text-[10px] sm:text-[12px] text-white font-black leading-none">✓</span>
+                                    <div className="absolute top-4 right-4 bg-brand-indigo text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1.5 z-10">
+                                        <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                                        {lang === 'ar' ? 'مختار' : 'Selected'}
                                     </div>
                                 )}
+
+
+                                {/* Mini Profile Preview Indicator */}
+                                <div className={`absolute bottom-4 ${rtl ? 'left-4' : 'right-4'} z-20`}>
+                                    <div className={`w-14 h-14 rounded-full border-2 shadow-xl flex items-center justify-center overflow-hidden transition-all duration-300 ${character.miniImage ? 'border-emerald-400 bg-white scale-110' : 'border-rose-400 bg-rose-50 border-dashed opacity-80'}`}>
+                                        {character.miniImage ? (
+                                            <img src={character.miniImage} alt="mini" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xl opacity-50">{character.icon}</span>
+                                                <span className="text-[6px] font-black text-rose-500 uppercase leading-none mt-0.5">Missing Mini</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Character Info Over Image */}
+                                <div className={`absolute bottom-4 ${rtl ? 'right-4' : 'left-4'} pr-20 ltr:pr-20 rtl:pl-20 max-w-[70%]`}>
+                                    <h2 className="text-xl font-black text-white leading-tight drop-shadow-md">
+                                        {lang === 'ar' ? character.nameAr : character.name}
+                                    </h2>
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                        {character.traits.slice(0, 3).map((trait, i) => (
+                                            <span key={i} className="bg-white/20 backdrop-blur-md text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border border-white/20">
+                                                {trait}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="flex flex-col items-center w-full px-1">
-                                <span className={`text-[10px] sm:text-[11px] font-black uppercase tracking-tight text-center leading-tight line-clamp-2 w-full ${selectedCharacter === character.id ? 'text-brand-indigo' : 'text-slate-500'
-                                    }`}>
-                                    {lang === 'ar' ? character.nameAr : character.name}
-                                </span>
+                            {/* Card Content - Personality Snippet */}
+                            <div className="p-5 flex flex-col gap-3">
+                                <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+                                    {character.personality}
+                                </p>
+                                <div className="flex items-center justify-between mt-1">
+                                    <div className="flex gap-2 py-1">
+                                        {character.favoriteEmojis ? (
+                                            character.favoriteEmojis.map((emoji, i) => (
+                                                <span key={i} className="text-lg cursor-default" title="Likes">
+                                                    {emoji}
+                                                </span>
+                                            ))
+                                        ) : (
+                                            <span className="text-lg">{character.icon}</span>
+                                        )}
+                                    </div>
+                                    <span className="text-[10px] font-black text-brand-indigo uppercase tracking-widest group-hover:translate-x-1 transition-transform">
+                                        {lang === 'ar' ? 'ابدأ الدردشة ←' : 'Start Chat →'}
+                                    </span>
+                                </div>
                             </div>
                         </motion.button>
                     ))}

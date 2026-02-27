@@ -327,8 +327,6 @@ const ChatPage = () => {
             const aiResponse = await ChatController.sendMessage(context, userMsg.text, learnedWords, ignoredWords, selectedCharacter);
             const currentCharacter = CHARACTERS[selectedCharacter] || CHARACTERS.girlfriend;
 
-            const aiEmoji = aiResponse.emoji?.trim() ? aiResponse.emoji.trim() : null;
-
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'ai',
@@ -337,7 +335,7 @@ const ChatPage = () => {
                     id: selectedCharacter,
                     name: currentCharacter.name,
                     nameAr: currentCharacter.nameAr,
-                    icon: aiEmoji || currentCharacter.icon
+                    icon: currentCharacter.icon
                 }
             }]);
         } catch (error) {
@@ -365,84 +363,72 @@ const ChatPage = () => {
                 </div>
 
                 {/* END SECTION: TRANSLATION / LOGO */}
-                <div className="flex items-center px-2">
+                <div className="flex items-center gap-4 flex-1 justify-end min-w-0">
                     <AnimatePresence mode="wait">
-                        {!selectedWord ? (
+                        {selectedWord ? (
                             <motion.div
-                                key="status-logo"
-                                initial={{ opacity: 0, x: rtl ? -10 : 10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: rtl ? -10 : 10 }}
-                                className="flex items-center gap-4"
+                                key={`translation-${selectedWord.en}`}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="flex items-center gap-3 min-w-0"
                             >
-                                <div className={`flex flex-col ${rtl ? 'items-start' : 'items-end'}`}>
-                                    <span className="logo-font text-xl text-brand-indigo leading-none mb-1 tracking-tight">S-L</span>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className={`w-1.5 h-1.5 rounded-full ${staticMode ? 'bg-amber-400' : 'bg-emerald-400'} shadow-sm animate-pulse`} />
-                                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">
-                                            {staticMode ? t.localEngine : t.connected}
-                                        </span>
-                                    </div>
+                                <div className={`flex flex-col items-${rtl ? 'start' : 'end'} text-${rtl ? 'left' : 'right'} min-w-0`}>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate w-full">
+                                        {selectedWord.en}
+                                    </span>
+                                    <span className="text-sm font-black text-slate-800 arabic-text leading-none truncate w-full">
+                                        {selectedWord.ar}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col gap-1 shrink-0">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); toggleLearned(selectedWord.en); }}
+                                        className={`force-action-btn rounded-full flex items-center justify-center transition-all active:scale-95 outline-none cursor-pointer text-white shadow-sm ${learnedWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, '')) ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                                    >
+                                        <Plus size={10} strokeWidth={4} />
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); toggleIgnored(selectedWord.en); }}
+                                        className={`force-action-btn rounded-full flex items-center justify-center transition-all active:scale-95 outline-none cursor-pointer text-white shadow-sm ${ignoredWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, '')) ? 'bg-rose-500' : 'bg-slate-200'}`}
+                                    >
+                                        <X size={10} strokeWidth={4} />
+                                    </button>
                                 </div>
                             </motion.div>
                         ) : (
                             <motion.div
-                                key={`translation-${selectedWord.en}`}
-                                initial={{ opacity: 0, x: rtl ? -10 : 10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: rtl ? -10 : 10 }}
-                                transition={{ type: "spring", damping: 20, stiffness: 200 }}
-                                className="flex items-center gap-5"
-                                dir="ltr" // Ensure buttons and words keep their specific screen-order regardless of global dir
+                                key="char-name"
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className={`flex flex-col items-${rtl ? 'start' : 'end'} text-${rtl ? 'left' : 'right'}`}
                             >
-                                {rtl ? (
-                                    <>
-                                        {/* ARABIC: [Column] [Word] (Buttons on the far left) */}
-                                        <div className="flex flex-col gap-1 shrink-0">
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); toggleLearned(selectedWord.en); }}
-                                                className={`force-action-btn rounded-full flex items-center justify-center transition-all active:scale-95 outline-none cursor-pointer text-white shadow-sm ${learnedWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, '')) ? 'bg-emerald-500' : 'bg-slate-200'}`}
-                                            >
-                                                <Plus size={11} strokeWidth={4} />
-                                            </button>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); toggleIgnored(selectedWord.en); }}
-                                                className={`force-action-btn rounded-full flex items-center justify-center transition-all active:scale-95 outline-none cursor-pointer text-white shadow-sm ${ignoredWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, '')) ? 'bg-rose-500' : 'bg-slate-200'}`}
-                                            >
-                                                <X size={11} strokeWidth={4} />
-                                            </button>
-                                        </div>
-                                        <div className="flex flex-col items-start max-w-[140px] sm:max-w-[200px]">
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.20em] mb-1 truncate w-full text-left">{selectedWord.en}</span>
-                                            <span className="text-base font-black text-slate-900 arabic-text leading-none truncate w-full text-left">{selectedWord.ar}</span>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        {/* ENGLISH: [Word] [Column] (Buttons on the far right) */}
-                                        <div className="flex flex-col items-end max-w-[140px] sm:max-w-[200px]">
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.20em] mb-1 truncate w-full text-right">{selectedWord.en}</span>
-                                            <span className="text-base font-black text-slate-900 arabic-text leading-none truncate w-full text-right">{selectedWord.ar}</span>
-                                        </div>
-                                        <div className="flex flex-col gap-1 shrink-0">
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); toggleLearned(selectedWord.en); }}
-                                                className={`force-action-btn rounded-full flex items-center justify-center transition-all active:scale-95 outline-none cursor-pointer text-white shadow-sm ${learnedWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, '')) ? 'bg-emerald-500' : 'bg-slate-200'}`}
-                                            >
-                                                <Plus size={11} strokeWidth={4} />
-                                            </button>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); toggleIgnored(selectedWord.en); }}
-                                                className={`force-action-btn rounded-full flex items-center justify-center transition-all active:scale-95 outline-none cursor-pointer text-white shadow-sm ${ignoredWords.includes(selectedWord.en.toLowerCase().replace(/[.,!?;:]/g, '')) ? 'bg-rose-500' : 'bg-slate-200'}`}
-                                            >
-                                                <X size={11} strokeWidth={4} />
-                                            </button>
-                                        </div>
-                                    </>
-                                )}
+                                <span className="text-xs font-black text-slate-800 leading-none mb-1 tracking-tight font-outfit">
+                                    {lang === 'ar' ? (CHARACTERS[selectedCharacter]?.nameAr) : (CHARACTERS[selectedCharacter]?.name)}
+                                </span>
+                                <div className="flex items-center gap-1.5">
+                                    <div className={`w-1 h-1 rounded-full ${staticMode ? 'bg-amber-400' : 'bg-emerald-400'} animate-pulse`} />
+                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                                        {staticMode ? t.localEngine : t.connected}
+                                    </span>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
+
+                    {/* Permanent Character Avatar Link */}
+                    <button
+                        onClick={() => navigate('/characters')}
+                        className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-100 shadow-sm bg-slate-50 flex-shrink-0 ring-offset-2 ring-brand-indigo hover:ring-2 hover:border-brand-indigo transition-all active:scale-90 group"
+                        title={lang === 'ar' ? 'تغيير الشخصية' : 'Change Character'}
+                    >
+                        {CHARACTERS[selectedCharacter]?.miniImage ? (
+                            <img src={CHARACTERS[selectedCharacter].miniImage} alt="avatar" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-xl">{CHARACTERS[selectedCharacter]?.icon}</div>
+                        )}
+                    </button>
                 </div>
             </div>
 
@@ -488,18 +474,76 @@ const ChatPage = () => {
                             >
                                 <div className="flex flex-col gap-5">
                                     {/* Character Profile */}
-                                    <div className={`flex items-center gap-4 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center border border-indigo-100 shadow-sm flex-shrink-0">
-                                            <span className="text-2xl">{currentCharacter.icon}</span>
-                                        </div>
-                                        <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
-                                            <span className="text-sm font-semibold text-brand-indigo tracking-tight">
-                                                {lang === 'ar' ? currentCharacter.nameAr : currentCharacter.name}
-                                            </span>
+                                    <div className={`flex items-center justify-between gap-4 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <button
+                                            onClick={() => navigate('/characters')}
+                                            className={`flex items-center gap-4 transition-all active:scale-95 group hover:opacity-80 ${rtl ? 'flex-row-reverse text-right' : 'text-left'}`}
+                                            title={lang === 'ar' ? 'تغيير الشخصية' : 'Change Character'}
+                                        >
+                                            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm flex-shrink-0 bg-slate-50 group-hover:border-brand-indigo transition-colors ring-offset-2 group-hover:ring-2 ring-brand-indigo/30 flex items-center justify-center">
+                                                {currentCharacter.miniImage ? (
+                                                    <img src={currentCharacter.miniImage} alt={currentCharacter.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <span className="text-3xl leading-none">{currentCharacter.icon}</span>
+                                                )}
+                                            </div>
+                                            <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
+                                                <span className="text-sm font-semibold text-brand-indigo tracking-tight group-hover:text-indigo-600 transition-colors">
+                                                    {lang === 'ar' ? currentCharacter.nameAr : currentCharacter.name}
+                                                </span>
+                                            </div>
+                                        </button>
+
+                                        {/* SIMPLE ICON-ONLY PLAY BUTTON + SMALL ANIMATION */}
+                                        <div className="flex items-center gap-2">
+                                            {nowPlaying === item.id ? (
+                                                <div className={`flex items-center gap-1.5 ${rtl ? 'flex-row' : 'flex-row-reverse'}`}>
+                                                    <button
+                                                        onClick={() => { voiceEngine.stop(); setNowPlaying(null); }}
+                                                        className="p-1.5 text-rose-500 hover:text-rose-600 transition-all active:scale-95"
+                                                    >
+                                                        <Square size={14} fill="currentColor" strokeWidth={2.5} />
+                                                    </button>
+                                                    {voiceStatus === 'playing' && (
+                                                        <div className="flex gap-0.5 items-center h-4">
+                                                            {[1, 2, 3].map(i => (
+                                                                <motion.div
+                                                                    key={i}
+                                                                    animate={{
+                                                                        height: [4, 11, 4],
+                                                                        backgroundColor: [
+                                                                            '#4F46E5', // Indigo
+                                                                            '#EC4899', // Pink
+                                                                            '#8B5CF6', // Violet
+                                                                            '#4F46E5'  // Back to Indigo
+                                                                        ]
+                                                                    }}
+                                                                    transition={{
+                                                                        height: { repeat: Infinity, duration: 0.5, delay: i * 0.1 },
+                                                                        backgroundColor: { repeat: Infinity, duration: 2, delay: i * 0.2 }
+                                                                    }}
+                                                                    className="w-0.5 rounded-full"
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => {
+                                                        voiceEngine.stop();
+                                                        voiceEngine.speak(item.text, 'en');
+                                                        setNowPlaying(item.id);
+                                                    }}
+                                                    className="p-1.5 text-brand-indigo hover:text-indigo-600 transition-all active:scale-95"
+                                                >
+                                                    <Play size={14} fill="currentColor" strokeWidth={2.5} />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
 
-                                    <div className="text-xl md:text-2xl leading-[1.7] font-medium tracking-tight text-slate-900 text-left overflow-hidden" dir="ltr">
+                                    <div className="text-xl md:text-2xl leading-[1.7] font-medium tracking-tight text-slate-900 text-left overflow-hidden min-h-[1.7em]" dir="ltr">
                                         {words.map((word, i) => {
                                             const translation = translationsMap[`${item.id}-${i}`];
                                             return (
@@ -514,61 +558,6 @@ const ChatPage = () => {
                                                 </React.Fragment>
                                             );
                                         })}
-                                    </div>
-
-                                    <div className="flex flex-col gap-3 group">
-                                        <div className="h-[1px] w-full bg-slate-100 group-hover:bg-indigo-50 transition-colors" />
-                                        <div className={`flex items-center gap-5 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                            <div className={`flex items-center gap-1.5 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                                {nowPlaying === item.id ? (
-                                                    <button
-                                                        title="Stop"
-                                                        onClick={() => {
-                                                            voiceEngine.stop();
-                                                            setNowPlaying(null);
-                                                        }}
-                                                        className="text-rose-500  rounded-full"
-                                                    >
-                                                        <Square size={14} fill="currentColor" strokeWidth={2.5} />
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        title="Play"
-                                                        onClick={() => {
-                                                            voiceEngine.stop();
-                                                            voiceEngine.speak(item.text, 'en');
-                                                            setNowPlaying(item.id);
-                                                        }}
-                                                        className="text-brand-indigo rounded-full"
-                                                    >
-                                                        <Play size={14} fill="currentColor" strokeWidth={2.5} />
-                                                    </button>
-                                                )}
-
-                                                {nowPlaying === item.id && (
-                                                    <div className="flex gap-1 items-center">
-                                                        {voiceStatus === 'loading' ? (
-                                                            <motion.div
-                                                                animate={{ rotate: 360 }}
-                                                                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                                                className="w-2.5 h-2.5 border-2 border-brand-indigo/30 border-t-brand-indigo rounded-full"
-                                                            />
-                                                        ) : voiceStatus === 'playing' ? (
-                                                            <div className="flex gap-0.5 items-center">
-                                                                {[1, 2, 3].map(i => (
-                                                                    <motion.div
-                                                                        key={i}
-                                                                        animate={{ height: [3, 8, 3] }}
-                                                                        transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
-                                                                        className="w-0.5 bg-brand-indigo rounded-full"
-                                                                    />
-                                                                ))}
-                                                            </div>
-                                                        ) : null}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
@@ -631,7 +620,7 @@ const ChatPage = () => {
                 setIsMuted={setIsMuted}
                 onClearChat={handleClearChat}
             />
-        </div >
+        </div>
     );
 };
 

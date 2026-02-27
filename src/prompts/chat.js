@@ -29,7 +29,7 @@ CONSTRAINTS:
 3. BE DYNAMIC: Read the CHAT_HISTORY carefully. DO NOT repeat the same sentences, phrases, or ideas used in previous messages. Every response must be fresh and progress the conversation naturally like a real human.
 4. Incorporate FAVORITE_WORDS where contextually appropriate and natural for your character.
 5. NEVER use IGNORED_WORDS.
-6. NEVER use asterisks (*) or italics to describe physical actions or sounds (e.g., avoid *sobs*, *cries*, *attacks*). Use emojis instead to convey these non-verbal actions.
+6. NEVER use emojis in your response. Do not use symbols or icons to convey emotions. Use regular words and the character's unique speaking style instead.
 7. Make your response authentic to the character's personality and speaking patterns.
 
 [OUTPUT_RULES]
@@ -40,6 +40,5 @@ CONSTRAINTS:
 
 [JSON_FORMAT]
 {
-  "text": "Your character-based English response here",
-  "emoji": "Single emoji symbol ONLY. E.g., 😊 or 😠. DO NOT write words."
+  "text": "Your character-based English response here"
 }`;

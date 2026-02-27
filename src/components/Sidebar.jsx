@@ -70,6 +70,11 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
     const handleCharacterSelect = (characterId) => {
         setSelectedCharacter(characterId);
         localStorage.setItem('selected_character', characterId);
+
+        // Clear old conversation when switching characters
+        sessionStorage.removeItem('chat_session_messages');
+        sessionStorage.removeItem('chat_translations_map');
+
         window.dispatchEvent(new CustomEvent('characterChanged', { detail: characterId }));
 
         setRecentCharacters(prev => {
@@ -186,7 +191,7 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
 
                                 <div className="flex flex-col gap-3 text-left">
                                     <label className={`text-[9px] font-black text-slate-400 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'شخصية الذكي' : 'AI PERSONALITY'}</label>
-                                    <div className="overflow-x-auto hide-scrollbar -mx-2 px-2 pb-2">
+                                    <div className="overflow-x-auto hide-scrollbar -mx-2 px-2 pb-2 pt-2">
                                         <div className="flex gap-3 min-w-max">
                                             <button
                                                 onClick={() => {
@@ -213,10 +218,20 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
                                                         className={`flex flex-col items-center gap-1.5 min-w-[64px] transition-all touch-manipulation ${selectedCharacter === character.id ? 'transform -translate-y-1 scale-105' : 'hover:-translate-y-1'}`}
                                                     >
                                                         <div className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all ${selectedCharacter === character.id ? 'bg-gradient-to-br from-brand-indigo to-purple-500 shadow-lg shadow-indigo-200 ring-2 ring-white' : 'bg-white shadow-sm border border-slate-100 hover:border-slate-300'}`}>
-                                                            <span className="text-xl drop-shadow-sm">{character.icon}</span>
+                                                            <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+                                                                {character.miniImage ? (
+                                                                    <img
+                                                                        src={character.miniImage}
+                                                                        alt={character.name}
+                                                                        className="w-full h-full object-cover"
+                                                                    />
+                                                                ) : (
+                                                                    <span className="text-xl drop-shadow-sm">{character.icon}</span>
+                                                                )}
+                                                            </div>
                                                             {selectedCharacter === character.id && (
-                                                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center">
-                                                                    <span className="text-[8px] text-white">✓</span>
+                                                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center z-10">
+                                                                    <span className="text-[8px] text-white font-bold">✓</span>
                                                                 </div>
                                                             )}
                                                         </div>
