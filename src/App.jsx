@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
@@ -16,12 +16,15 @@ import CharactersPage from './pages/CharactersPage';
  * Handles routing and high-level layout with error boundary protection.
  */
 const App = () => {
+  const basename = import.meta.env.BASE_URL?.replace(/\/$/, '') || '';
+
   return (
     <ErrorBoundary>
-      <Router basename="/talk-with-ai">
+      <Router basename={basename}>
         <Routes>
           {/* Welcome & Onboarding */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/import-keys" element={<ImportKeysPage />} />
 
           {/* Main Interface */}
@@ -36,6 +39,9 @@ const App = () => {
           {/* Individual Support Guides */}
           <Route path="/guide/groq" element={<GroqGuide />} />
           <Route path="/guide/eleven" element={<ElevenLabsGuide />} />
+
+          {/* Fallback to Home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </ErrorBoundary>

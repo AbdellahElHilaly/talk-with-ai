@@ -66,7 +66,10 @@ const HomePage = () => {
 
             {/* Nav / Logo */}
             <nav className="relative z-10 px-6 md:px-8 py-6 md:py-8 flex justify-between items-center w-full max-w-6xl mx-auto shrink-0">
-                <div className="flex flex-col">
+                <div
+                    onClick={() => navigate('/')}
+                    className="flex flex-col cursor-pointer hover:opacity-80 transition-opacity"
+                >
                     <span className="logo-font text-2xl text-brand-indigo -rotate-3">Smart-Lern</span>
                 </div>
 

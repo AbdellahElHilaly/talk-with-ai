@@ -162,7 +162,15 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
 
                         <div className={`flex justify-between items-center mb-6 px-1 ${rtl ? 'flex-row-reverse' : ''}`}>
                             <div className={`flex flex-col ${rtl ? 'items-end' : 'items-start'}`}>
-                                <h2 className={`logo-font text-3xl text-brand-indigo ${rtl ? 'rotate-3' : '-rotate-3'}`}>Smart-Lern</h2>
+                                <h2
+                                    onClick={() => {
+                                        onClose();
+                                        navigate('/');
+                                    }}
+                                    className={`logo-font text-3xl text-brand-indigo cursor-pointer hover:opacity-80 transition-opacity ${rtl ? 'rotate-3' : '-rotate-3'}`}
+                                >
+                                    Smart-Lern
+                                </h2>
                                 <span className={`text-[9px] font-black text-slate-300 uppercase tracking-[0.4em] mt-1 ${rtl ? 'mr-1' : 'ml-1'}`}>{t.settingsPanel}</span>
                             </div>
                             <button
