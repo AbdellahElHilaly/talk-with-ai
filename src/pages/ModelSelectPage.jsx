@@ -1,12 +1,80 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, CheckCircle2, Plus, Trash2, Loader2, Zap, Brain, Copy, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronDown, CheckCircle2, Plus, Trash2, Loader2, Copy, ExternalLink, KeyRound } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PROVIDERS, getSelectedProviderId, setSelectedProviderId, getSelectedModel, setSelectedModel } from '../providers/ProviderRegistry';
 import { getCurrentLang, isRTL } from '../utils/lang';
 import Alert from '../components/shared/Alert';
 import Spinner from '../components/shared/Spinner';
 
+/* ─── tiny reusable dropdown ─── */
+const Select = ({ value, onChange, options, rtl }) => {
+    const [open, setOpen] = useState(false);
+    const selected = options.find(o => o.value === value);
+
+    return (
+        <div className="relative">
+            <button
+                onClick={() => setOpen(v => !v)}
+                className={`w-full flex items-center justify-between gap-3 px-5 py-4 bg-white border-2 border-slate-200 rounded-2xl hover:border-brand-indigo/40 transition-all shadow-sm focus:outline-none ${open ? 'border-brand-indigo/50 shadow-md' : ''} ${rtl ? 'flex-row-reverse text-right' : 'text-left'}`}
+            >
+                <div className={`flex items-center gap-3 overflow-hidden ${rtl ? 'flex-row-reverse' : ''}`}>
+                    {selected?.icon && <span className="text-xl shrink-0">{selected.icon}</span>}
+                    <div className={`flex flex-col overflow-hidden ${rtl ? 'items-end' : 'items-start'}`}>
+                        <span className="text-sm font-black text-slate-900 truncate">{selected?.label}</span>
+                        {selected?.sub && <span className="text-[10px] text-slate-400 font-medium truncate">{selected.sub}</span>}
+                    </div>
+                </div>
+                <ChevronDown
+                    size={16}
+                    className={`shrink-0 text-slate-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+                />
+            </button>
+
+            <AnimatePresence>
+                {open && (
+                    <>
+                        {/* backdrop */}
+                        <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+                        <motion.div
+                            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute top-[calc(100%+6px)] left-0 right-0 z-20 bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden"
+                        >
+                            {options.map(opt => (
+                                <button
+                                    key={opt.value}
+                                    onClick={() => { onChange(opt.value); setOpen(false); }}
+                                    className={`w-full flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50 transition-colors ${rtl ? 'flex-row-reverse text-right' : 'text-left'} ${opt.value === value ? 'bg-indigo-50/50' : ''}`}
+                                >
+                                    {opt.icon && <span className="text-xl shrink-0">{opt.icon}</span>}
+                                    <div className={`flex flex-col flex-1 overflow-hidden ${rtl ? 'items-end' : 'items-start'}`}>
+                                        <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                            <span className="text-sm font-bold text-slate-800 truncate">{opt.label}</span>
+                                            {opt.badge && (
+                                                <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full shrink-0 ${opt.badgeColor || 'bg-slate-100 text-slate-500'}`}>
+                                                    {opt.badge}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {opt.sub && <span className="text-[10px] text-slate-400 truncate">{opt.sub}</span>}
+                                    </div>
+                                    {opt.value === value && (
+                                        <CheckCircle2 size={16} className="text-brand-indigo shrink-0" strokeWidth={2.5} />
+                                    )}
+                                </button>
+                            ))}
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+/* ─── main page ─── */
 const ModelSelectPage = () => {
     const navigate = useNavigate();
     const lang = getCurrentLang();
@@ -15,7 +83,7 @@ const ModelSelectPage = () => {
 
     const [activeProviderId, setActiveProviderId] = useState(getSelectedProviderId());
     const [activeModel, setActiveModel] = useState(getSelectedModel());
-    const [providerKeys, setProviderKeys] = useState({});   // { providerId: string[] }
+    const [providerKeys, setProviderKeys] = useState({});
     const [newKey, setNewKey] = useState('');
     const [isValidating, setIsValidating] = useState(false);
     const [alertConfig, setAlertConfig] = useState({ show: false, message: '', type: 'success' });
@@ -23,7 +91,6 @@ const ModelSelectPage = () => {
     const providers = Object.values(PROVIDERS);
     const activeProvider = PROVIDERS[activeProviderId];
 
-    // Load keys for all providers
     useEffect(() => {
         const keys = {};
         providers.forEach(p => { keys[p.id] = p.getKeys(); });
@@ -32,14 +99,39 @@ const ModelSelectPage = () => {
 
     const currentKeys = providerKeys[activeProviderId] || [];
 
-    const handleProviderSelect = (providerId) => {
+    /* provider dropdown options */
+    const providerOptions = providers.map(p => ({
+        value: p.id,
+        label: p.name,
+        sub: isAr ? p.descriptionAr : p.description,
+        icon: p.icon,
+    }));
+
+    /* model dropdown options */
+    const modelOptions = activeProvider.models.map(m => {
+        const badgeColors = {
+            Recommended: 'bg-emerald-50 text-emerald-600',
+            Fast: 'bg-blue-50 text-blue-600',
+            Powerful: 'bg-purple-50 text-purple-600',
+        };
+        return {
+            value: m.id,
+            label: m.name,
+            sub: isAr ? m.descriptionAr : m.description,
+            badge: m.badge,
+            badgeColor: badgeColors[m.badge],
+        };
+    });
+
+    const handleProviderChange = (providerId) => {
         setActiveProviderId(providerId);
         setSelectedProviderId(providerId);
-        setActiveModel(PROVIDERS[providerId].defaultModel);
+        const defaultModel = PROVIDERS[providerId].defaultModel;
+        setActiveModel(defaultModel);
         setNewKey('');
     };
 
-    const handleModelSelect = (modelId) => {
+    const handleModelChange = (modelId) => {
         setActiveModel(modelId);
         setSelectedModel(modelId);
     };
@@ -53,7 +145,7 @@ const ModelSelectPage = () => {
             setNewKey('');
             setAlertConfig({ show: true, message: isAr ? 'تمت إضافة المفتاح بنجاح! ✨' : 'Key added successfully! ✨', type: 'success' });
         } else {
-            setAlertConfig({ show: true, message: isAr ? 'المفتاح غير صالح. يرجى التأكد والمحاولة مرة أخرى.' : 'Invalid key. Please check and try again.', type: 'error' });
+            setAlertConfig({ show: true, message: isAr ? 'المفتاح غير صالح. تأكد منه وأعد المحاولة.' : 'Invalid key. Please check and try again.', type: 'error' });
         }
         setIsValidating(false);
     };
@@ -68,22 +160,13 @@ const ModelSelectPage = () => {
         setAlertConfig({ show: true, message: isAr ? 'تم نسخ المفتاح! 📋' : 'Key copied! 📋', type: 'success' });
     };
 
-    const badgeColor = (badge) => {
-        if (badge === 'Recommended') return 'bg-emerald-50 text-emerald-600';
-        if (badge === 'Fast') return 'bg-blue-50 text-blue-600';
-        if (badge === 'Powerful') return 'bg-purple-50 text-purple-600';
-        return 'bg-slate-50 text-slate-500';
-    };
-
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col" dir={rtl ? 'rtl' : 'ltr'}>
 
             <AnimatePresence>
                 {isValidating && (
-                    <motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] bg-white/60 backdrop-blur-sm flex items-center justify-center"
-                    >
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] bg-white/60 backdrop-blur-sm flex items-center justify-center">
                         <Spinner label={isAr ? 'جاري التحقق...' : 'Validating...'} />
                     </motion.div>
                 )}
@@ -96,210 +179,239 @@ const ModelSelectPage = () => {
                 onClose={() => setAlertConfig(prev => ({ ...prev, show: false }))}
             />
 
-            {/* Header */}
-            <div className="bg-white border-b border-slate-100 px-6 py-6 flex items-center gap-4 sticky top-0 z-10 shrink-0">
-                <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-slate-400 hover:text-brand-indigo transition-colors">
+            {/* ── Header ── */}
+            <div className="bg-white border-b border-slate-100 px-6 py-5 flex items-center gap-4 sticky top-0 z-10 shrink-0">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="p-2 -ml-2 text-slate-400 hover:text-brand-indigo transition-colors"
+                >
                     <ChevronLeft size={24} className={rtl ? 'rotate-180' : ''} />
                 </button>
-                <div className="flex flex-col">
+                <div>
                     <h1 className="text-xl font-black text-slate-900 tracking-tight">
                         {isAr ? 'محرك الذكاء الاصطناعي' : 'AI Engine'}
                     </h1>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        {isAr ? 'اختر مزوّد الذكاء ونموذجه' : 'Choose your AI provider & model'}
-                    </span>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        {isAr ? 'اختر مزوّدك ونموذجك' : 'Choose your provider & model'}
+                    </p>
                 </div>
             </div>
 
-            <main className="flex-1 p-6 max-w-2xl mx-auto w-full flex flex-col gap-8 pb-12">
+            <main className="flex-1 p-5 max-w-xl mx-auto w-full flex flex-col gap-6 pb-12">
 
-                {/* ── 1. PROVIDER SELECTION ── */}
-                <section className="flex flex-col gap-3">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        {isAr ? 'مزوّد الذكاء الاصطناعي' : 'AI Provider'}
-                    </label>
-                    <div className="flex flex-col gap-3">
-                        {providers.map(provider => {
-                            const isActive = provider.id === activeProviderId;
-                            const keyCount = (providerKeys[provider.id] || []).length;
-                            return (
-                                <motion.button
-                                    key={provider.id}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => handleProviderSelect(provider.id)}
-                                    className={`w-full flex items-center gap-4 p-4 rounded-[2rem] border-2 transition-all text-left ${rtl ? 'flex-row-reverse text-right' : ''} ${isActive
-                                        ? 'border-brand-indigo bg-indigo-50/40 shadow-sm'
-                                        : 'border-slate-100 bg-white hover:border-slate-200 shadow-sm'
-                                        }`}
-                                >
-                                    {/* Icon bubble */}
-                                    <div
-                                        className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-sm"
-                                        style={{ backgroundColor: isActive ? provider.color + '18' : '#f8fafc' }}
-                                    >
-                                        {provider.icon}
-                                    </div>
+                {/* ════════════════════════════════════════
+                    PART 1 — PROVIDER & MODEL SELECTION
+                ════════════════════════════════════════ */}
+                <section className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
 
-                                    <div className="flex-1 flex flex-col gap-0.5 overflow-hidden">
-                                        <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                            <span className="text-sm font-black text-slate-900">{provider.name}</span>
-                                            {isActive && (
-                                                <span className="text-[8px] font-black uppercase tracking-widest bg-indigo-100 text-brand-indigo px-2 py-0.5 rounded-full">
-                                                    {isAr ? 'نشط' : 'Active'}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <span className="text-[10px] text-slate-400 font-medium truncate">
-                                            {isAr ? provider.descriptionAr : provider.description}
-                                        </span>
-                                        <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider mt-0.5">
-                                            {keyCount} {isAr ? 'مفاتيح' : 'keys'}
-                                        </span>
-                                    </div>
-
-                                    <div className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isActive ? 'border-brand-indigo bg-brand-indigo' : 'border-slate-200'}`}>
-                                        {isActive && <div className="w-2 h-2 rounded-full bg-white" />}
-                                    </div>
-                                </motion.button>
-                            );
-                        })}
-                    </div>
-                </section>
-
-                {/* ── 2. MODEL SELECTION ── */}
-                <section className="flex flex-col gap-3">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        {isAr ? 'النموذج' : 'Model'}
-                    </label>
-                    <div className="flex flex-col gap-2">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={activeProviderId}
-                                initial={{ opacity: 0, y: 6 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -6 }}
-                                transition={{ duration: 0.15 }}
-                                className="flex flex-col gap-2"
-                            >
-                                {activeProvider.models.map(model => {
-                                    const isSelected = model.id === activeModel;
-                                    return (
-                                        <button
-                                            key={model.id}
-                                            onClick={() => handleModelSelect(model.id)}
-                                            className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all ${rtl ? 'flex-row-reverse text-right' : 'text-left'} ${isSelected
-                                                ? 'border-brand-indigo/30 bg-white shadow-sm'
-                                                : 'border-slate-100 bg-white hover:border-slate-200'
-                                                }`}
-                                        >
-                                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${isSelected ? 'bg-indigo-50 text-brand-indigo' : 'bg-slate-50 text-slate-400'}`}>
-                                                {model.id.includes('reasoner') || model.id.includes('8b') ? <Brain size={16} /> : <Zap size={16} />}
-                                            </div>
-                                            <div className="flex-1 flex flex-col gap-0.5 overflow-hidden">
-                                                <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                                    <span className={`text-xs font-black ${isSelected ? 'text-brand-indigo' : 'text-slate-800'}`}>
-                                                        {model.name}
-                                                    </span>
-                                                    {model.badge && (
-                                                        <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${badgeColor(model.badge)}`}>
-                                                            {model.badge}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <span className="text-[9px] text-slate-400 font-medium">
-                                                    {isAr ? model.descriptionAr : model.description}
-                                                </span>
-                                            </div>
-                                            {isSelected && <CheckCircle2 size={18} className="text-brand-indigo shrink-0" strokeWidth={2.5} />}
-                                        </button>
-                                    );
-                                })}
-                            </motion.div>
-                        </AnimatePresence>
-                    </div>
-                </section>
-
-                {/* ── 3. API KEYS FOR ACTIVE PROVIDER ── */}
-                <section className="flex flex-col gap-3">
-                    <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            {isAr ? 'مفاتيح الـ API' : 'API Keys'} · {activeProvider.name}
-                        </label>
-                        <a
-                            href={activeProvider.docsUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-[9px] font-black text-brand-indigo hover:underline uppercase tracking-widest"
-                        >
-                            {isAr ? 'احصل على مفتاح' : 'Get a key'}
-                            <ExternalLink size={10} />
-                        </a>
+                    {/* section header */}
+                    <div className="px-6 pt-5 pb-2">
+                        <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                            <div className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-brand-indigo font-black text-xs">1</div>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                {isAr ? 'اختيار النموذج' : 'Model Selection'}
+                            </span>
+                        </div>
                     </div>
 
-                    {/* Add key input */}
-                    <div className="relative">
-                        <input
-                            type="password"
-                            value={newKey}
-                            onChange={e => setNewKey(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && handleAddKey()}
-                            placeholder={`${activeProvider.keyPrefix}...`}
-                            className={`w-full p-5 rounded-3xl bg-white border border-slate-200 outline-none focus:border-brand-indigo/40 transition-all font-mono text-sm shadow-sm ${rtl ? 'text-right' : 'text-left'}`}
-                        />
-                        <button
-                            onClick={handleAddKey}
-                            disabled={isValidating || !newKey.trim()}
-                            className={`absolute ${rtl ? 'left-2' : 'right-2'} top-2 bottom-2 aspect-square bg-slate-900 text-white rounded-2xl flex items-center justify-center hover:bg-brand-indigo transition-colors disabled:opacity-40`}
-                        >
-                            {isValidating ? <Loader2 size={18} className="animate-spin" /> : <Plus size={20} />}
-                        </button>
-                    </div>
+                    <div className="px-5 pb-5 flex flex-col gap-4 mt-2">
 
-                    {/* Keys list */}
-                    <div className="flex flex-col gap-2">
-                        <AnimatePresence mode="popLayout">
-                            {currentKeys.map((key, idx) => (
+                        {/* Provider dropdown */}
+                        <div className="flex flex-col gap-2">
+                            <label className={`text-[10px] font-black text-slate-500 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>
+                                {isAr ? 'مزوّد الذكاء الاصطناعي' : 'AI Provider'}
+                            </label>
+                            <Select
+                                value={activeProviderId}
+                                onChange={handleProviderChange}
+                                options={providerOptions}
+                                rtl={rtl}
+                            />
+                        </div>
+
+                        {/* divider */}
+                        <div className="h-px bg-slate-100 mx-1" />
+
+                        {/* Model dropdown */}
+                        <div className="flex flex-col gap-2">
+                            <label className={`text-[10px] font-black text-slate-500 uppercase tracking-widest ${rtl ? 'text-right' : 'text-left'}`}>
+                                {isAr ? 'النموذج' : 'Model'}
+                            </label>
+                            <AnimatePresence mode="wait">
                                 <motion.div
-                                    key={key}
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    className="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between gap-3"
+                                    key={activeProviderId}
+                                    initial={{ opacity: 0, y: 4 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -4 }}
+                                    transition={{ duration: 0.15 }}
                                 >
-                                    <div className={`flex items-center gap-3 overflow-hidden ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0 shadow-sm">
-                                            <CheckCircle2 size={20} strokeWidth={2.5} />
-                                        </div>
-                                        <div className={`flex flex-col overflow-hidden ${rtl ? 'items-end' : 'items-start'}`}>
-                                            <span className="font-mono text-[10px] text-slate-500 truncate max-w-[160px] md:max-w-xs">{key}</span>
-                                            <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">
-                                                {idx === 0 ? (isAr ? 'مفعّل' : 'Active') : (isAr ? 'جاهز' : 'Ready')}
+                                    <Select
+                                        value={activeModel}
+                                        onChange={handleModelChange}
+                                        options={modelOptions}
+                                        rtl={rtl}
+                                    />
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
+
+                        {/* Active summary pill */}
+                        <div className={`flex items-center gap-2 px-4 py-2.5 bg-indigo-50 rounded-2xl ${rtl ? 'flex-row-reverse' : ''}`}>
+                            <span className="text-base">{activeProvider.icon}</span>
+                            <span className="text-[10px] font-black text-brand-indigo truncate">
+                                {activeProvider.name} · {activeModel}
+                            </span>
+                            <div className="ml-auto shrink-0 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                        </div>
+                    </div>
+                </section>
+
+
+                {/* ════════════════════════════════════════
+                    PART 2 — API KEYS MANAGEMENT
+                ════════════════════════════════════════ */}
+                <AnimatePresence mode="wait">
+                    <motion.section
+                        key={activeProviderId}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.2 }}
+                        className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden"
+                    >
+                        {/* section header */}
+                        <div className="px-6 pt-5 pb-2">
+                            <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
+                                <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                    <div className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-brand-indigo font-black text-xs">2</div>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        {isAr ? `مفاتيح ${activeProvider.nameAr}` : `${activeProvider.name} API Keys`}
+                                    </span>
+                                </div>
+                                <a
+                                    href={activeProvider.docsUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`flex items-center gap-1 text-[9px] font-black text-brand-indigo hover:underline uppercase tracking-widest ${rtl ? 'flex-row-reverse' : ''}`}
+                                >
+                                    {isAr ? 'احصل على مفتاح' : 'Get a key'}
+                                    <ExternalLink size={10} />
+                                </a>
+                            </div>
+                        </div>
+
+                        <div className="px-5 pb-5 flex flex-col gap-4 mt-2">
+
+                            {/* ── Add key input ── */}
+                            <div className="relative">
+                                <div className={`absolute ${rtl ? 'right-4' : 'left-4'} top-0 bottom-0 flex items-center pointer-events-none`}>
+                                    <KeyRound size={16} className="text-slate-300" />
+                                </div>
+                                <input
+                                    type="password"
+                                    value={newKey}
+                                    onChange={e => setNewKey(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && handleAddKey()}
+                                    placeholder={`${activeProvider.keyPrefix}...`}
+                                    className={`w-full py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-brand-indigo/40 focus:bg-white transition-all font-mono text-sm shadow-sm ${rtl ? 'text-right pr-11 pl-16' : 'text-left pl-11 pr-16'}`}
+                                />
+                                <button
+                                    onClick={handleAddKey}
+                                    disabled={isValidating || !newKey.trim()}
+                                    className={`absolute ${rtl ? 'left-2' : 'right-2'} top-2 bottom-2 px-4 bg-slate-900 text-white rounded-xl flex items-center justify-center gap-1.5 hover:bg-brand-indigo transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-[10px] font-black uppercase tracking-wider`}
+                                >
+                                    {isValidating
+                                        ? <Loader2 size={14} className="animate-spin" />
+                                        : <><Plus size={14} />{isAr ? 'إضافة' : 'Add'}</>
+                                    }
+                                </button>
+                            </div>
+
+                            {/* ── Keys list ── */}
+                            <div className="flex flex-col gap-2">
+                                <AnimatePresence mode="popLayout">
+                                    {currentKeys.map((key, idx) => (
+                                        <motion.div
+                                            key={key}
+                                            initial={{ opacity: 0, scale: 0.96, y: -4 }}
+                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.9, x: rtl ? 30 : -30 }}
+                                            transition={{ duration: 0.18 }}
+                                            className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100"
+                                        >
+                                            {/* status dot */}
+                                            <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                                                <CheckCircle2 size={18} className="text-emerald-500" strokeWidth={2.5} />
+                                            </div>
+
+                                            {/* key text */}
+                                            <div className={`flex flex-col flex-1 overflow-hidden ${rtl ? 'items-end' : 'items-start'}`}>
+                                                <span className="font-mono text-[11px] text-slate-600 truncate max-w-full">
+                                                    {key.slice(0, 8)}{'•'.repeat(12)}{key.slice(-4)}
+                                                </span>
+                                                <span className={`text-[8px] font-black uppercase tracking-widest mt-0.5 ${idx === 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
+                                                    {idx === 0
+                                                        ? (isAr ? '⚡ مفعّل الآن' : '⚡ Active')
+                                                        : (isAr ? `احتياطي #${idx}` : `Backup #${idx}`)}
+                                                </span>
+                                            </div>
+
+                                            {/* actions */}
+                                            <div className="flex items-center gap-0.5 shrink-0">
+                                                <button
+                                                    onClick={() => handleCopy(key)}
+                                                    className="p-2 text-slate-300 hover:text-brand-indigo transition-colors rounded-lg hover:bg-indigo-50"
+                                                    title={isAr ? 'نسخ' : 'Copy'}
+                                                >
+                                                    <Copy size={14} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteKey(key)}
+                                                    className="p-2 text-slate-300 hover:text-rose-500 transition-colors rounded-lg hover:bg-rose-50"
+                                                    title={isAr ? 'حذف' : 'Delete'}
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+
+                                {/* empty state */}
+                                {currentKeys.length === 0 && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="py-8 flex flex-col items-center gap-3 text-slate-300"
+                                    >
+                                        <KeyRound size={36} strokeWidth={1} />
+                                        <div className="flex flex-col items-center gap-1">
+                                            <span className="text-[10px] font-black uppercase tracking-widest">
+                                                {isAr ? 'لا توجد مفاتيح بعد' : 'No keys yet'}
+                                            </span>
+                                            <span className="text-[9px] text-slate-300 text-center">
+                                                {isAr
+                                                    ? `أضف مفتاح ${activeProvider.nameAr} أعلاه للبدء`
+                                                    : `Add a ${activeProvider.name} key above to get started`}
                                             </span>
                                         </div>
-                                    </div>
-                                    <div className="flex items-center gap-1 shrink-0">
-                                        <button onClick={() => handleCopy(key)} className="p-2.5 text-slate-300 hover:text-brand-indigo transition-colors">
-                                            <Copy size={16} />
-                                        </button>
-                                        <button onClick={() => handleDeleteKey(key)} className="p-2.5 text-slate-300 hover:text-rose-500 transition-colors">
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
+                                    </motion.div>
+                                )}
 
-                        {currentKeys.length === 0 && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                                className="py-10 flex flex-col items-center gap-3 text-slate-300">
-                                <span className="text-4xl">{activeProvider.icon}</span>
-                                <span className="text-[10px] font-black uppercase tracking-widest text-center">
-                                    {isAr ? `لا توجد مفاتيح لـ ${activeProvider.nameAr}` : `No ${activeProvider.name} keys yet`}
-                                </span>
-                            </motion.div>
-                        )}
-                    </div>
-                </section>
+                                {/* key count badge */}
+                                {currentKeys.length > 0 && (
+                                    <div className={`flex items-center gap-1.5 px-3 mt-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                                        <span className="text-[9px] text-slate-400 font-medium">
+                                            {currentKeys.length} {isAr ? 'مفتاح نشط' : currentKeys.length === 1 ? 'key active' : 'keys active'}
+                                            {currentKeys.length > 1 && (isAr ? ' · التناوب التلقائي مفعّل' : ' · Auto-rotation enabled')}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </motion.section>
+                </AnimatePresence>
 
             </main>
         </div>
