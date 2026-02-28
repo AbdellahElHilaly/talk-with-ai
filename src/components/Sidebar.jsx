@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2, AlertCircle, Bookmark, GraduationCap, Trash2, Share2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getGroqKeys, getElevenKeys } from '../utils/keyStorage';
+import { getActiveProvider, getSelectedModel } from '../providers/ProviderRegistry';
 import { translations } from '../utils/translations';
 import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
 import { voiceEngine } from '../utils/voice';
@@ -16,6 +17,8 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
     const [speed, setSpeed] = useState(parseFloat(localStorage.getItem('voice_speed')) || 1);
     const [learnedCount, setLearnedCount] = useState(VocabService.getLearnedWords().length);
     const [alertConfig, setAlertConfig] = useState({ show: false, message: '', type: 'success' });
+    const [activeProvider, setActiveProvider] = useState(getActiveProvider());
+    const [activeModel, setActiveModel] = useState(getSelectedModel());
 
     React.useEffect(() => {
         const handleUpdate = () => setLearnedCount(VocabService.getLearnedWords().length);
@@ -304,16 +307,30 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
                                         {/* Data & Integrations */}
                                         <div className="bg-slate-50/70 border border-slate-100/80 rounded-[2rem] p-5 flex flex-col gap-4 shadow-sm">
                                             <div className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>
-                                                <Link to="/settings/groq-keys" className={`flex items-center gap-3 flex-1 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                                    <div className="w-8 h-8 bg-white rounded-xl border border-slate-100 flex items-center justify-center shadow-sm">
-                                                        <CheckCircle2 size={14} className={getGroqKeys().length > 0 ? 'text-emerald-500' : 'text-slate-300'} strokeWidth={3} />
+                                                <Link
+                                                    to="/settings/ai-engine"
+                                                    onClick={onClose}
+                                                    className={`flex items-center gap-3 flex-1 ${rtl ? 'flex-row-reverse' : ''}`}
+                                                    onMouseEnter={() => { setActiveProvider(getActiveProvider()); setActiveModel(getSelectedModel()); }}
+                                                >
+                                                    <div
+                                                        className="w-8 h-8 rounded-xl border border-slate-100 flex items-center justify-center shadow-sm text-lg"
+                                                        style={{ backgroundColor: activeProvider.color + '15' }}
+                                                    >
+                                                        {activeProvider.icon}
                                                     </div>
                                                     <div className={`flex flex-col text-left ${rtl ? 'items-end' : 'items-start'}`}>
-                                                        <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest group-hover:text-brand-indigo transition-colors">{lang === 'ar' ? 'دردشة ذكية' : 'Chat API'}</span>
-                                                        <span className="text-[8px] text-slate-400 font-medium">{getGroqKeys().length} {lang === 'ar' ? 'مفاتيح' : 'keys'}</span>
+                                                        <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest group-hover:text-brand-indigo transition-colors">
+                                                            {lang === 'ar' ? 'محرك الذكاء' : 'AI Engine'}
+                                                        </span>
+                                                        <span className="text-[8px] text-slate-400 font-medium truncate max-w-[120px]">
+                                                            {activeProvider.name} · {activeModel.split('-').slice(0, 2).join('-')}
+                                                        </span>
                                                     </div>
                                                 </Link>
-                                                <Link to="/guide/groq" className="p-2 text-slate-300 hover:text-brand-indigo transition-colors bg-white rounded-full shadow-sm border border-slate-100"><HelpCircle size={14} strokeWidth={2.5} /></Link>
+                                                <Link to="/settings/ai-engine" onClick={onClose} className="p-2 text-slate-300 hover:text-brand-indigo transition-colors bg-white rounded-full shadow-sm border border-slate-100">
+                                                    <HelpCircle size={14} strokeWidth={2.5} />
+                                                </Link>
                                             </div>
 
                                             <div className={`flex items-center justify-between group ${rtl ? 'flex-row-reverse' : ''}`}>

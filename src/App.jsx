@@ -10,6 +10,7 @@ import ElevenKeysPage from './pages/ElevenKeysPage';
 import InterestingWordsPage from './pages/InterestingWordsPage';
 import ImportKeysPage from './pages/ImportKeysPage';
 import CharactersPage from './pages/CharactersPage';
+import ModelSelectPage from './pages/ModelSelectPage';
 
 /**
  * Smart-Lern Core Application Entry Point
@@ -35,6 +36,7 @@ const App = () => {
           <Route path="/settings/groq-keys" element={<GroqKeysPage />} />
           <Route path="/settings/eleven-keys" element={<ElevenKeysPage />} />
           <Route path="/settings/vocabulary" element={<InterestingWordsPage />} />
+          <Route path="/settings/ai-engine" element={<ModelSelectPage />} />
 
           {/* Individual Support Guides */}
           <Route path="/guide/groq" element={<GroqGuide />} />
