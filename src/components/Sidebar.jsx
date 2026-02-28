@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2, User, Mic2, Speaker, ExternalLink, HelpCircle, Loader2, AlertCircle, Bookmark, GraduationCap, Trash2, Share2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getGroqKeys, getElevenKeys } from '../utils/keyStorage';
-import { getActiveProvider, getSelectedModel } from '../providers/ProviderRegistry';
+import { getActiveProvider, getSelectedModel, getSelectedCompoundModel, parseModelId } from '../providers/ProviderRegistry';
 import { translations } from '../utils/translations';
 import { getCurrentLang, setAppLang, isRTL } from '../utils/lang';
 import { voiceEngine } from '../utils/voice';
@@ -18,7 +18,10 @@ const Sidebar = ({ isOpen, onClose, isMuted, setIsMuted, onClearChat }) => {
     const [learnedCount, setLearnedCount] = useState(VocabService.getLearnedWords().length);
     const [alertConfig, setAlertConfig] = useState({ show: false, message: '', type: 'success' });
     const [activeProvider, setActiveProvider] = useState(getActiveProvider());
-    const [activeModel, setActiveModel] = useState(getSelectedModel());
+    const [activeModel, setActiveModel] = useState(() => {
+        const { modelId } = parseModelId(getSelectedCompoundModel());
+        return modelId;
+    });
 
     React.useEffect(() => {
         const handleUpdate = () => setLearnedCount(VocabService.getLearnedWords().length);

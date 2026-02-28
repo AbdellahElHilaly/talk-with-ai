@@ -2,69 +2,83 @@
  * Provider Registry — Strategy Pattern
  *
  * Central registry for all supported AI providers.
- * Each provider defines its own endpoint, models, key validation,
- * key storage keys, and fetch logic.
- *
- * To add a new provider: add an entry here + create its Provider file.
+ * To add a new provider: import it here and add it to PROVIDERS.
  */
 
 import { GroqProvider } from './GroqProvider';
 import { DeepSeekProvider } from './DeepSeekProvider';
+import { GeminiProvider } from './GeminiProvider';
 
 export const PROVIDERS = {
     groq: GroqProvider,
     deepseek: DeepSeekProvider,
+    gemini: GeminiProvider,
 };
 
-// localStorage key for the selected provider id
-const SELECTED_PROVIDER_KEY = 'selected_ai_provider';
-
-// localStorage key for the selected model per provider
-const SELECTED_MODEL_KEY = 'selected_ai_model';
+const SELECTED_MODEL_KEY = 'selected_ai_model_v2'; // includes provider info
 
 /**
- * Returns the id of the currently selected provider.
- * Defaults to 'groq'.
+ * Returns all models across all providers as a flat array,
+ * each entry carrying its provider reference.
+ * Format: { modelId: 'groq::llama-3.3-70b-versatile', provider, model }
  */
-export const getSelectedProviderId = () => {
-    return localStorage.getItem(SELECTED_PROVIDER_KEY) || 'groq';
+export const getAllModels = () => {
+    const result = [];
+    Object.values(PROVIDERS).forEach(provider => {
+        provider.models.forEach(model => {
+            result.push({
+                modelId: `${provider.id}::${model.id}`,
+                provider,
+                model,
+            });
+        });
+    });
+    return result;
 };
 
 /**
- * Persists the selected provider id.
+ * Parses a compound modelId "providerId::modelId" into its parts.
  */
-export const setSelectedProviderId = (providerId) => {
-    localStorage.setItem(SELECTED_PROVIDER_KEY, providerId);
-    // Reset model to the provider's default when switching providers
-    const provider = PROVIDERS[providerId];
-    if (provider) {
-        localStorage.setItem(SELECTED_MODEL_KEY, provider.defaultModel);
+export const parseModelId = (compoundId) => {
+    if (!compoundId || !compoundId.includes('::')) {
+        return { providerId: 'groq', modelId: 'llama-3.3-70b-versatile' };
     }
+    const [providerId, modelId] = compoundId.split('::');
+    return { providerId, modelId };
 };
 
 /**
- * Returns the currently selected provider object.
+ * Returns the currently selected compound model id.
+ * Defaults to Groq LLaMA 3.3 70B.
+ */
+export const getSelectedCompoundModel = () => {
+    return localStorage.getItem(SELECTED_MODEL_KEY) || 'groq::llama-3.3-70b-versatile';
+};
+
+/**
+ * Persists the selected compound model id.
+ */
+export const setSelectedCompoundModel = (compoundId) => {
+    localStorage.setItem(SELECTED_MODEL_KEY, compoundId);
+};
+
+/**
+ * Returns the active provider object based on the selected compound model.
  */
 export const getActiveProvider = () => {
-    const id = getSelectedProviderId();
-    return PROVIDERS[id] || GroqProvider;
+    const { providerId } = parseModelId(getSelectedCompoundModel());
+    return PROVIDERS[providerId] || GroqProvider;
 };
 
 /**
- * Returns the currently selected model id.
- * Falls back to the active provider's defaultModel.
+ * Returns just the raw model id (without provider prefix).
  */
 export const getSelectedModel = () => {
-    const provider = getActiveProvider();
-    const saved = localStorage.getItem(SELECTED_MODEL_KEY);
-    // Validate that saved model belongs to current provider
-    const isValid = provider.models.some(m => m.id === saved);
-    return isValid ? saved : provider.defaultModel;
+    const { modelId } = parseModelId(getSelectedCompoundModel());
+    return modelId;
 };
 
-/**
- * Persists the selected model id.
- */
-export const setSelectedModel = (modelId) => {
-    localStorage.setItem(SELECTED_MODEL_KEY, modelId);
-};
+// ── Legacy compat (used by Sidebar) ──────────────────────────────────────────
+export const getSelectedProviderId = () => getActiveProvider().id;
+export const setSelectedProviderId = () => { }; // no-op, managed via setSelectedCompoundModel
+export const setSelectedModel = () => { };       // no-op, managed via setSelectedCompoundModel
