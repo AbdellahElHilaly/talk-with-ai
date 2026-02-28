@@ -4,6 +4,7 @@ import { Send, Play, Square, Menu, Loader2, Plus, X, Mic, Volume2 } from 'lucide
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import Word from '../components/Word';
+import MissingKeyModal from '../components/shared/MissingKeyModal';
 import { ChatController } from '../controllers/chatController';
 import { TranslateController } from '../controllers/translateController';
 import { translations } from '../utils/translations';
@@ -15,6 +16,7 @@ import { resolveAssetPath } from '../utils/assets';
 
 const ChatPage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isMissingKeyModalOpen, setIsMissingKeyModalOpen] = useState(false);
     const [selectedWord, setSelectedWord] = useState(null);
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState(() => {
@@ -306,7 +308,7 @@ const ChatPage = () => {
         if (!message.trim() || isAITyping) return;
 
         if (staticMode) {
-            alert(t.devModeAlert);
+            setIsMissingKeyModalOpen(true);
             return;
         }
 
@@ -634,6 +636,11 @@ const ChatPage = () => {
                 isMuted={isMuted}
                 setIsMuted={setIsMuted}
                 onClearChat={handleClearChat}
+            />
+
+            <MissingKeyModal
+                isOpen={isMissingKeyModalOpen}
+                onClose={() => setIsMissingKeyModalOpen(false)}
             />
         </div>
     );
