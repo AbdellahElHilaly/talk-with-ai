@@ -23,7 +23,7 @@ export const validateGroqKey = async (apiKey) => {
             }
         });
         return response.ok;
-    } catch (err) {
+    } catch {
         return false;
     }
 };
@@ -100,7 +100,7 @@ export const validateElevenKey = async (apiKey) => {
         }
 
         return null;
-    } catch (err) {
+    } catch {
         return null;
     }
 };

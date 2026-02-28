@@ -52,6 +52,7 @@ const ChatPage = () => {
             // Clear chat history when character changes
             setMessages([]);
             setTranslationsMap({});
+            setSelectedWord(null);
             sessionStorage.removeItem('chat_session_messages');
             sessionStorage.removeItem('chat_translations_map');
             // Also clear voice cache for fresh start with new character
@@ -161,6 +162,7 @@ const ChatPage = () => {
         if (window.confirm(lang === 'ar' ? 'هل تريد حذف المحادثة؟' : 'Clear this conversation?')) {
             setMessages([]);
             setTranslationsMap({});
+            setSelectedWord(null);
             sessionStorage.removeItem('chat_session_messages');
             sessionStorage.removeItem('chat_translations_map');
         }
@@ -433,7 +435,7 @@ const ChatPage = () => {
                 </div>
             </div>
 
-            <main className="flex-1 overflow-y-auto px-6 py-8 scroll-smooth" ref={scrollRef}>
+            <main className="flex-1 overflow-y-auto px-6 py-8 scroll-smooth hide-scrollbar" ref={scrollRef}>
                 <div className="max-w-2xl mx-auto flex flex-col gap-12">
                     {messages.map((item) => {
                         const isAI = item.role === 'ai';

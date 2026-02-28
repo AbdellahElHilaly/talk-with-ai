@@ -30,7 +30,7 @@ export const validateElevenKey = async (apiKey) => {
             remaining: (data.character_limit - data.character_count),
             tier: data.tier
         };
-    } catch (error) {
+    } catch {
         return null;
     }
 };
@@ -245,7 +245,7 @@ class VoiceEngine {
 
             this.audioElement.src = audioUrl;
             await this.audioElement.play();
-        } catch (error) {
+        } catch {
             if (sequenceId === this.currentSequence) {
                 this.speakBrowser(text, langCode, customVoiceId, sequenceId);
             }

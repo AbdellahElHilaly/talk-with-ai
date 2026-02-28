@@ -58,7 +58,7 @@ const CharactersPage = () => {
                 </div>
             </div>
 
-            <main className="flex-1 p-6 max-w-6xl mx-auto w-full overflow-y-auto pb-safe">
+            <main className="flex-1 p-6 max-w-6xl mx-auto w-full overflow-y-auto pb-safe hide-scrollbar">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {Object.values(CHARACTERS).map((character, index) => (
                         <motion.button
@@ -112,7 +112,7 @@ const CharactersPage = () => {
                                         {lang === 'ar' ? character.nameAr : character.name}
                                     </h2>
                                     <div className="flex flex-wrap gap-1.5 mt-2">
-                                        {character.traits.slice(0, 3).map((trait, i) => (
+                                        {(lang === 'ar' && character.traitsAr ? character.traitsAr : character.traits).slice(0, 3).map((trait, i) => (
                                             <span key={i} className="bg-white/20 backdrop-blur-md text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border border-white/20">
                                                 {trait}
                                             </span>
@@ -123,8 +123,8 @@ const CharactersPage = () => {
 
                             {/* Card Content - Personality Snippet */}
                             <div className="p-5 flex flex-col gap-3">
-                                <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
-                                    {character.personality}
+                                <p className="text-xs text-slate-500 leading-relaxed line-clamp-2" dir={rtl ? "rtl" : "ltr"}>
+                                    {lang === 'ar' && character.personalityAr ? character.personalityAr : character.personality}
                                 </p>
                                 <div className="flex items-center justify-between mt-1">
                                     <div className="flex gap-2 py-1">

@@ -12,7 +12,7 @@ export class ApiClient {
     static rotateApiKey() {
         const savedKeys = localStorage.getItem('groq_api_keys');
         const keys = savedKeys ? JSON.parse(savedKeys) : [];
-        
+
         if (keys.length > 1) {
             const [first, ...rest] = keys;
             const rotated = [...rest, first];
@@ -61,7 +61,7 @@ export class ApiClient {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                
+
                 // Handle specific HTTP status codes
                 if (response.status === 401) {
                     // Invalid API key - try next key if available
@@ -73,7 +73,7 @@ export class ApiClient {
                     }
                     throw new Error("Invalid API key. Please check your Groq API keys in settings.");
                 }
-                
+
                 if (response.status === 429) {
                     // Rate limit - retry with exponential backoff
                     if (retryCount < this.maxRetries) {
@@ -84,7 +84,7 @@ export class ApiClient {
                     }
                     throw new Error("Rate limit exceeded. Please try again in a few moments.");
                 }
-                
+
                 if (response.status >= 500) {
                     // Server error - retry
                     if (retryCount < this.maxRetries) {
@@ -94,7 +94,7 @@ export class ApiClient {
                     }
                     throw new Error("Server error. Please try again later.");
                 }
-                
+
                 throw new Error(errorData.error?.message || `API Error: ${response.status}`);
             }
 
@@ -107,11 +107,11 @@ export class ApiClient {
 
             try {
                 return JSON.parse(content);
-            } catch (parseError) {
+            } catch {
                 console.error("Failed to parse JSON response:", content);
                 throw new Error("Invalid response format from AI");
             }
-            
+
         } catch (error) {
             // Network errors - retry
             if (error.name === 'TypeError' && retryCount < this.maxRetries) {
@@ -119,7 +119,7 @@ export class ApiClient {
                 await this.wait(this.retryDelay);
                 return this.fetchGroq(prompt, retryCount + 1);
             }
-            
+
             console.error("ApiClient.fetchGroq Error:", error);
             throw error;
         }

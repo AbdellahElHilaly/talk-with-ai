@@ -4,7 +4,6 @@ import { ChevronLeft, Plus, Trash2, Volume2, Search, X, Loader2, ArrowRightLeft,
 import { motion, AnimatePresence } from 'framer-motion';
 import { VocabService } from '../utils/vocabulary';
 import { TranslateController } from '../controllers/translateController';
-import { translations } from '../utils/translations';
 import { getCurrentLang, isRTL } from '../utils/lang';
 import { voiceEngine } from '../utils/voice';
 import Alert from '../components/shared/Alert';
@@ -23,7 +22,6 @@ const InterestingWordsPage = () => {
     const [isAddingWord, setIsAddingWord] = useState(false);
 
     const lang = getCurrentLang();
-    const t = translations[lang];
     const rtl = isRTL();
 
     const refreshData = () => {
@@ -46,13 +44,13 @@ const InterestingWordsPage = () => {
 
     const handleAdd = async () => {
         if (!newWordInput.trim() || isAddingWord) return;
-        
+
         setIsAddingWord(true);
-        
+
         try {
             // Check if we have API keys
             const groqKeys = JSON.parse(localStorage.getItem('groq_api_keys') || '[]');
-            
+
             if (groqKeys.length === 0) {
                 // Static mode - add word without translation
                 const success = VocabService.addWord(newWordInput.trim(), '', activeTab);
@@ -69,25 +67,25 @@ const InterestingWordsPage = () => {
 
             // DICTIONARY TRANSLATION - with spell correction
             const translation = await TranslateController.translateVocabulary(newWordInput.trim());
-            
+
             // AI returns { "correctedWord": "translation" }
             // Get the first (and likely only) key-value pair
             const entries = Object.entries(translation);
             if (entries.length > 0) {
                 const [correctedWord, arabicTranslation] = entries[0];
-                
+
                 // Add the corrected word with its translation
                 const success = VocabService.addWord(correctedWord, arabicTranslation, activeTab);
-                
+
                 if (success) {
                     setNewWordInput('');
-                    
+
                     // Show different message if word was corrected
                     const wasCorrection = correctedWord.toLowerCase() !== newWordInput.trim().toLowerCase();
-                    const successMessage = wasCorrection 
+                    const successMessage = wasCorrection
                         ? (lang === 'ar' ? `تم التصحيح إلى: ${correctedWord} ✨` : `Corrected to: ${correctedWord} ✨`)
                         : (lang === 'ar' ? "تمت الإضافة مع الترجمة! ✨" : "Added with translation! ✨");
-                    
+
                     setAlertConfig({
                         show: true,
                         message: successMessage,
@@ -95,7 +93,7 @@ const InterestingWordsPage = () => {
                     });
                 }
             }
-            
+
         } catch (error) {
             console.error('Error adding word:', error);
             setAlertConfig({
