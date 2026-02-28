@@ -15,10 +15,12 @@ export class AiService {
         let prompt = CHAT_PROMPT;
 
         const character = CHARACTERS[characterId] || DEFAULT_CHARACTER;
-        const characterPrompt = `Name: ${character.name}
-Personality: ${character.personality}
-Speaking Style: ${character.speakingStyle}
-Key Traits: ${character.traits.join(', ')}`;
+
+        // Use the compact systemPrompt if available (saves tokens & avoids rate limits).
+        // Otherwise fall back to the full personality + speakingStyle fields.
+        const characterPrompt = character.systemPrompt
+            ? `${character.systemPrompt}\nKey Traits: ${character.traits.join(', ')}`
+            : `Name: ${character.name}\nPersonality: ${character.personality}\nSpeaking Style: ${character.speakingStyle}\nKey Traits: ${character.traits.join(', ')}`;
 
         const historyStr = chatHistory
             .map(m => `${m.role.toUpperCase()}: ${m.content}`)
