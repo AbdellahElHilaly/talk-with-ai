@@ -49,10 +49,15 @@ export const parseModelId = (compoundId) => {
 
 /**
  * Returns the currently selected compound model id.
- * Defaults to Groq LLaMA 3.3 70B.
+ * Falls back to the simple provider selection if compound not set.
  */
 export const getSelectedCompoundModel = () => {
-    return localStorage.getItem(SELECTED_MODEL_KEY) || 'groq::llama-3.3-70b-versatile';
+    const compound = localStorage.getItem(SELECTED_MODEL_KEY);
+    if (compound) return compound;
+    // Fall back to simple provider selection
+    const simpleProviderId = localStorage.getItem('selected_provider_id') || 'groq';
+    const provider = PROVIDERS[simpleProviderId] || GroqProvider;
+    return `${simpleProviderId}::${provider.defaultModel}`;
 };
 
 /**

@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-    ChevronLeft, ChevronDown, Check, Plus, Trash2,
-    Loader2, Copy, ExternalLink, Key, AlertCircle
-} from 'lucide-react';
+import { ChevronLeft, ChevronDown, Check, Plus, Trash2, Loader2, Copy, ExternalLink, Key, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-    PROVIDERS, getAllModels,
-    getSelectedCompoundModel, setSelectedCompoundModel,
-    parseModelId
-} from '../providers/ProviderRegistry';
+import { PROVIDERS } from '../providers/ProviderRegistry';
 import { getCurrentLang, isRTL } from '../utils/lang';
+
+const STORAGE_KEY = 'selected_provider_id';
+
+const getStoredProvider = () => localStorage.getItem(STORAGE_KEY) || 'groq';
+const saveStoredProvider = (id) => localStorage.setItem(STORAGE_KEY, id);
 
 /* ── Toast ── */
 const Toast = ({ msg, type, onDismiss }) => (
@@ -26,21 +24,17 @@ const Toast = ({ msg, type, onDismiss }) => (
     </motion.div>
 );
 
-/* ── Grouped model dropdown ── */
-const GroupedModelSelect = ({ value, onChange }) => {
+/* ── Simple 3-item provider dropdown ── */
+const ProviderSelect = ({ value, options, onChange }) => {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
-    const allModels = getAllModels();
+    const selected = options.find(o => o.id === value);
 
     useEffect(() => {
         const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
         document.addEventListener('mousedown', h);
         return () => document.removeEventListener('mousedown', h);
     }, []);
-
-    const selected = allModels.find(m => m.modelId === value);
-    const badgeColor = { Recommended: 'bg-emerald-50 text-emerald-700', Fast: 'bg-sky-50 text-sky-700', Powerful: 'bg-violet-50 text-violet-700' };
-    const groups = Object.values(PROVIDERS).map(p => ({ provider: p, models: allModels.filter(m => m.provider.id === p.id) }));
 
     return (
         <div ref={ref} className="relative">
@@ -49,17 +43,13 @@ const GroupedModelSelect = ({ value, onChange }) => {
                 className={`w-full flex items-center justify-between gap-2 h-9 px-3 bg-white border rounded-lg text-left transition-all outline-none
                     ${open ? 'border-slate-400 ring-2 ring-slate-100' : 'border-slate-200 hover:border-slate-300'}`}
             >
-                <div className="flex items-center gap-2 overflow-hidden">
-                    {selected && <>
-                        <span className="text-sm leading-none shrink-0">{selected.provider.icon}</span>
-                        <span className="text-xs font-medium text-slate-800 truncate">{selected.model.name}</span>
-                        {selected.model.badge && (
-                            <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${badgeColor[selected.model.badge] || ''}`}>
-                                {selected.model.badge}
-                            </span>
-                        )}
-                    </>}
-                </div>
+                {selected && (
+                    <div className="flex items-center gap-2 overflow-hidden">
+                        <span className="text-sm leading-none shrink-0">{selected.icon}</span>
+                        <span className="text-xs font-medium text-slate-800">{selected.name}</span>
+                        <span className="text-[10px] text-slate-400 truncate hidden sm:block">· {selected.defaultModelName}</span>
+                    </div>
+                )}
                 <ChevronDown size={13} className={`shrink-0 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
 
@@ -68,35 +58,24 @@ const GroupedModelSelect = ({ value, onChange }) => {
                     <motion.div
                         initial={{ opacity: 0, y: -4, scale: 0.99 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -4, scale: 0.99 }}
+                        exit={{ opacity: 0, y: -4 }}
                         transition={{ duration: 0.1 }}
-                        className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 bg-white border border-slate-200 rounded-lg shadow-lg overflow-y-auto py-1"
-                        style={{ maxHeight: '280px' }}
+                        className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden py-1"
                     >
-                        {groups.map((g, gi) => (
-                            <div key={g.provider.id}>
-                                <div className="flex items-center gap-2 px-3 pt-2 pb-1">
-                                    <span className="text-xs">{g.provider.icon}</span>
-                                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{g.provider.name}</span>
+                        {options.map(opt => (
+                            <button
+                                key={opt.id}
+                                onClick={() => { onChange(opt.id); setOpen(false); }}
+                                className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-xs transition-colors hover:bg-slate-50
+                                    ${opt.id === value ? 'bg-slate-50' : ''}`}
+                            >
+                                <span className="text-base leading-none shrink-0">{opt.icon}</span>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-slate-800">{opt.name}</p>
+                                    <p className="text-[10px] text-slate-400 truncate">{opt.defaultModelName}</p>
                                 </div>
-                                {g.models.map(item => (
-                                    <button
-                                        key={item.modelId}
-                                        onClick={() => { onChange(item.modelId); setOpen(false); }}
-                                        className={`w-full flex items-center gap-2 px-3 py-2 text-left text-xs transition-colors hover:bg-slate-50 ${item.modelId === value ? 'bg-slate-50' : ''}`}
-                                    >
-                                        <div className="w-3 shrink-0" />
-                                        <span className="font-medium text-slate-800 flex-1 truncate">{item.model.name}</span>
-                                        {item.model.badge && (
-                                            <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${badgeColor[item.model.badge] || ''}`}>
-                                                {item.model.badge}
-                                            </span>
-                                        )}
-                                        {item.modelId === value && <Check size={12} className="text-slate-600 shrink-0" />}
-                                    </button>
-                                ))}
-                                {gi < groups.length - 1 && <div className="mx-3 my-1 h-px bg-slate-100" />}
-                            </div>
+                                {opt.id === value && <Check size={12} className="text-slate-500 shrink-0" />}
+                            </button>
                         ))}
                     </motion.div>
                 )}
@@ -112,14 +91,20 @@ const ModelSelectPage = () => {
     const rtl = isRTL();
     const isAr = lang === 'ar';
 
-    const [compoundModel, setCompoundModel] = useState(getSelectedCompoundModel());
+    const [providerId, setProviderId] = useState(getStoredProvider());
     const [keys, setKeys] = useState({});
     const [newKey, setNewKey] = useState('');
     const [validating, setValidating] = useState(false);
     const [toast, setToast] = useState(null);
 
-    const { providerId } = parseModelId(compoundModel);
     const provider = PROVIDERS[providerId];
+
+    const providerOptions = Object.values(PROVIDERS).map(p => ({
+        id: p.id,
+        name: p.name,
+        icon: p.icon,
+        defaultModelName: p.models.find(m => m.id === p.defaultModel)?.name || p.defaultModel,
+    }));
 
     const showToast = (msg, type = 'success') => {
         setToast({ msg, type });
@@ -134,9 +119,12 @@ const ModelSelectPage = () => {
 
     const currentKeys = keys[providerId] || [];
 
-    const handleModelChange = (id) => {
-        setCompoundModel(id);
-        setSelectedCompoundModel(id);
+    const handleProviderChange = (id) => {
+        setProviderId(id);
+        saveStoredProvider(id);
+        // Also update the compound model in ProviderRegistry
+        const newProvider = PROVIDERS[id];
+        localStorage.setItem('selected_ai_model_v2', `${id}::${newProvider.defaultModel}`);
         setNewKey('');
     };
 
@@ -169,7 +157,7 @@ const ModelSelectPage = () => {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col" dir={rtl ? 'rtl' : 'ltr'}>
 
-            {/* ── Header ── */}
+            {/* Header */}
             <div className="bg-white border-b border-slate-200 sticky top-0 z-20">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 h-12 flex items-center gap-3">
                     <button onClick={() => navigate(-1)} className="p-1 -ml-1 text-slate-400 hover:text-slate-700 transition-colors">
@@ -182,7 +170,6 @@ const ModelSelectPage = () => {
                 </div>
             </div>
 
-            {/* ── Body ── */}
             <div className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-6">
 
                 {/* Toast */}
@@ -194,72 +181,64 @@ const ModelSelectPage = () => {
                     )}
                 </AnimatePresence>
 
-                {/* ══════════════════════════════════════
-                    TWO-COLUMN LAYOUT (desktop) / stacked (mobile)
-                ══════════════════════════════════════ */}
+                {/* ── Two-column layout ── */}
                 <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-5 items-start">
 
-                    {/* ── LEFT: Model Selection ── */}
+                    {/* ═══════ LEFT: Provider selection ═══════ */}
                     <div className="flex flex-col gap-4">
-                        {/* Label */}
                         <div>
                             <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                {isAr ? '١. النموذج' : '1. Model'}
+                                {isAr ? '١. المزوّد' : '1. Provider'}
                             </h2>
                             <p className="text-[11px] text-slate-400 mt-0.5">
-                                {isAr ? 'اختر نموذج الذكاء المناسب' : 'Select the AI model to use'}
+                                {isAr ? 'اختر مزوّد الذكاء الاصطناعي' : 'Select your AI provider'}
                             </p>
                         </div>
 
-                        <div className="bg-white border border-slate-200 rounded-xl overflow-visible">
-                            <div className="px-4 py-3">
-                                <GroupedModelSelect value={compoundModel} onChange={handleModelChange} />
-                            </div>
+                        {/* Dropdown */}
+                        <div className="bg-white border border-slate-200 rounded-xl p-3 overflow-visible">
+                            <ProviderSelect value={providerId} options={providerOptions} onChange={handleProviderChange} />
                         </div>
 
-                        {/* Active model info card */}
+                        {/* Active config card */}
                         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                            <div className="px-4 py-3 border-b border-slate-100">
+                            <div className="px-4 py-2.5 border-b border-slate-100">
                                 <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                                    {isAr ? 'النموذج الحالي' : 'Active Configuration'}
+                                    {isAr ? 'الإعداد الحالي' : 'Active Configuration'}
                                 </span>
                             </div>
-                            <div className="px-4 py-3 flex flex-col gap-2">
-                                {/* Provider row */}
-                                <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <span className="text-[10px] text-slate-400">{isAr ? 'المزوّد' : 'Provider'}</span>
-                                    <div className={`flex items-center gap-1.5 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <span className="text-xs">{provider.icon}</span>
-                                        <span className="text-xs font-medium text-slate-700">{provider.name}</span>
-                                    </div>
-                                </div>
-                                {/* Model row */}
-                                <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <span className="text-[10px] text-slate-400">{isAr ? 'النموذج' : 'Model'}</span>
-                                    <span className="text-[11px] font-mono text-slate-600 truncate max-w-[160px]">
-                                        {parseModelId(compoundModel).modelId}
-                                    </span>
-                                </div>
-                                {/* Status row */}
-                                <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
-                                    <span className="text-[10px] text-slate-400">{isAr ? 'الحالة' : 'Status'}</span>
-                                    <div className={`flex items-center gap-1.5 ${rtl ? 'flex-row-reverse' : ''}`}>
-                                        <div className={`w-1.5 h-1.5 rounded-full ${currentKeys.length > 0 ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-                                        <span className={`text-[10px] font-medium ${currentKeys.length > 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                            <div className="px-4 py-3 flex flex-col gap-2.5">
+                                {[
+                                    {
+                                        label: isAr ? 'المزوّد' : 'Provider',
+                                        value: <div className="flex items-center gap-1.5"><span>{provider.icon}</span><span className="text-xs font-medium text-slate-700">{provider.name}</span></div>
+                                    },
+                                    {
+                                        label: isAr ? 'النموذج' : 'Model',
+                                        value: <span className="text-[11px] font-mono text-slate-600">{provider.defaultModel}</span>
+                                    },
+                                    {
+                                        label: isAr ? 'المفاتيح' : 'Keys',
+                                        value: <span className={`text-[11px] font-medium ${currentKeys.length > 0 ? 'text-emerald-600' : 'text-amber-500'}`}>
                                             {currentKeys.length > 0
-                                                ? (isAr ? 'جاهز' : 'Ready')
-                                                : (isAr ? 'يحتاج مفتاح' : 'Needs key')}
+                                                ? `${currentKeys.length} ${isAr ? 'مفتاح · نشط' : 'key(s) · ready'}`
+                                                : (isAr ? 'لا توجد مفاتيح' : 'no keys')}
                                         </span>
+                                    }
+                                ].map(row => (
+                                    <div key={row.label} className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
+                                        <span className="text-[10px] text-slate-400">{row.label}</span>
+                                        {row.value}
                                     </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
 
-                        {/* Provider cards (all) */}
+                        {/* All providers status */}
                         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                            <div className="px-4 py-3 border-b border-slate-100">
+                            <div className="px-4 py-2.5 border-b border-slate-100">
                                 <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                                    {isAr ? 'المزوّدون' : 'Providers'}
+                                    {isAr ? 'حالة المزوّدين' : 'Providers Status'}
                                 </span>
                             </div>
                             <div className="divide-y divide-slate-50">
@@ -267,36 +246,34 @@ const ModelSelectPage = () => {
                                     const pKeys = keys[p.id] || [];
                                     const isActive = p.id === providerId;
                                     return (
-                                        <div
+                                        <button
                                             key={p.id}
-                                            className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${isActive ? 'bg-slate-50' : ''} ${rtl ? 'flex-row-reverse' : ''}`}
+                                            onClick={() => handleProviderChange(p.id)}
+                                            className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left hover:bg-slate-50 ${isActive ? 'bg-slate-50' : ''} ${rtl ? 'flex-row-reverse' : ''}`}
                                         >
                                             <span className="text-base shrink-0">{p.icon}</span>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-xs font-medium text-slate-700 truncate">{p.name}</p>
-                                                <p className="text-[10px] text-slate-400">
-                                                    {pKeys.length} {isAr ? 'مفاتيح' : 'keys'}
-                                                </p>
+                                                <p className={`text-xs font-medium truncate ${isActive ? 'text-slate-800' : 'text-slate-600'}`}>{p.name}</p>
+                                                <p className="text-[10px] text-slate-400">{pKeys.length} {isAr ? 'مفاتيح' : 'keys'}</p>
                                             </div>
                                             <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${pKeys.length > 0 ? 'bg-emerald-400' : 'bg-slate-200'}`} />
-                                        </div>
+                                        </button>
                                     );
                                 })}
                             </div>
                         </div>
                     </div>
 
-                    {/* ── RIGHT: API Keys ── */}
+                    {/* ═══════ RIGHT: API Keys ═══════ */}
                     <div className="flex flex-col gap-4">
-                        {/* Label */}
                         <div>
                             <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                                 {isAr ? '٢. مفاتيح الـ API' : '2. API Keys'}
                             </h2>
                             <p className="text-[11px] text-slate-400 mt-0.5">
                                 {isAr
-                                    ? `أضف مفاتيح ${provider.nameAr} لتفعيل النموذج`
-                                    : `Add ${provider.name} keys to activate the selected model`}
+                                    ? `مفاتيح ${provider.nameAr || provider.name}`
+                                    : `${provider.name} API keys`}
                             </p>
                         </div>
 
@@ -309,13 +286,11 @@ const ModelSelectPage = () => {
                                 transition={{ duration: 0.15 }}
                                 className="bg-white border border-slate-200 rounded-xl overflow-hidden"
                             >
-                                {/* Section header */}
+                                {/* Header */}
                                 <div className={`px-4 py-3 border-b border-slate-100 flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
                                     <div className={`flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
                                         <span className="text-sm">{provider.icon}</span>
-                                        <span className="text-xs font-semibold text-slate-700">
-                                            {provider.name}
-                                        </span>
+                                        <span className="text-xs font-semibold text-slate-700">{provider.name}</span>
                                         {currentKeys.length > 0 && (
                                             <span className="text-[9px] font-semibold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">
                                                 {currentKeys.length}
@@ -333,7 +308,7 @@ const ModelSelectPage = () => {
                                     </a>
                                 </div>
 
-                                {/* Add key */}
+                                {/* Add input */}
                                 <div className={`flex items-center gap-2 px-4 py-3 border-b border-slate-100 ${rtl ? 'flex-row-reverse' : ''}`}>
                                     <input
                                         type="password"
@@ -383,18 +358,12 @@ const ModelSelectPage = () => {
                                     </AnimatePresence>
 
                                     {currentKeys.length === 0 && (
-                                        <div className="flex flex-col items-center gap-1.5 py-8 text-slate-300">
+                                        <div className="flex flex-col items-center gap-2 py-8 text-slate-300">
                                             <Key size={20} strokeWidth={1.5} />
-                                            <span className="text-xs text-slate-400">
-                                                {isAr ? 'لا توجد مفاتيح بعد' : 'No keys yet'}
-                                            </span>
-                                            <a
-                                                href={provider.docsUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-[11px] text-brand-indigo hover:underline"
-                                            >
-                                                {isAr ? `احصل على مفتاح ${provider.nameAr} ↗` : `Get a ${provider.name} key ↗`}
+                                            <span className="text-xs text-slate-400">{isAr ? 'لا توجد مفاتيح بعد' : 'No keys yet'}</span>
+                                            <a href={provider.docsUrl} target="_blank" rel="noopener noreferrer"
+                                                className="text-[11px] text-indigo-400 hover:underline">
+                                                {isAr ? `احصل على مفتاح ↗` : `Get a ${provider.name} key ↗`}
                                             </a>
                                         </div>
                                     )}
@@ -404,18 +373,17 @@ const ModelSelectPage = () => {
                                     <div className={`px-4 py-2 bg-slate-50 border-t border-slate-100 flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
                                         <div className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
                                         <span className="text-[10px] text-slate-400">
-                                            {isAr ? `${currentKeys.length} مفاتيح · تناوب تلقائي` : `${currentKeys.length} keys · auto-rotation enabled`}
+                                            {isAr ? `${currentKeys.length} مفاتيح · تناوب تلقائي` : `${currentKeys.length} keys · auto-rotation`}
                                         </span>
                                     </div>
                                 )}
                             </motion.div>
                         </AnimatePresence>
 
-                        {/* Help note */}
-                        <p className="text-[10px] text-slate-400 text-center px-2">
+                        <p className="text-[10px] text-slate-400 text-center">
                             {isAr
-                                ? 'مفاتيح الـ API مخزّنة محلياً في متصفحك فقط ولا تُرسَل لأي خادم.'
-                                : 'API keys are stored locally in your browser and never sent to any server.'}
+                                ? 'مفاتيح الـ API مخزّنة محلياً في متصفحك فقط.'
+                                : 'Keys are stored locally in your browser only.'}
                         </p>
                     </div>
 
